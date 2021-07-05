@@ -1,3 +1,5 @@
+from time import sleep
+
 from POM import Locators as loc
 from POM import Screen_POM as screen
 from POM import UserPage_POM as up
@@ -5,6 +7,7 @@ from POM import UserPage_POM as up
 
 class Post(screen.Screen):
     def __init__(self, driver, postBundle):
+        # TODO: Need to debug the "scroll-scan-reconstruct-like picture or like button" process, see in what order things happen
         super().__init__(driver)
         self.header = None
         self.pic = None
@@ -13,37 +16,35 @@ class Post(screen.Screen):
         self.comment = None
         self.postingUser = None
         self.possiblepostingUser = None
-        self.liked = False
         self.canLike = False
-        self.count = 0
+        # print(f"Generating a post with:")
 
         # Unpacking my element objects to keep only the selenium webElement objects
         for elementPack in postBundle:
+            # print(f"\t{elementPack[1]}")
+
             if "header" in elementPack[1]:
                 self.updateHeader(elementPack[0])
-                self.count += 1
                 continue
 
-            if "pic" in elementPack[1]:
-                self.updatePic(elementPack[0])
-                self.canLike = True
-                self.count += 1
+            if "comment" in elementPack[1]:
+                self.updateComment(elementPack[0])
+                if not self.header:
+                    self.postingUser = self.possiblepostingUser
                 continue
 
             if "like" in elementPack[1]:
                 self.updateLike(elementPack[0])
                 self.canLike = True
-                self.count += 1
                 continue
 
-            if "comment" in elementPack[1]:
-                self.updateComment(elementPack[0])
-                self.count += 1
-                if not self.header:
-                    self.postingUser = self.possiblepostingUser
+            if "pic" in elementPack[1]:
+                self.updatePic(elementPack[0])
+                self.canLike = True
                 continue
 
         self.updatePostingUser()
+        sleep(10)
 
     def updateHeader(self, element):
         if element:
@@ -76,25 +77,18 @@ class Post(screen.Screen):
                     self.likeButtonStatus = likeButton.tag_name
 
     def likePost(self):
-
-        if self.canLike and not self.liked:
+        if self.canLike:
             try:
-                print(f'Intent is to like post from {self.postingUser}')
-
-                if self.pic and not self.liked:
-                    # print(f"Pic y= {self.pic.location['y']}")
+                if self.pic:
                     self.doubleClick(self.pic)
                     self.reactionWait(1)
-                    self.liked = True
                     return True
 
-                if self.likeButton and not self.liked:
+                if self.likeButton:
 
                     if 'ed' not in self.likeButton.tag_name:
-                        # print(f"Like y= {self.likeButton.location['y']}")
                         self.likeButton.click()
                         self.reactionWait(1)
-                        self.liked = True
                         return True
 
             except Exception as e:
@@ -115,10 +109,10 @@ class Post(screen.Screen):
 
 class Post_ScrolableArea(screen.Screen):
     def __init__(self, driver):
+        print("$$$$ GENERATING SCROLABLE AREA $$$$")
         super().__init__(driver)
         self.allElements = []
         self.posts = None
-        self.scanScreenForPosts()
 
     def findPostPics(self):
         # For some reason find elements by ID is slow if no elements are present of that ID
@@ -136,7 +130,7 @@ class Post_ScrolableArea(screen.Screen):
         return total
 
     def scanScreenForPosts(self):
-
+        print("Scanning screen for posts...")
         self.allElements.clear()
         if self.posts:
             self.posts.clear()
@@ -149,15 +143,11 @@ class Post_ScrolableArea(screen.Screen):
         for pic in self.pics:
             if self.screenBoundUpper < pic.location['y'] < self.screenBoundLower:  # TODO: Find a more versatile limit
                 self.allElements.append([pic, 'pic'])
-            # else:
-            #     print(f"Image out of bounds. y = {pic.location['y']}")
 
         self.likeButtons = self.findElementsBy_ID(loc.post_ID['like'])
         for like in self.likeButtons:
             if self.screenBoundUpper < like.location['y'] < self.screenBoundLower:  # TODO: Find a more versatile limit
                 self.allElements.append([like, 'like'])
-            # else:
-            #     print(f"Like out of bounds. y = {like.location['y']}")
 
         self.comments = self.findElementsBy_ID(loc.post_ID['comment'])
         for comment in self.comments:
@@ -189,6 +179,5 @@ class Post_ScrolableArea(screen.Screen):
         if self.posts:
             for post in self.posts:
                 print(f"{post.postingUser} .vs. {post.possiblepostingUser}")
-                print(post.count)
         else:
             print("No posts in view yet")

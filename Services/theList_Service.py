@@ -37,6 +37,7 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
 
                         if toLike:
                             liked = post.likePost()
+                            print(f"Like statues of post by {post.postingUser} is {liked}")
 
                         if not post.header:  # Can I navigate to the user's profile?
                             continue

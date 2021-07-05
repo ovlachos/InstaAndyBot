@@ -23,7 +23,6 @@ class PostGrid(screen.Screen):
         else:
             column = 3
 
-        # print(order, ' ', row, column)
         return row, column
 
     def openPostByGridCoordinates(self, row, column):
@@ -45,4 +44,5 @@ class PostGrid(screen.Screen):
     def likePostByOrder(self, order):
         self.openPostByOrder(order)
         for post in self.scrollablePostArea.posts:
-            post.likePost()
+            likeResponse = post.likePost()
+            print(f"Like response for {post.postingUser} is {likeResponse}")

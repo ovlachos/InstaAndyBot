@@ -182,6 +182,7 @@ class Screen():
 
     def slowType(self, passage, field):
         field.click()
+        field.click()
 
         for ch in passage:
             keyCode = self.getKeycode(ch)

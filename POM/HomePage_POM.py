@@ -48,7 +48,8 @@ class HomePage(screen.Screen):
         for post in self.scrollArea.posts:
             likeSwitch = randint(1, 4)
             if likeSwitch > 1:  # 3/4 = 75% chance I'm gonna hit the like button
-                post.likePost()
+                likeResponse = post.likePost()
+                print(f"Like response for {post.postingUser} is {likeResponse}")
             else:
                 print(f"Nope! No like for {post.postingUser} cause {likeSwitch}")
 

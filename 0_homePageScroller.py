@@ -14,6 +14,7 @@ class test(unittest.TestCase):
         self.driver = wb.Remote('http://localhost:4723/wd/hub', desired_caps)
         self.driver.implicitly_wait(10)
         self.driver.unlock()
+        print(f"Device is {desired_caps['deviceName']}")
 
     def tearDown(self):
         self.driver.quit()

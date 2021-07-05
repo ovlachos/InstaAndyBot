@@ -1,11 +1,5 @@
 def playTheGame(bot, num):
-    # print("\n")
-    # print("### theGame ###")
-    # print("\n")
-
     print(f"Follow Mana: {bot.followMana}")
-
-    # bot.mainPage.driver.refresh()
 
     ### Read User Memory
     bot.memoryManager.readMemoryFileFromDrive()
