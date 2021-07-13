@@ -1,6 +1,7 @@
 import time
+import AnyBotLog as logg
 from datetime import datetime
-from random import choice, randint
+from random import randint
 
 from BotMemory import BotParams as btprms
 from BotMemory import FileHandlerBot as fh
@@ -19,7 +20,7 @@ class AndyBot():
     def __init__(self, driver, deviceDict):
         self.driver = driver
         self.factor = 1
-        self.ownFollowers = 1280
+        self.ownFollowers = 1290
 
         self.fileHandler = fh.FileHandlerBot()
         self.memoryManager = UserMemoryManager.UserMemoryManager()
@@ -86,18 +87,18 @@ class AndyBot():
 
             return deltaT
         except Exception as e:
-            print(e)
+            logg.logSmth(e)
             return 12
 
-    def botSleep(self, factor=0.01, verbose=False):
+    def botSleep(self, factor=0.05, verbose=False):
         sleepTime = randint(self.timeLowerBound, self.timeUpperBound)
         sleepTime = int(factor * sleepTime)
-        if verbose: print(f"Sleeping {sleepTime}")
+        if verbose: logg.logSmth(f"Sleeping {sleepTime}")
         time.sleep(sleepTime)
 
     def delayOps(self, minimum=2, maximum=20):
         sleepTime = randint((minimum * 60), (maximum * 60))
-        print(f'Sleeping for {int(sleepTime / 60)} minutes')
+        logg.logSmth(f'Sleeping for {int(sleepTime / 60)} minutes')
         time.sleep(sleepTime)
 
     def getMainPage(self):
@@ -107,7 +108,7 @@ class AndyBot():
         if randomArgs:
             numberOfusersToCheck = int(randint(1, 5) * self.factor)
 
-        print(f" Number of users to check: {numberOfusersToCheck}")
+        logg.logSmth(f" Number of users to check: {numberOfusersToCheck}")
         return theGame.playTheGame(self, numberOfusersToCheck)
 
     def theList_Service(self, numberOfTags=1, numberOfPostsPerTag=1, randomArgs=True):

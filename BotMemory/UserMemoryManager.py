@@ -1,6 +1,9 @@
+import AnyBotLog as logg
+
 import auth
 from BotMemory import FileHandlerBot as fh
 from BotMemory import Users_M as UM
+import time
 
 
 class UserMemoryManager:
@@ -11,16 +14,47 @@ class UserMemoryManager:
 
     ### Memory level
     def writeMemoryFileToDrive(self):  # TODO: Re-think when this method is called and if it should always be done explicitly outside this object
+        startTime = time.time()
+
         if len(self.listOfUserMemory) > 3:
             self.slimDownRejectedMemoryRecords()
             self.memoryFileHandler.writeToUserMemory(self.listOfUserMemory, UM.UserEncoderDecoder)
+
+        executionTime = (time.time() - startTime)
+        # print('JSON: Execution time in seconds: ' + str(executionTime))
+
+    def pickleMemoryFileToDrive(self):
+        startTime = time.time()
+
+        if len(self.listOfUserMemory) > 3:
+            self.slimDownRejectedMemoryRecords()
+            self.memoryFileHandler.pickleUserMemory(self.listOfUserMemory)
+
+        executionTime = (time.time() - startTime)
+        # print('Πίκλα: Execution time in seconds: ' + str(executionTime))
 
     def writeToIndividualUserMemory(self, userM):
         JSONencoder = UM.UserEncoderDecoder
         file = self.memoryFileHandler.paths['User_Memory'] + userM.uid + '.json'
         self.memoryFileHandler.writeToUserMemory([userM], JSONencoder, file)
 
-    def readMemoryFileFromDrive(self):  # JSONdecoder is a function that translates JSON to User_M objects
+    def readMemoryFileFromDrivePickle(self):
+        self.readRejected_Users()
+
+        attemptsAtReadingM = 0
+        while len(self.listOfUserMemory) < 3:  # number "3" here is arbitrarily chosen
+            attemptsAtReadingM += 1
+            self.listOfUserMemory = self.memoryFileHandler.unPickleMemory()
+
+            if attemptsAtReadingM > 2:
+                print(f"**** Trouble {attemptsAtReadingM} reading MEMORY FILE FROM DRIVE ****")
+            if attemptsAtReadingM > 5:
+                print("**** COULD NOT READ MEMORY FILE FROM DRIVE ****")
+                raise Exception
+
+        print(f"Succesfully read user memory with {len(self.listOfUserMemory)} users on record")
+
+    def readMemoryFileFromDriveJSON(self):  # JSONdecoder is a function that translates JSON to User_M objects
         self.readRejected_Users()
 
         JSONdecoder = UM.UserEncoderDecoder.decode_user
@@ -36,7 +70,7 @@ class UserMemoryManager:
                 print("**** COULD NOT READ MEMORY FILE FROM DRIVE ****")
                 raise Exception
 
-        print(f"Succesfully read user memory with {len(self.listOfUserMemory)} users on record")
+        logg.logSmth(f"Succesfully read user memory with {len(self.listOfUserMemory)} users on record")
 
         ### Startup routines
         # self.manuallyAddNewUsersTo_theGame()
@@ -214,7 +248,7 @@ class UserMemoryManager:
             return None
 
     def userPageCannotBeFound(self, user):
-        print(f"Dropping user: {user.handle}. No page found (code -666)")
+        logg.logSmth(f"Dropping user: {user.handle}. No page found (code -666)")
         user.markUserRejected()
         user.removeFromLoveDaily()
         # user.bio = '-666'
@@ -230,7 +264,7 @@ class UserMemoryManager:
             userM = UM.User_M(handleOfNewUser)
             self.listOfUserMemory.append(userM)
             if write:
-                self.writeMemoryFileToDrive()
+                self.pickleMemoryFileToDrive()
 
     def slimDownRejectedUserRecord(self, userObj):
         user = userObj
@@ -259,4 +293,4 @@ class UserMemoryManager:
                 self.listOfUserMemory.append(userObj)
 
         if writeNow:
-            self.writeMemoryFileToDrive()
+            self.pickleMemoryFileToDrive()

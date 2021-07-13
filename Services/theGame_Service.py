@@ -1,8 +1,11 @@
+import AnyBotLog as logg
+
+
 def playTheGame(bot, num):
-    print(f"Follow Mana: {bot.followMana}")
+    logg.logSmth(f"Follow Mana: {bot.followMana}")
 
     ### Read User Memory
-    bot.memoryManager.readMemoryFileFromDrive()
+    bot.memoryManager.readMemoryFileFromDriveJSON()
 
     ### Derive Lists
     reservesList = bot.memoryManager.getListOfReserveUsersToFollow()[:num]
@@ -11,24 +14,29 @@ def playTheGame(bot, num):
 
     ### Un Love ###
     if unLoveList:
-        print(f"### - {len(unLoveList)} users to be un-Loved")
+        logg.logSmth(f"### - {len(unLoveList)} users to be un-Loved")
         for user in unLoveList:
             user.removeFromLoveDaily()
             bot.memoryManager.updateUserRecord(user, False)
-        bot.memoryManager.writeMemoryFileToDrive()
+        bot.memoryManager.pickleMemoryFileToDrive()
     else:
-        print(f"### - {0} users to be un-Loved")
+        logg.logSmth(f"### - {0} users to be un-Loved")
 
     ### Un Follow ###
     if unfollowList:
-        print(f"### - {len(unfollowList)} users to be un-Followed")
+        logg.logSmth(f"### - {len(unfollowList)} users to be un-Followed")
 
         userNotFound_counter = 0
         for user in unfollowList:
             user.daysSinceYouGotFollowed_Unfollowed('follow', True)
 
-            searchPage = bot.navRibons.goToSearchPage()
-            userPage = searchPage.navigateToUserPage(user.handle)  # TODO
+            searchPage = None
+            while not searchPage:
+                searchPage = bot.navRibons.goToSearchPage()
+                if not searchPage:
+                    bot.navRibons.goBack()
+
+            userPage = searchPage.navigateToUserPage(user.handle)
 
             if not userPage:
                 bot.memoryManager.userPageCannotBeFound(user)
@@ -39,7 +47,7 @@ def playTheGame(bot, num):
 
                 continue
 
-            print(f"Will unfollow user {user.handle}")
+            logg.logSmth(f"Will unfollow user {user.handle}")
             userNotFound_counter = 0  # restart this counter as we only want to see if we fail to get X users in a row, before shuting things down
 
             if 'OK' in userPage.unfollow():
@@ -48,16 +56,16 @@ def playTheGame(bot, num):
                 bot.botSleep()
 
     else:
-        print(f"### - {0} users to be un-Followed")
+        logg.logSmth(f"### - {0} users to be un-Followed")
 
     ### Follow Reserves ###
     if reservesList and bot.followMana > 0:
-        print(f"### - {len(reservesList)} reserve users to be Followed")
+        logg.logSmth(f"### - {len(reservesList)} reserve users to be Followed")
 
         userNotFound_counter = 0
         for user in reservesList:
             searchPage = bot.navRibons.goToSearchPage()
-            userPage = searchPage.navigateToUserPage(user.handle)  # TODO
+            userPage = searchPage.navigateToUserPage(user.handle)
 
             if not userPage:
                 bot.memoryManager.userPageCannotBeFound(user)
@@ -68,7 +76,7 @@ def playTheGame(bot, num):
 
                 continue
 
-            print(f"Will follow user {user.handle}")
+            logg.logSmth(f"Will follow user {user.handle}", 'INFO')
             userNotFound_counter = 0  # restart this counter as we only want to see if we fail to get X users in a row, before shuting things down
 
             if user.iShouldFollowThisUser() and bot.followMana > 0:
@@ -81,6 +89,6 @@ def playTheGame(bot, num):
             if user.dateFollowed_byMe:
                 bot.botSleep()
     else:
-        print(f"### - {0} reserve users to be Followed")
+        logg.logSmth(f"### - {0} reserve users to be Followed")
 
     return "OK"

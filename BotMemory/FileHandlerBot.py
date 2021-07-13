@@ -1,7 +1,8 @@
 import json
 import os
-
+import pickle
 import pandas as pd
+
 from BotMemory import BotMemoryFilesFactory as BF
 
 
@@ -64,7 +65,7 @@ class FileHandlerBot:
 
     def getFileFromFilename(self, filename):
         for file in self.files:
-            if filename in file['filename']:
+            if filename == file['filename']:
                 return file
 
     def CSV_getFrameFromCSVfile(self, filename):
@@ -122,7 +123,7 @@ class FileHandlerBot:
                 rowIndexOfUser = oldFrame[oldFrame[file['columns'][0]] == user].index.values[0]
                 self.CSV_removeRowFromCSV(kindOfLove, rowIndexOfUser)
             except Exception as e:
-                print("{0}, {1}".format(e, user))
+                logg.logSmth("{0}, {1}".format(e, user))
 
     def readSimpleJSONfiles(self, fileName):
 
@@ -134,7 +135,7 @@ class FileHandlerBot:
                 with open(file['filepath']) as jUM:
                     memoryfile = json.load(jUM)
             except Exception as e:
-                print(f'WARNING: fail in reading {fileName}. Falling back to defaults. {e}')
+                logg.logSmth(f'WARNING: fail in reading {fileName}. Falling back to defaults. {e}')
 
             return memoryfile
 
@@ -154,9 +155,10 @@ class FileHandlerBot:
             try:
                 with open(file['filepath']) as jUM:
                     memoryfile = json.load(jUM, object_hook=JSONdecoder)
-            except:
+            except Exception as e:
                 memoryfile = []
-                print('WARNING: 0 users in memory file! No love can be given.')
+                logg.logSmth('WARNING: Could not read memory file! No love can be given.')
+                logg.logSmth(f"Error: {e}")
 
             return memoryfile
 
@@ -186,3 +188,18 @@ class FileHandlerBot:
         if file:
             with open(file, 'w') as jUM:
                 json.dump(userMemory, jUM, cls=JSONencoder, sort_keys=True, indent=4)
+
+    def pickleUserMemory(self, userMemory):
+        fileName = self.getFileFromFilename('User_Memory_pickle')['filepath']
+        if fileName:
+            outfile = open(fileName, 'wb')
+            pickle.dump(userMemory, outfile, fix_imports=True, buffer_callback=None)
+            outfile.close()
+
+    def unPickleMemory(self):
+        filename = self.getFileFromFilename('User_Memory_pickle')['filepath']
+        if filename:
+            infile = open(filename, 'rb')
+            memoryPickle = pickle.load(infile)
+            infile.close()
+            return memoryPickle

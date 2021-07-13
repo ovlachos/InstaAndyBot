@@ -1,5 +1,7 @@
-#### HASHTAGS ####
+import AnyBotLog as logg
 
+
+#### HASHTAGS ####
 def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPerTag0):
     import random
 
@@ -31,13 +33,14 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
                 scrollArea = hashPage.grid.scrollablePostArea
                 if scrollArea:
                     scrollArea.reactionWait()
+                    scrollArea.scanScreenForPosts()
 
                     if scrollArea.posts[0]:  # Do we have even one post on open/initial scan of scrollable area?
                         post = scrollArea.posts[0]
 
                         if toLike:
                             liked = post.likePost()
-                            print(f"Like statues of post by {post.postingUser} is {liked}")
+                            logg.logSmth(f"Like status of post by {post.postingUser} is {liked}")
 
                         if not post.header:  # Can I navigate to the user's profile?
                             continue
@@ -70,11 +73,11 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
                 bot.navRibons.reactionWait(0.5)
                 bot.navRibons.goBack()
             except Exception as e:
-                print(e)
+                logg.logSmth(e)
                 continue
 
     # Load memory file
-    bot.memoryManager.readMemoryFileFromDrive()
+    bot.memoryManager.readMemoryFileFromDriveJSON()
 
     # Load Target Hashtags list
     hashList = bot.targetHashtags_List
@@ -82,7 +85,7 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
     if hashList:
         random.shuffle(hashList)
         hashList = hashList[:numberOfTags]  # Reduce the amount of tags to be examined
-        print(f"Today's hashtags are: {hashList}, with {numberOfPostsPerTag0} posts per tag")
+        logg.logSmth(f"Today's hashtags are: {hashList}, with {numberOfPostsPerTag0} posts per tag")
 
     for hashtag in hashList:
         hashPage = None
@@ -90,7 +93,7 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
             searchPage = bot.navRibons.goToSearchPage()
             hashPage = searchPage.naviateToHashTagPage(hashtag)
 
-        print(f"### HashTag: {hashtag}")
+        logg.logSmth(f"### HashTag: {hashtag}")
         numberOfPostsPerTag = numberOfPostsPerTag0
 
         # Collect user handles OR Follow Users
@@ -120,8 +123,8 @@ def addUserToMemory(bot, userPage, user, mark1=False, followed=False):
 
         bot.memoryManager.updateUserRecord(newFollower)
 
-        print(f"##### User {user} added to memory with mark1={mark1} and followed={followed}")
+        logg.logSmth(f"##### User {user} added to memory with mark1={mark1} and followed={followed}")
     else:
-        print(f"##### User {user} NOT added to memory with mark1={mark1} and followed={followed}")
+        logg.logSmth(f"##### User {user} NOT added to memory with mark1={mark1} and followed={followed}")
 
     return "OK"

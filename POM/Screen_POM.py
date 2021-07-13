@@ -1,6 +1,7 @@
 import random
 import auth
-from datetime import datetime
+import AnyBotLog as logg
+
 from functools import wraps
 from time import sleep
 
@@ -140,9 +141,10 @@ def find_exception_handler(func):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            print(f"{func.__name__} failed")
-            print(*args, **kwargs)
-            print(f"The cause is: {e}")
+            logg.logSmth(f"{func.__name__} failed", 'WARNING')
+            if len(args) > 1:
+                logg.logSmth(args[1], 'WARNING')
+            logg.logSmth(f"The cause is: {e}", 'WARNING')
             return None
 
     return inner_function
@@ -182,6 +184,7 @@ class Screen():
 
     def slowType(self, passage, field):
         field.click()
+        self.reactionWait(.2)
         field.click()
 
         for ch in passage:
@@ -285,7 +288,7 @@ class Screen():
     def reactionWait(self, length=1, verbose=False):
         tminsecs = reactionTime(length)
         if verbose:
-            print(f'sleep for {tminsecs}')
+            logg.logSmth(f'sleep for {tminsecs}', 'INFO')
         sleep(tminsecs)
 
     def doubleClick(self, element):
