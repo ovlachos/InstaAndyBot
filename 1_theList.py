@@ -32,7 +32,7 @@ class test(unittest.TestCase):
             myBot.driver.unlock()
 
         try:
-            myBot.theList_Service(numberOfTags=1, numberOfPostsPerTag=2, randomArgs=False)
+            myBot.theList_Service(numberOfTags=6, numberOfPostsPerTag=6, randomArgs=False)
             self.driver.close_app()
         except:
             logg.logSmth("\n###################")

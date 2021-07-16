@@ -22,6 +22,9 @@ class UserPage(screen.Screen):
 
         self.grid = None
 
+    # TODO: Get followers/following list
+    # TODO: Get hashtags following list
+
     def getAttributeBy_ID(self, locatorID):
         attr = None
         element = self.findElementBy_ID(locatorID)
@@ -182,7 +185,7 @@ class UserPage(screen.Screen):
         else:
             logg.logSmth('#### nahh - no follow access for this user because:')
             self.printProfileTypeDescription()
-            return 'OK'
+            return 'OK'  # TODO although already followed or requested this result still subtracts from daily follow mana
 
     def unfollow(self):
         self.determineLevelOfFollowAccess()
