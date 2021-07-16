@@ -1,6 +1,7 @@
 import auth
 import unittest
 import AndyBot_MK1 as bot
+import AnyBotLog as logg
 from appium import webdriver as wb
 
 
@@ -9,19 +10,38 @@ class test(unittest.TestCase):
         desired_caps = {}
         desired_caps['deviceName'] = auth.getDeviceName()
         desired_caps['platformName'] = "Android"
+        desired_caps['appPackage'] = "com.instagram.android"
+        desired_caps['appActivity'] = "com.instagram.mainactivity.MainActivity"
         desired_caps['noReset'] = 'true'
 
         self.driver = wb.Remote('http://localhost:4723/wd/hub', desired_caps)
-        self.driver.implicitly_wait(10)
+        self.driver.implicitly_wait(5)
         self.driver.unlock()
-        print(f"Device is {desired_caps['deviceName']}")
+        logg.logSmth(f"Device is {desired_caps['deviceName']}")
+
+        # self.driver.launch_app()
 
     def tearDown(self):
         self.driver.quit()
 
     def testRun(self):
         myBot = bot.AndyBot(self.driver, auth.getDevice())
-        myBot.theGame_Service(numberOfusersToCheck=20, randomArgs=False)
+
+        for i in range(2):
+            myBot.botSleep(verbose=True)
+            myBot.driver.unlock()
+
+        try:
+            myBot.theGame_Service(numberOfusersToCheck=30, randomArgs=False)
+            self.driver.close_app()
+        except:
+            logg.logSmth("\n###################")
+            logg.logSmth("Exception occurred @#$", 'ERROR')
+            logg.logSmth("###################\n")
+        finally:
+            print('write Memory to file before quiting')
+            myBot.memoryManager.writeMemoryFileToDrive()
+            logg.logSmth("\nEND OF TEST\n")
 
 
 if __name__ == '__main__':

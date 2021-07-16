@@ -1,5 +1,7 @@
 import json
 import time
+import AnyBotLog as logg
+
 from datetime import datetime
 from uuid import uuid4
 
@@ -56,7 +58,6 @@ class UserEncoderDecoder(json.JSONEncoder):
 
 class User_M:
     def __init__(self, handle):
-        # self.userID = ''
         self.handle = handle
         self.uid = str(uuid4())
         self.bio = ''
@@ -64,7 +65,6 @@ class User_M:
         self.statsDict = []  # contains statsDicts
         self.statsDictTimestamp = []  # contains strings of datetime objects
         self.listOfPastNames = []
-        # self.dateTimeVisitedLast = '' #This will be calculated by dict variable and retrieved only by function
 
         self.listOf_followers = []
         self.listOf_following = []
@@ -234,7 +234,7 @@ class User_M:
     def addToLoveExtra(self):
         self._extraLove = True
         self._dateTimeLovedlast = "01/01/2020, 14:10:04"
-        print(f"#### {self.handle} added to theLoveExtra")
+        logg.logSmth(f"#### {self.handle} added to theLoveExtra")
 
     def removeFromLoveDaily(self):
         timestamp = datetime.now().strftime(timeStampFormat)
@@ -243,7 +243,7 @@ class User_M:
 
     def removeFromLoveExtra(self):
         self._extraLove = False
-        print(f"#### {self.handle} removed from theLoveExtra")
+        logg.logSmth(f"#### {self.handle} removed from theLoveExtra")
 
     def printHowLongItHasBeenSinceYouGotAnyLove(self):
 
@@ -256,12 +256,12 @@ class User_M:
             d2_ts = time.mktime(now_DateTime.timetuple())
             deltaT = int(d2_ts - d1_ts) / 60 / 60
 
-            print(
+            logg.logSmth(
                 f'#### {datetime.today()}:  {str(round(deltaT, 2))} hours since last checked on {self.handle} with {self.getLatestPostCount()} posts on record')
             # Skip user if it has been less than X hours since we last checked
             return deltaT
         except Exception as e:
-            print(e)
+            logg.logSmth(e)
             return 48
 
     def daysSinceYouGotFollowed_Unfollowed(self, action, verbose=False):
@@ -276,7 +276,7 @@ class User_M:
         except ValueError:
             startingDate = datetime.strptime(date, timeStampFormat_old)
         except Exception as e:
-            print(e)
+            logg.logSmth(e)
             startingDate = datetime.now()
 
         try:
@@ -288,11 +288,12 @@ class User_M:
             deltaT = int(d2_ts - d1_ts) / 60 / 60 / 24
 
             if verbose:
-                print(f'{datetime.today()}:  {str(round(deltaT, 1))} days since I followed {self.handle}')
+                pass
+                logg.logSmth(f'{datetime.today()}:  {str(round(deltaT, 1))} days since I followed {self.handle}')
 
             return deltaT
         except Exception as e:
-            print(e)
+            logg.logSmth(e)
             return 1
 
     def thisUserHasBeenThroughTheSystem(self):
@@ -336,7 +337,7 @@ class User_M:
         if userPage.infoAccess > 45 and userPage.followAccess > 65:
             self.removeFromLove("daily")
             self.removeFromLove("extra")
-            print(f"No longer will I love {userPage.userName}")
+            logg.logSmth(f"No longer will I love {userPage.userName}")
             return True
 
     def getSponsor(self):

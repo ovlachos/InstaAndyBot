@@ -1,5 +1,4 @@
 from pathlib import Path
-
 import pandas as pd
 
 
@@ -65,7 +64,21 @@ class JSON_memoryfile_creator:
         targetFile.touch()
 
 
+class Pickle_memoryfile_creator:
+    def __init__(self):
+        pass
+
+    def getDetails(self, filepath, columns):
+        self.filepath = filepath
+        self.columns = columns
+
+    def createFile(self):
+        targetFile = Path(self.filepath)
+        targetFile.touch()
+
+
 factory = MemoryFileFactory()
 factory.register_fileType('.csv', CSVlists_creator)
 factory.register_fileType('.txt', TXTfiles_creator)
 factory.register_fileType('.json', JSON_memoryfile_creator)
+factory.register_fileType('.pickle', Pickle_memoryfile_creator)

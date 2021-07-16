@@ -1,5 +1,3 @@
-from time import sleep
-
 from POM import HomePage_POM as home
 from POM import Locators as loc
 from POM import Screen_POM as screen

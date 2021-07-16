@@ -1,4 +1,6 @@
 import random
+import AnyBotLog as logg
+
 from time import sleep
 from fuzzywuzzy import process
 
@@ -51,6 +53,9 @@ class SearchPage(screen.Screen):
 
         # Trying to get away with typing half the name
         self.typeIntoSearchField(query_firstPart)
+
+        self.reactionWait(0.5)
+
         results = self.getUserSearchResult()
 
         fuzzyMatch, score = self.getFuzzyResults(username)
@@ -60,11 +65,11 @@ class SearchPage(screen.Screen):
                 if element:
                     element[0].click()
                     sleep(2)
-                    print(f"navigating to {fuzzyMatch} with an input of {username} and {query_firstPart}")
+                    logg.logSmth(f"navigating to {fuzzyMatch} with an input of {username} and {query_firstPart}")
                     return up.UserPage(self.driver)
 
         else:
-            print("I need to type in more...")
+            logg.logSmth("I need to type in more...")
             # If that did not work, then type the rest of it
             self.typeIntoSearchField(query_secondPart)
             results = self.getUserSearchResult()
@@ -75,9 +80,10 @@ class SearchPage(screen.Screen):
                 if element:
                     element[0].click()
                     sleep(2)
-                    print(f"navigating to {fuzzyMatch} with an input of {username} and {query_secondPart}")
+                    logg.logSmth(f"navigating to {fuzzyMatch} with an input of {username} and {query_secondPart}", "INFO")
                     return up.UserPage(self.driver)
 
+        logg.logSmth(f'user not found | results are {results} and fuzzyMatch is {fuzzyMatch}')
         return None
 
     def naviateToHashTagPage(self, tag):

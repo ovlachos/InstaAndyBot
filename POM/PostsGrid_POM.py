@@ -1,3 +1,5 @@
+import AnyBotLog as logg
+
 from POM import Locators as loc
 from POM import Post_ScrolableArea_POM as postScrol
 from POM import Screen_POM as screen
@@ -45,4 +47,4 @@ class PostGrid(screen.Screen):
         self.openPostByOrder(order)
         for post in self.scrollablePostArea.posts:
             likeResponse = post.likePost()
-            print(f"Like response for {post.postingUser} is {likeResponse}")
+            logg.logSmth(f"Like response for {post.postingUser} is {likeResponse}", 'INFO')

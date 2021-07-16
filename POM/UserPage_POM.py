@@ -1,9 +1,11 @@
-from POM import Locators as loc
-from POM import PostsGrid_POM as grid
-from POM import Screen_POM as screen
 import auth
 
 from time import sleep
+import AnyBotLog as logg
+
+from POM import Locators as loc
+from POM import PostsGrid_POM as grid
+from POM import Screen_POM as screen
 
 
 class UserPage(screen.Screen):
@@ -20,6 +22,9 @@ class UserPage(screen.Screen):
 
         self.grid = None
 
+    # TODO: Get followers/following list
+    # TODO: Get hashtags following list
+
     def getAttributeBy_ID(self, locatorID):
         attr = None
         element = self.findElementBy_ID(locatorID)
@@ -27,7 +32,7 @@ class UserPage(screen.Screen):
             attr = element.text
 
         if not attr:
-            print(f"Could not find {locatorID} on userpage for {self.userName}")
+            logg.logSmth(f"Could not find {locatorID} on userpage for {self.userName}", 'INFO')
 
         return attr
 
@@ -157,7 +162,7 @@ class UserPage(screen.Screen):
         return f"I {descriptionFollowAccess[str(self.followAccess)]} user {self.userName} and I have {descriptionInfoAccess[str(self.infoAccess)]}"  # description[str(self.type)]
 
     def printProfileTypeDescription(self):
-        print('~~> {0}'.format(self.get_profileTypeDescription()))
+        logg.logSmth(f'~~> {self.get_profileTypeDescription()}')
 
     def follow(self):
         self.determineLevelOfFollowAccess()
@@ -167,20 +172,20 @@ class UserPage(screen.Screen):
                 followButton.click()
 
             except Exception as e:
-                print('Cannot find the follow button')
+                logg.logSmth(f'Cannot find the follow button for {self.userName}', 'WARNING')
 
             sleep(2)
             self.determineLevelOfFollowAccess()
 
             if self.followAccess < 45:
-                print('#### OK followed {}'.format(self.userName))
+                logg.logSmth('#### OK followed {}'.format(self.userName), 'INFO')
                 return 'OK'
             else:
                 return 'fail'
         else:
-            print('#### nahh - no follow access for this user because:')
+            logg.logSmth('#### nahh - no follow access for this user because:')
             self.printProfileTypeDescription()
-            return 'OK'
+            return 'OK'  # TODO although already followed or requested this result still subtracts from daily follow mana
 
     def unfollow(self):
         self.determineLevelOfFollowAccess()
@@ -193,10 +198,12 @@ class UserPage(screen.Screen):
                 sleep(2)
 
                 # if their profile is private and Insta warns I would need to request access if I Unfollow
-                # thereIsAFinalButton = self.findElementBy_ID(loc.userPage_ID['UnfollowFinal'])
-                # if thereIsAFinalButton:
-                #     thereIsAFinalButton.click()
-
+                try:
+                    is_there_a_final_button = self.driver.find_element_by_id(loc.userPage_ID['UnfollowFinal'])
+                    if is_there_a_final_button:
+                        is_there_a_final_button.click()
+                except:
+                    pass
             else:
                 # if requested
                 self.findElementBy_XPATH(loc.userPage_XPATH['Button_Requested']).click()
@@ -204,20 +211,20 @@ class UserPage(screen.Screen):
                 self.findElementBy_ID(loc.userPage_ID['UnfollowSecond']).click()
                 sleep(2)
 
-                # if their profile is private and Insta warns I would need to request access if I Unfollow
-                thereIsAFinalButton = self.findElementBy_ID(loc.userPage_ID['UnfollowFinal'])
-                if thereIsAFinalButton:
-                    thereIsAFinalButton.click()
+                # Their profile IS private and Insta warns I would need to request access if I Unfollow
+                there_is_a_final_button = self.findElementBy_ID(loc.userPage_ID['UnfollowFinal'])
+                if there_is_a_final_button:
+                    there_is_a_final_button.click()
 
             self.determineLevelOfFollowAccess()
             if self.followAccess > 45:
-                print('#### OK UNfollowed {}'.format(self.userName))
+                logg.logSmth('#### OK UNfollowed {}'.format(self.userName), 'INFO')
                 self.printProfileTypeDescription()
                 return 'OK'
             else:
                 return 'fail'
         else:
-            print('#### nahh - no unfollow access for this user because:')
+            logg.logSmth('#### nahh - no unfollow access for this user because:')
             self.printProfileTypeDescription()
             return 'OK'
 

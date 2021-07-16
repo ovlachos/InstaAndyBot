@@ -1,4 +1,5 @@
 from time import sleep
+import AnyBotLog as logg
 
 from POM import Locators as loc
 from POM import Screen_POM as screen
@@ -7,7 +8,6 @@ from POM import UserPage_POM as up
 
 class Post(screen.Screen):
     def __init__(self, driver, postBundle):
-        # TODO: Need to debug the "scroll-scan-reconstruct-like picture or like button" process, see in what order things happen
         super().__init__(driver)
         self.header = None
         self.pic = None
@@ -67,6 +67,13 @@ class Post(screen.Screen):
             if firstComment:
                 self.possiblepostingUser = firstComment.tag_name
 
+    def updatePostingUser(self):
+        if self.header:
+            try:
+                self.postingUser = self.header.text.split(' ')[0]
+            except Exception as e:
+                logg.logSmth("Could not update posting user", 'ERROR')
+
     def updateLikeButtonStatus(self):
         likes = self.findElementsBy_ID(loc.post_ID['like'])
         if len(likes) < 2:
@@ -92,14 +99,10 @@ class Post(screen.Screen):
                         return True
 
             except Exception as e:
-                print(f"Could Not like post by {self.postingUser} because {e}")
+                logg.logSmth(f"Could Not like post by {self.postingUser} because {e}", "ERROR")
                 return None
 
         return None
-
-    def updatePostingUser(self):
-        if self.header:
-            self.postingUser = self.header.text.split(' ')[0]
 
     def navigateToPostingUserProfile(self):
         if self.header:
@@ -109,8 +112,8 @@ class Post(screen.Screen):
 
 class Post_ScrolableArea(screen.Screen):
     def __init__(self, driver):
-        print("$$$$ GENERATING SCROLABLE AREA $$$$")
         super().__init__(driver)
+        # logg.logSmth("$$$$ GENERATING SCROLABLE AREA $$$$", "INFO")
         self.allElements = []
         self.posts = None
 
@@ -130,7 +133,7 @@ class Post_ScrolableArea(screen.Screen):
         return total
 
     def scanScreenForPosts(self):
-        print("Scanning screen for posts...")
+        logg.logSmth("Scanning screen for posts...", 'INFO')
         self.allElements.clear()
         if self.posts:
             self.posts.clear()
@@ -152,8 +155,11 @@ class Post_ScrolableArea(screen.Screen):
         self.comments = self.findElementsBy_ID(loc.post_ID['comment'])
         for comment in self.comments:
             self.allElements.append([comment, 'comment'])
+        try:
+            self.allElements.sort(key=lambda x: x[0].location['y'])
+        except Exception as e:
+            self.posts = None
 
-        self.allElements.sort(key=lambda x: x[0].location['y'])
         self.posts = self.reconstructPosts()
 
     def reconstructPosts(self):
@@ -178,6 +184,6 @@ class Post_ScrolableArea(screen.Screen):
     def reportOnPosts(self):
         if self.posts:
             for post in self.posts:
-                print(f"{post.postingUser} .vs. {post.possiblepostingUser}")
+                logg.logSmth(f"{post.postingUser} .vs. {post.possiblepostingUser}", 'INFO')
         else:
-            print("No posts in view yet")
+            logg.logSmth("No posts in view yet", 'WARNING')
