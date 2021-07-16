@@ -238,3 +238,44 @@ class UserPage(screen.Screen):
     def likeUserPostByOrder(self, order):
         self.bringUpPostGrid()
         self.grid.likePostByOrder(order)
+
+    def navToFolowers(self):
+        followersCount = self.findElementBy_ID(loc.userPage_ID['followersWindow'])
+        if followersCount:
+            followersCount.click()
+            return followListPage(self.driver)
+
+    def navToFolowing(self):
+        followingCount = self.findElementBy_ID(loc.userPage_ID['followingWindow'])
+        if followingCount:
+            followingCount.click()
+            return followListPage(self.driver)
+
+
+class followListPage(screen.Screen):
+    def __init__(self, driver):
+        super().__init__(driver)
+
+    def typeIntoSearchField(self, query, speed='slow'):
+        textBox = self.findElementBy_ID(loc.userPage_ID['followingSearchField'])
+        if textBox:
+            if 'slow' in speed:
+                self.slowType(query, textBox)
+                self.driver.back()
+            else:
+                self.fastType(query, textBox)
+
+    def getListOfUsers(self, expectedCount):
+        listOfUsers = []
+        firstView = self.findElementsBy_ID(loc.userPage_ID['followingSearchResult'])
+        firstView = [x.text for x in firstView]
+        listOfUsers.extend(firstView)
+
+        while len(listOfUsers) <= 0.95 * expectedCount:
+            self.vSwipe('tiny')
+            allOtherViews = self.findElementsBy_ID(loc.userPage_ID['followingSearchResult'])
+            allOtherViews = [x.text for x in allOtherViews]
+            listOfUsers.extend(allOtherViews)
+            listOfUsers = list(dict.fromkeys(listOfUsers))  # removes duplicates
+
+        return listOfUsers

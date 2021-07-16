@@ -1,6 +1,7 @@
 import auth
 import unittest
 import AndyBot_MK1 as bot
+import AnyBotLog as logg
 from appium import webdriver as wb
 
 
@@ -9,12 +10,16 @@ class test(unittest.TestCase):
         desired_caps = {}
         desired_caps['deviceName'] = auth.getDeviceName()
         desired_caps['platformName'] = "Android"
+        # desired_caps['appPackage'] = "com.instagram.android"
+        # desired_caps['appActivity'] = "com.instagram.mainactivity.MainActivity"
         desired_caps['noReset'] = 'true'
 
         self.driver = wb.Remote('http://localhost:4723/wd/hub', desired_caps)
         self.driver.implicitly_wait(5)
         self.driver.unlock()
         logg.logSmth(f"Device is {desired_caps['deviceName']}")
+
+        # self.driver.launch_app()
 
     def tearDown(self):
         self.driver.quit()
@@ -26,14 +31,14 @@ class test(unittest.TestCase):
             myBot.botSleep(verbose=True)
             myBot.driver.unlock()
 
-        jsonTh = myBot.memoryManager.getMemoryFile()
-        myBot.memoryManager.pickleMemoryFileToDrive()
-        myBot.memoryManager.readMemoryFileFromDriveJSON()
-
-        pickleTh = myBot.memoryManager.getMemoryFile()
-
-        comparision = [x for x in jsonTh if x not in pickleTh]
-
+        searchPage = myBot.navRibons.goToSearchPage()
+        if searchPage:
+            user = searchPage.navigateToUserPage('dimitrios.skyllas')
+            if user:
+                ingCount = user.stats.get('following')
+                if ingCount:
+                    ingPage = user.navToFolowing()
+                    theListU = ingPage.getListOfUsers(ingCount)
         t = 0
 
 

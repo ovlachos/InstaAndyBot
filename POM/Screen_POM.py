@@ -209,18 +209,27 @@ class Screen():
         startX, endX, startY, endY, hold = 0, 0, 0, 0, 0
 
         if 'med' in length:
-            startX = random.randint(750, 850)
-            endX = random.randint(750, 850)
+            startX = random.randint(700, 800)
+            endX = random.randint(700, 800)
             startY = random.randint((self.screenBoundLower - 100), self.screenBoundLower)
             endY = random.randint(self.screenBoundUpper, (self.screenBoundUpper + 150))
             hold = random.randint(100, 400)
 
         if 'small' in length:
-            startX = random.randint(750, 850)
-            endX = random.randint(750, 850)
+            startX = random.randint(700, 800)
+            endX = random.randint(700, 800)
             startY = random.randint((self.screenBoundLower - 300), (self.screenBoundLower - 200))
             endY = random.randint(self.screenBoundUpper, (self.screenBoundUpper + 250))
             hold = random.randint(300, 600)
+            print(startY, endY)
+
+        if 'tiny' in length:
+            startX = random.randint(700, 800)
+            endX = random.randint(700, 800)
+            startY = random.randint(1300, 1500)
+            endY = random.randint(800, 1200)
+            hold = random.randint(666, 666)
+            print(startY, endY)
 
         return startX, endX, startY, endY, hold
 
@@ -228,7 +237,7 @@ class Screen():
         # Coordinates randomised at start
         startX, endX, startY, endY, hold = self.getScrollLengthCoordinates(length)
 
-        self.driver.swipe(startX, startY, endX, endY, hold)
+        self.driver.swipe(startX, startY, endX, endY)
         self.reactionWait(0.75)
 
     def touchA(self, height=300):

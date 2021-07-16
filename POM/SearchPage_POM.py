@@ -13,7 +13,7 @@ from POM import UserPage_POM as up
 class SearchPage(screen.Screen):
 
     def typeIntoSearchField(self, query, speed='slow'):
-        textBox = self.driver.find_element_by_id(loc.searchPage_ID['searchBarField'])
+        textBox = self.findElementBy_ID(loc.searchPage_ID['searchBarField'])
         if textBox:
             if 'slow' in speed:
                 self.slowType(query, textBox)
@@ -22,7 +22,7 @@ class SearchPage(screen.Screen):
                 self.fastType(query, textBox)
 
     def getUserSearchResult(self):
-        resultsList = self.driver.find_elements_by_id(loc.searchPage_ID['resultsCommon_Users'])
+        resultsList = self.findElementsBy_ID(loc.searchPage_ID['resultsCommon_Users'])
         if resultsList:
             return resultsList
 
@@ -60,7 +60,7 @@ class SearchPage(screen.Screen):
 
         fuzzyMatch, score = self.getFuzzyResults(username)
         if fuzzyMatch:
-            if score > 95:
+            if score > 90:
                 element = [x for x in results if x.text == fuzzyMatch]
                 if element:
                     element[0].click()
@@ -83,7 +83,7 @@ class SearchPage(screen.Screen):
                     logg.logSmth(f"navigating to {fuzzyMatch} with an input of {username} and {query_secondPart}", "INFO")
                     return up.UserPage(self.driver)
 
-        logg.logSmth(f'user not found | results are {results} and fuzzyMatch is {fuzzyMatch}')
+        logg.logSmth(f'user not found | results are {[x.text for x in results]} and fuzzyMatch is {fuzzyMatch}')
         return None
 
     def naviateToHashTagPage(self, tag):
