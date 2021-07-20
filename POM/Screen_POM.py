@@ -6,7 +6,6 @@ from functools import wraps
 from time import sleep
 
 from POM import Locators as loc
-from appium.webdriver.common.touch_action import TouchAction
 
 myDict = {
     '_': 69,  # same as '-' minus symbol but with shift metastate
@@ -141,7 +140,7 @@ def find_exception_handler(func):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            logg.logSmth(f"{func.__name__} failed", 'WARNING')
+            # logg.logSmth(f"{func.__name__} failed", 'WARNING')
             if len(args) > 1:
                 logg.logSmth(args[1], 'WARNING')
             logg.logSmth(f"The cause is: {e}", 'WARNING')
@@ -175,6 +174,13 @@ class Screen():
     def findElementsBy_XPATH(self, XPATH):
         return self.driver.find_elements_by_xpath()
 
+    def getAndClickElementBy_ID(self, elementLocator):
+        button = self.findElementBy_ID(elementLocator)
+        if button:
+            button.click()
+            return True
+        return False
+
     def fastType(self, passage, field):
         field.click()
         for ch in passage:
@@ -204,23 +210,31 @@ class Screen():
 
         return keycode
 
-    # TODO: clear up your swiping methods
     def getScrollLengthCoordinates(self, length='medium'):
         startX, endX, startY, endY, hold = 0, 0, 0, 0, 0
 
         if 'med' in length:
-            startX = random.randint(750, 850)
-            endX = random.randint(750, 850)
+            startX = random.randint(700, 800)
+            endX = random.randint(700, 800)
             startY = random.randint((self.screenBoundLower - 100), self.screenBoundLower)
             endY = random.randint(self.screenBoundUpper, (self.screenBoundUpper + 150))
             hold = random.randint(100, 400)
 
         if 'small' in length:
-            startX = random.randint(750, 850)
-            endX = random.randint(750, 850)
+            startX = random.randint(700, 800)
+            endX = random.randint(700, 800)
             startY = random.randint((self.screenBoundLower - 300), (self.screenBoundLower - 200))
             endY = random.randint(self.screenBoundUpper, (self.screenBoundUpper + 250))
             hold = random.randint(300, 600)
+            # print(startY, endY)
+
+        if 'tiny' in length:
+            startX = random.randint(700, 800)
+            endX = random.randint(700, 800)
+            startY = random.randint(1300, 1500)
+            endY = random.randint(800, 1200)
+            hold = random.randint(666, 666)
+            # print(startY, endY)
 
         return startX, endX, startY, endY, hold
 
@@ -228,52 +242,8 @@ class Screen():
         # Coordinates randomised at start
         startX, endX, startY, endY, hold = self.getScrollLengthCoordinates(length)
 
-        self.driver.swipe(startX, startY, endX, endY, hold)
+        self.driver.swipe(startX, startY, endX, endY)
         self.reactionWait(0.75)
-
-    def touchA(self, height=300):
-        height = height + 156
-        h = (height) / 10
-        while height > 0:
-            print(f"Scrolled by {h}")
-            height -= h
-            print(f"Remaining height: {height}")
-
-            actions = TouchAction(self.driver)
-            actions.press(x=450, y=1900)
-            actions.wait(500)
-            actions.move_to(x=430, y=1899 - h)
-            actions.release()
-            actions.perform()
-
-    def scroll_(self):
-        self.driver.execute_script("mobile: scroll", {'direction': 'down'})
-
-    def vScroll(self, length=0):
-        percentage = 2.0
-        height = 700
-        constantsHeight = 513
-
-        if length:
-            percentage = 1 * (length + constantsHeight) / height
-
-        paramsDictArea = {
-            'left': 600, 'top': 700, 'width': 200, 'height': height,
-            'direction': 'down',
-            'speed': 1000,  # random.randint(400, 1000),
-            'percent': percentage}
-
-        paramsDictElementID = {
-            'elementId': "TEST",
-            'direction': 'down',
-            'speed': 500,
-            'percent': percentage}
-
-        can_scroll_more = self.driver.execute_script('mobile: scrollGesture', paramsDictArea)
-        print(can_scroll_more, f"Scrolled for {percentage * 100}% at a length of {length} while the height was {height}")
-
-    def getIntoView(self, elem):
-        self.driver.execute_script("arguments[0].scrollIntoView(true);", elem)
 
     def getPhotoBounds(self):
         try:

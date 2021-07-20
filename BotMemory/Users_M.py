@@ -289,7 +289,7 @@ class User_M:
 
             if verbose:
                 pass
-                logg.logSmth(f'{datetime.today()}:  {str(round(deltaT, 1))} days since I followed {self.handle}')
+                logg.logSmth(f'### {datetime.today()}:  {str(round(deltaT, 1))} days since I followed {self.handle}')
 
             return deltaT
         except Exception as e:

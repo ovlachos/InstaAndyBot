@@ -15,7 +15,7 @@ from POM import NavigationRibbons_POM as ribon
 
 timeStampFormat = "%m/%d/%Y, %H:%M:%S"
 
-# TODO How to guarantee that evvery stape of the way navigating on the app is successful and I am not stuck on previous page
+# TODO How to guarantee that every step of the way navigating on the app is successful and I am not stuck on previous page
 
 class AndyBot():
     def __init__(self, driver, deviceDict):

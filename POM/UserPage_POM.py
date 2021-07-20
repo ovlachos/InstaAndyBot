@@ -22,7 +22,6 @@ class UserPage(screen.Screen):
 
         self.grid = None
 
-    # TODO: Get followers/following list
     # TODO: Get hashtags following list
 
     def getAttributeBy_ID(self, locatorID):
@@ -164,6 +163,20 @@ class UserPage(screen.Screen):
     def printProfileTypeDescription(self):
         logg.logSmth(f'~~> {self.get_profileTypeDescription()}')
 
+    def get_followers_list(self):
+        page = self.navToFolowers()
+        self.followers = page.getListOfUsers(self.stats['followers'])
+
+    def get_following_list(self):
+        page = self.navToFolowers()
+        self.following = page.getListOfUsers(self.stats['following'])
+
+    def get_following_hashTag_list(self):
+        page = self.navToFolowingHashTags()
+        self.folowingHashTags = []
+        if page:
+            self.folowingHashTags = page.getListOfHashtags()
+
     def follow(self):
         self.determineLevelOfFollowAccess()
         if self.followAccess > 45:
@@ -238,3 +251,69 @@ class UserPage(screen.Screen):
     def likeUserPostByOrder(self, order):
         self.bringUpPostGrid()
         self.grid.likePostByOrder(order)
+
+    def navToFolowers(self):
+        followersCount = self.findElementBy_ID(loc.userPage_ID['followersWindow'])
+        if followersCount:
+            followersCount.click()
+            return followListPage(self.driver)
+
+    def navToFolowing(self):
+        followingCount = self.findElementBy_ID(loc.userPage_ID['followingWindow'])
+        if followingCount:
+            followingCount.click()
+            return followListPage(self.driver)
+
+    def navToFolowingHashTags(self):
+        if self.getAndClickElementBy_ID(loc.userPage_ID['followingWindow']):
+            if self.getAndClickElementBy_ID(loc.userPage_ID['followingHashTagWindow']):
+                return followListPage(self.driver)
+
+
+class followListPage(screen.Screen):
+    def __init__(self, driver):
+        super().__init__(driver)
+
+    def typeIntoSearchField(self, query, speed='slow'):
+        textBox = self.findElementBy_ID(loc.userPage_ID['followingSearchField'])
+        if textBox:
+            if 'slow' in speed:
+                self.slowType(query, textBox)
+                self.driver.back()
+            else:
+                self.fastType(query, textBox)
+
+    def verify_if_user_in_list(self):
+        pass
+
+    def getListOfUsers(self, expectedCount):
+        listOfUsers = []
+        firstView = self.findElementsBy_ID(loc.userPage_ID['followingSearchResult'])
+        firstView = [x.text for x in firstView]
+        listOfUsers.extend(firstView)
+
+        while len(listOfUsers) <= 0.95 * expectedCount:
+            self.vSwipe('tiny')
+            allOtherViews = self.findElementsBy_ID(loc.userPage_ID['followingSearchResult'])
+            allOtherViews = [x.text for x in allOtherViews]
+            listOfUsers.extend(allOtherViews)
+            listOfUsers = list(dict.fromkeys(listOfUsers))  # removes duplicates
+
+        return listOfUsers
+
+    def getListOfHashtags(self):
+        listOfTags = []
+        firstView = self.findElementsBy_ID(loc.userPage_ID['followingHashTagSearchResult'])
+        firstView = [x.text for x in firstView]
+        listOfTags.extend(firstView)
+
+        arbitraryCounter = 0
+        while arbitraryCounter <= 5:
+            self.vSwipe('tiny')
+            allOtherViews = self.findElementsBy_ID(loc.userPage_ID['followingHashTagSearchResult'])
+            allOtherViews = [x.text for x in allOtherViews]
+            listOfTags.extend(allOtherViews)
+            listOfTags = list(dict.fromkeys(listOfTags))  # removes duplicates
+            arbitraryCounter += 1
+
+        return listOfTags
