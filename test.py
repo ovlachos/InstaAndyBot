@@ -33,12 +33,9 @@ class test(unittest.TestCase):
 
         searchPage = myBot.navRibons.goToSearchPage()
         if searchPage:
-            user = searchPage.navigateToUserPage('dimitrios.skyllas')
+            user = searchPage.navigateToUserPage('vagflip')
             if user:
-                ingCount = user.stats.get('following')
-                if ingCount:
-                    ingPage = user.navToFolowing()
-                    theListU = ingPage.getListOfUsers(ingCount)
+                theListU = user.get_following_hashTag_list()
         t = 0
 
 

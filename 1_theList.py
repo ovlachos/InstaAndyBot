@@ -15,7 +15,7 @@ class test(unittest.TestCase):
         desired_caps['noReset'] = 'true'
 
         self.driver = wb.Remote('http://localhost:4723/wd/hub', desired_caps)
-        self.driver.implicitly_wait(5)
+        self.driver.implicitly_wait(3)
         self.driver.unlock()
         logg.logSmth(f"Device is {desired_caps['deviceName']}")
 
@@ -32,7 +32,7 @@ class test(unittest.TestCase):
             myBot.driver.unlock()
 
         try:
-            myBot.theList_Service(numberOfTags=6, numberOfPostsPerTag=6, randomArgs=False)
+            myBot.theList_Service(numberOfTags=6, numberOfPostsPerTag=10, randomArgs=False)
             self.driver.close_app()
         except:
             logg.logSmth("\n###################")

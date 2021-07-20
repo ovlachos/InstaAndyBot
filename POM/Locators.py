@@ -28,12 +28,14 @@ ribbon_ID = {
 
 }
 
-### USR PAGE
+### USER PAGE
 userPage_ID = {
     'followersWindow': 'com.instagram.android:id/row_profile_header_textview_followers_count',
     'followingWindow': 'com.instagram.android:id/row_profile_header_textview_following_count',
+    'followingHashTagWindow': 'com.instagram.android:id/row_hashtag_link_title',
     'followingSearchField': 'com.instagram.android:id/row_search_edit_text',
     'followingSearchResult': 'com.instagram.android:id/follow_list_username',
+    'followingHashTagSearchResult': 'com.instagram.android:id/follow_list_username',
     'postsCount': "com.instagram.android:id/row_profile_header_textview_post_count",
     'userName': 'com.instagram.android:id/action_bar_title',
     'altName': 'com.instagram.android:id/profile_header_full_name',
