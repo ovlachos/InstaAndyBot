@@ -83,11 +83,14 @@ class Post(screen.Screen):
                 if likeButton.id == self.likeButton.id:
                     self.likeButtonStatus = likeButton.tag_name
 
-    def likePost(self): # TODO like post by double-tapping within pic bounds (with some padding all around)
+    def likePost(self):  # TODO like post by double-tapping within pic bounds (with some padding all around)
         if self.canLike:
             try:
                 if self.pic:
-                    self.doubleClick(self.pic)
+                    height = self.pic.rect['height']
+                    startY = self.pic.location['y']
+                    yPoint = height / 2 + startY
+                    self.doubleClickLocation(700, int(yPoint))
                     self.reactionWait(1)
                     return True
 
@@ -132,6 +135,23 @@ class Post_ScrolableArea(screen.Screen):
 
         return total
 
+    def fastScreenScan(self):
+        logg.logSmth("FAST Scanning screen for posts...", 'INFO')
+        self.allElements.clear()
+        if self.posts:
+            self.posts.clear()
+
+        self.headers = self.findElementsBy_ID(loc.post_ID['postingUser'])
+        for header in self.headers:
+            self.allElements.append([header, 'header'])
+
+        self.pics = self.findPostPics()
+        for pic in self.pics:
+            # if self.screenBoundUpper < pic.location['y'] < self.screenBoundLower:  # TODO: Find a more versatile limit like getting pic bounds
+            self.allElements.append([pic, 'pic'])
+
+        self.posts = self.reconstructPosts()
+
     def scanScreenForPosts(self):
         logg.logSmth("Scanning screen for posts...", 'INFO')
         self.allElements.clear()
@@ -144,8 +164,8 @@ class Post_ScrolableArea(screen.Screen):
 
         self.pics = self.findPostPics()
         for pic in self.pics:
-            if self.screenBoundUpper < pic.location['y'] < self.screenBoundLower:  # TODO: Find a more versatile limit like getting pic bounds
-                self.allElements.append([pic, 'pic'])
+            # if self.screenBoundUpper < pic.location['y'] < self.screenBoundLower:  # TODO: Find a more versatile limit like getting pic bounds
+            self.allElements.append([pic, 'pic'])
 
         self.likeButtons = self.findElementsBy_ID(loc.post_ID['like'])
         for like in self.likeButtons:

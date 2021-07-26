@@ -22,8 +22,6 @@ class UserPage(screen.Screen):
 
         self.grid = None
 
-    # TODO: Get hashtags following list
-
     def getAttributeBy_ID(self, locatorID):
         attr = None
         element = self.findElementBy_ID(locatorID)

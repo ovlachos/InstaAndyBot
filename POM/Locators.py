@@ -4,7 +4,7 @@ page_ID = {
 }
 
 page_XPATH = {
-    'postsGrid': "//android.widget.ImageView[contains(@content-desc, 'Row 1, Column 1')]",
+    'postsGrid': "//android.widget.Button[contains(@content-desc, 'Row 1, Column 1')]",
 }
 
 ### HOME PAGE
@@ -15,9 +15,9 @@ homePage_ID = {
 
 ### Ribbon
 ribbon_XPath = {
-    'bottomBar_homeButton': "//android.widget.Button[@content-desc='Home']/android.view.ViewGroup",
+    'bottomBar_homeButton': "//android.widget.FrameLayout[@content-desc='Home']",
     'topBar_homeButton': "//android.widget.Button[@content-desc='Scroll to top']",
-    'bottomBar_Search': "//android.widget.Button[@content-desc='Search and Explore']",
+    'bottomBar_Search': "//android.widget.FrameLayout[@content-desc='Search and Explore']",
     'bottomBar_OwnProfile': "//android.widget.Button[@content-desc='Profile']/android.view.ViewGroup",
     'activity': "//android.widget.Button[@content-desc='Activity']",
     'message': "//android.widget.Button[@content-desc='Message']",

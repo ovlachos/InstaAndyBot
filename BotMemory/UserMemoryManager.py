@@ -178,6 +178,7 @@ class UserMemoryManager:
         newGameParticipants = [x for x in fileOfGameParticipants if x not in l0]
         newGameParticipants = [x for x in newGameParticipants if x not in self.rejected_Users]
 
+        listToReturn = []
         for handle in newGameParticipants:
             user = self.retrieveUserFromMemory(handle)
             if user:
@@ -185,6 +186,7 @@ class UserMemoryManager:
                     user.addToL0(auth.username)
                     user.addToL2()
                     self.updateUserRecord(user)
+                    listToReturn.append(user)
             else:
                 self.addUserToMemory(handle)
                 user = self.retrieveUserFromMemory(handle)
@@ -192,6 +194,9 @@ class UserMemoryManager:
                     user.addToL0(auth.username)
                     user.addToL2()
                     self.updateUserRecord(user)
+                    listToReturn.append(user)
+
+        return listToReturn
 
     def redistributeExtraLove(self):
         memoryLoves = [x.handle for x in self.getExtraLoveList()]  # list of handles

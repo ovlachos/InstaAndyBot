@@ -15,13 +15,14 @@ from POM import NavigationRibbons_POM as ribon
 
 timeStampFormat = "%m/%d/%Y, %H:%M:%S"
 
+
 # TODO How to guarantee that every step of the way navigating on the app is successful and I am not stuck on previous page
 
 class AndyBot():
     def __init__(self, driver, deviceDict):
         self.driver = driver
         self.factor = 1
-        self.ownFollowers = 1290
+        self.ownFollowers = 1400
 
         self.fileHandler = fh.FileHandlerBot()
         self.memoryManager = UserMemoryManager.UserMemoryManager()
@@ -47,6 +48,7 @@ class AndyBot():
 
         self.loadParams()
         self.replenishFollowMana()
+        logg.logSmth(f"Follow Mana: {self.followMana}")
 
         self.getMainPage()
 

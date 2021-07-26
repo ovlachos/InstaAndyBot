@@ -83,7 +83,8 @@ class SearchPage(screen.Screen):
                 return up.UserPage(self.driver)
 
         # If no fuzzy match was found after both attempts then call it.
-        logg.logSmth(f'### user not found | results are {[x.text for x in results]} and fuzzyMatch is {fuzzyMatch}')
+        if results:
+            logg.logSmth(f'### user not found | results are {[x.text for x in results]} and fuzzyMatch is {fuzzyMatch}')
         return None
 
     def naviateToHashTagPage(self, tag):

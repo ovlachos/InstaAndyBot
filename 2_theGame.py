@@ -5,6 +5,7 @@ import AnyBotLog as logg
 from appium import webdriver as wb
 
 
+
 class test(unittest.TestCase):
     def setUp(self):
         desired_caps = {}

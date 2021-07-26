@@ -33,7 +33,7 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
                 scrollArea = hashPage.grid.scrollablePostArea
                 if scrollArea:
                     scrollArea.reactionWait()
-                    scrollArea.scanScreenForPosts()
+                    scrollArea.fastScreenScan()
 
                     if scrollArea.posts[0]:  # Do we have even one post on open/initial scan of scrollable area?
                         post = scrollArea.posts[0]
