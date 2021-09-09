@@ -250,10 +250,14 @@ class Screen():
             photo = self.driver.find_element_by_id(loc.post_ID['pic'])
         except:
             photo = self.driver.find_element_by_id(loc.post_ID['imageCarousel'])
+        finally:
+            if not photo:
+                return 0, 0
 
         photoHeight = photo.rect['height']
-        print(f"Photo with ID {photo.id} has a height of {photoHeight}")
-        return photoHeight
+        photoWidth = photo.rect['width']
+
+        return photoHeight, photoWidth
 
     def reactionWait(self, length=1, verbose=False):
         tminsecs = reactionTime(length)
@@ -267,7 +271,7 @@ class Screen():
         sleep(time_between_clicks)
         element.click()
 
-    def doubleClickLocation(self, x, y):
+    def doubleClickCoordinates(self, x, y):
         padding = 0.02
         if self.screenBoundUpper * (1 + padding) < y < (1 - padding) * self.screenBoundLower:  # add 2% padding on the screen edges
             time_between_clicks = random.uniform(0.050, 0.140)

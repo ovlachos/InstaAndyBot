@@ -20,7 +20,7 @@ class NavigationRibbons(screen.Screen):
         searchButton = self.findElementBy_XPATH(loc.ribbon_XPath['bottomBar_Search'])
         if searchButton:
             self.doubleClick(searchButton)
-            self.reactionWait()
+            self.reactionWait(5)
 
             return searchPage.SearchPage(self.driver)
 

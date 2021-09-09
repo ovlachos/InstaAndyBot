@@ -50,7 +50,7 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
                             continue
 
                         userProf.reactionWait()
-
+                        # TODO is it a good idea to drop mark1 and just start recording/comparing stats in memory?
                         followedFlag = False
                         if L1_criteria(userProf.stats):  # Can/Should I follow this user?
                             if bot.followMana > 0:
@@ -124,7 +124,11 @@ def addUserToMemory(bot, userPage, user, mark1=False, followed=False):
         bot.memoryManager.updateUserRecord(newFollower)
 
         logg.logSmth(f"##### User {user} added to memory with mark1={mark1} and followed={followed}")
+        logg.logSmth(f"##### Follow mana left: {bot.followMana}")
     else:
-        logg.logSmth(f"##### User {user} NOT added to memory with mark1={mark1} and followed={followed}")
+        if not newFollower:
+            logg.logSmth(f"##### User {user} NOT added to memory with mark1={mark1} and followed={followed}")
+        else:
+            logg.logSmth(f"##### User {user} already exists in memory with mark1={mark1} and followed={followed}")
 
     return "OK"

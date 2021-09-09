@@ -90,7 +90,7 @@ class Post(screen.Screen):
                     height = self.pic.rect['height']
                     startY = self.pic.location['y']
                     yPoint = height / 2 + startY
-                    self.doubleClickLocation(700, int(yPoint))
+                    self.doubleClickCoordinates(700, int(yPoint))
                     self.reactionWait(1)
                     return True
 
@@ -159,26 +159,30 @@ class Post_ScrolableArea(screen.Screen):
             self.posts.clear()
 
         self.headers = self.findElementsBy_ID(loc.post_ID['postingUser'])
-        for header in self.headers:
-            self.allElements.append([header, 'header'])
+        if self.headers:
+            for header in self.headers:
+                self.allElements.append([header, 'header'])
 
         self.pics = self.findPostPics()
-        for pic in self.pics:
-            # if self.screenBoundUpper < pic.location['y'] < self.screenBoundLower:  # TODO: Find a more versatile limit like getting pic bounds
-            self.allElements.append([pic, 'pic'])
+        if self.pics:
+            for pic in self.pics:
+                # if self.screenBoundUpper < pic.location['y'] < self.screenBoundLower:  # TODO: Find a more versatile limit like getting pic bounds
+                self.allElements.append([pic, 'pic'])
 
         self.likeButtons = self.findElementsBy_ID(loc.post_ID['like'])
-        for like in self.likeButtons:
-            if self.screenBoundUpper < like.location['y'] < self.screenBoundLower:  # TODO: Find a more versatile limit
-                self.allElements.append([like, 'like'])
+        if self.likeButtons:
+            for like in self.likeButtons:
+                if self.screenBoundUpper < like.location['y'] < self.screenBoundLower:  # TODO: Find a more versatile limit
+                    self.allElements.append([like, 'like'])
 
         self.comments = self.findElementsBy_ID(loc.post_ID['comment'])
-        for comment in self.comments:
-            self.allElements.append([comment, 'comment'])
-        try:
-            self.allElements.sort(key=lambda x: x[0].location['y'])
-        except Exception as e:
-            self.posts = None
+        if self.comments:
+            for comment in self.comments:
+                self.allElements.append([comment, 'comment'])
+            try:
+                self.allElements.sort(key=lambda x: x[0].location['y'])
+            except Exception as e:
+                self.posts = None
 
         self.posts = self.reconstructPosts()
 

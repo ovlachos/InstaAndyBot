@@ -31,11 +31,7 @@ class test(unittest.TestCase):
             myBot.botSleep(verbose=True)
             myBot.driver.unlock()
 
-        searchPage = myBot.navRibons.goToSearchPage()
-        if searchPage:
-            user = searchPage.navigateToUserPage('vagflip')
-            if user:
-                theListU = user.get_following_hashTag_list()
+
         t = 0
 
 

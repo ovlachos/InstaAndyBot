@@ -17,9 +17,9 @@ class test(unittest.TestCase):
         self.driver = wb.Remote('http://localhost:4723/wd/hub', desired_caps)
         self.driver.implicitly_wait(3)
         self.driver.unlock()
-        logg.logSmth(f"Device is {desired_caps['deviceName']}")
 
-        # self.driver.launch_app()
+        logg.logSmth(f"#############################################")
+        logg.logSmth(f"Device is {desired_caps['deviceName']}")
 
     def tearDown(self):
         self.driver.quit()
@@ -32,14 +32,14 @@ class test(unittest.TestCase):
             myBot.driver.unlock()
 
         try:
-            myBot.homePageScroller(numberOfPosts=80, randomArgs=False)
+            myBot.homePageScroller(numberOfPosts=120, randomArgs=False)
             self.driver.close_app()
         except:
-            logg.logSmth("\n###################")
+            logg.logSmth("\n###################\n")
             logg.logSmth("Exception occurred @#$", 'ERROR')
-            logg.logSmth("###################\n")
+            logg.logSmth("\n###################\n")
         finally:
-            print('write Memory to file before quiting')
+            logg.logSmth('write Memory to file before quiting')
             myBot.memoryManager.writeMemoryFileToDrive()
             logg.logSmth("\nEND OF TEST\n")
 

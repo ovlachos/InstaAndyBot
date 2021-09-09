@@ -22,7 +22,7 @@ class AndyBot():
     def __init__(self, driver, deviceDict):
         self.driver = driver
         self.factor = 1
-        self.ownFollowers = 1400
+        self.ownFollowers = 1660
 
         self.fileHandler = fh.FileHandlerBot()
         self.memoryManager = UserMemoryManager.UserMemoryManager()

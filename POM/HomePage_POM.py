@@ -12,7 +12,12 @@ class HomePage(screen.Screen):
         super().__init__(driver)
         self.scrollArea = postScrol.Post_ScrolableArea(self.driver)
 
-    def startWatchingStories(self, duration=randint(20, 60)):
+    def startWatchingStories(self, duration=None):
+        if not duration:
+            durationLowerBound = randint(10, 25)
+            durationUpperBound = randint(45, 55)
+            duration = randint(durationLowerBound, durationUpperBound)
+
         all_visible_stories_but_mine = self.driver.find_elements_by_id(loc.homePage_ID['storiesCommon'])[1:]
 
         if all_visible_stories_but_mine:
@@ -46,10 +51,16 @@ class HomePage(screen.Screen):
 
     def likePosts(self, randomise=True):
         self.scrollArea.scanScreenForPosts()
+
         if self.scrollArea.posts:
             for post in self.scrollArea.posts:
-                likeSwitch = randint(1, 5)
-                if likeSwitch > 1:  # 4/5 = 80% chance I'm gonna hit the like button
+
+                likeSwitch = 2
+                if randomise:
+                    regulator = randint(3, 6)
+                    likeSwitch = randint(1, regulator)
+
+                if likeSwitch > 1:  # some random chance I'm gonna hit the like button
                     likeResponse = post.likePost()
                     logg.logSmth(f"Like response for {post.postingUser} is {likeResponse}", 'INFO')
                 else:

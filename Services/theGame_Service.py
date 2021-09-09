@@ -8,9 +8,13 @@ def playTheGame(bot, num):
     ### Read User Memory
     bot.memoryManager.readMemoryFileFromDriveJSON()
 
+    # bot.memoryManager.readMemoryFileFromDrivePickle()
+    # handle =bot.memoryManager.getUID_fromHandle('tooironictospeak')
+    # print(f"Handle is: {handle} tooironictospeak")
+
     ### Derive Lists
     reservesList = bot.memoryManager.getListOfReserveUsersToFollow()[:num]
-    unfollowList = bot.memoryManager.getListOfUsersToUnFollow(bot.daysBeforeIunFollow)[:num]
+    unfollowList = bot.memoryManager.getListOfUsersToUnFollow(bot.daysBeforeIunFollow)  # [:num]
     unLoveList = bot.memoryManager.getListOfUsersToUnLove(bot.daysBeforeIunLove)
     manuallyAddedList = bot.memoryManager.manuallyAddNewUsersTo_theGame()
 
