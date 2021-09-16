@@ -15,18 +15,21 @@ class MyLogger:
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_tb:
             print("\nTraceback:", exc_tb)
-        # print(self._logID)
+        # print(self.id)
 
 
 def createLogger():
     screenLogger = logging.getLogger('The_Logger')
+    screenLogger.propagate = 0
     screenFormat = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 
-    screenHandler = logging.FileHandler('../InstaBot.log')
+    screenHandler = logging.FileHandler('../InstaBot2.log')
     screenHandler.setFormatter(screenFormat)
     screenHandler.setLevel(logging.DEBUG)
 
-    screenLogger.addHandler(screenHandler)
+    if not len(screenLogger.handlers):
+        screenLogger.addHandler(screenHandler)
+
     screenLogger.setLevel(logging.DEBUG)
 
     return MyLogger(screenLogger)

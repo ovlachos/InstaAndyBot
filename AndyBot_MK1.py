@@ -22,13 +22,13 @@ class AndyBot():
     def __init__(self, driver, deviceDict):
         self.driver = driver
         self.factor = 1
-        self.ownFollowers = 1660
 
         self.fileHandler = fh.FileHandlerBot()
         self.memoryManager = UserMemoryManager.UserMemoryManager()
         self.botParams = btprms.BotParams()
 
         # Bot Params Default values (that get replaced later on, maybe)
+        self.ownFollowers = 1730
         self.paramsTimeStamp = None
         self.timeUpperBound = 48
         self.timeLowerBound = 34
@@ -67,6 +67,7 @@ class AndyBot():
     def loadParams(self):
         params = self.botParams.getBotParams()
         if params:
+            self.ownFollowers = params['OwnFollowers']
             self.paramsTimeStamp = params['TimeStamp']
             self.timeUpperBound = params['sleepMaxSecs']
             self.timeLowerBound = params['sleepMinSecs']

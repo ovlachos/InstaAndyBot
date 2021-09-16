@@ -274,7 +274,7 @@ class Screen():
     def doubleClickCoordinates(self, x, y):
         padding = 0.02
         if self.screenBoundUpper * (1 + padding) < y < (1 - padding) * self.screenBoundLower:  # add 2% padding on the screen edges
-            time_between_clicks = random.uniform(0.050, 0.140)
+            time_between_clicks = random.uniform(0.050, 0.090)
             self.driver.tap([(x, y)])
             sleep(time_between_clicks)
             self.driver.tap([(x, y)])

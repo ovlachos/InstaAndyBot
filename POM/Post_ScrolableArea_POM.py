@@ -1,3 +1,4 @@
+from random import randint
 from time import sleep
 import AnyBotLog as logg
 
@@ -87,10 +88,13 @@ class Post(screen.Screen):
         if self.canLike:
             try:
                 if self.pic:
-                    height = self.pic.rect['height']
-                    startY = self.pic.location['y']
-                    yPoint = height / 2 + startY
-                    self.doubleClickCoordinates(700, int(yPoint))
+                    y_mid_Point = self.pic.location['y'] + (self.pic.rect['height'] / 2)
+                    x_mid_Point = self.pic.location['x'] + (self.pic.rect['width'] / 2)
+                    xPoint = randint(int(x_mid_Point * 0.85), int(x_mid_Point * 1.15))
+                    yPoint = randint(int(y_mid_Point * 0.85), int(y_mid_Point * 1.15))
+
+                    self.doubleClickCoordinates(int(xPoint), int(yPoint))
+
                     self.reactionWait(1)
                     return True
 

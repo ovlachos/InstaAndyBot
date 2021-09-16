@@ -41,6 +41,7 @@ class test(unittest.TestCase):
         finally:
             logg.logSmth('write Memory to file before quiting')
             myBot.memoryManager.writeMemoryFileToDrive()
+            self.driver.lock()
             logg.logSmth("\nEND OF TEST\n")
 
 

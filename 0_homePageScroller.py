@@ -18,7 +18,7 @@ class test(unittest.TestCase):
         self.driver.implicitly_wait(3)
         self.driver.unlock()
 
-        logg.logSmth(f"#############################################")
+        logg.logSmth(f"#"*50)
         logg.logSmth(f"Device is {desired_caps['deviceName']}")
 
     def tearDown(self):
@@ -35,12 +35,13 @@ class test(unittest.TestCase):
             myBot.homePageScroller(numberOfPosts=120, randomArgs=False)
             self.driver.close_app()
         except:
-            logg.logSmth("\n###################\n")
+            logg.logSmth("\n"+"#"*20+"\n")
             logg.logSmth("Exception occurred @#$", 'ERROR')
-            logg.logSmth("\n###################\n")
+            logg.logSmth("\n"+"#"*20+"\n")
         finally:
             logg.logSmth('write Memory to file before quiting')
             myBot.memoryManager.writeMemoryFileToDrive()
+            self.driver.lock()
             logg.logSmth("\nEND OF TEST\n")
 
 
