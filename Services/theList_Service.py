@@ -26,9 +26,14 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
     def actOnPostingUsers(toLike=True):
 
         for i in range(0, numberOfPostsPerTag):
-            try:
-                hashPage.reactionWait()
 
+            hashPage.reactionWait()
+
+            verification = hashPage.verifyPageType()
+            if not verification:
+                return None
+
+            try:
                 hashPage.grid.openPostByOrder(i + 1)  # Open post number i+1
                 scrollArea = hashPage.grid.scrollablePostArea
                 if scrollArea:
@@ -40,16 +45,18 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
 
                         if toLike:
                             liked = post.likePost()
-                            logg.logSmth(f"Like status of post by {post.postingUser} is {liked}")
+                            # logg.logSmth(f"#### Like status of post by {post.postingUser} is {liked}")
 
                         if not post.header:  # Can I navigate to the user's profile?
                             continue
 
                         userProf = post.navigateToPostingUserProfile()  # Have I arrived?
-                        if not userProf:
+                        if not userProf or not userProf.verifyPageType():
+                            logg.logSmth(f"#### This is not a user profile")
                             continue
 
                         userProf.reactionWait()
+                        # logg.logSmth(f"User Profile: {userProf.userName}")
                         # TODO is it a good idea to drop mark1 and just start recording/comparing stats in memory?
                         followedFlag = False
                         if L1_criteria(userProf.stats):  # Can/Should I follow this user?
@@ -60,7 +67,7 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
                                     addUserToMemory(bot, userProf, user=userProf.userName, mark1=True, followed=followedFlag)
 
                                     bot.navRibons.goBack()
-                                    bot.navRibons.reactionWait(0.5)
+                                    bot.navRibons.reactionWait()
                                     bot.navRibons.goBack()
 
                                     continue  # So that I can skip adding to user memory twice with a false followedFlag
@@ -70,10 +77,11 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
                             addUserToMemory(bot, userProf, user=userProf.userName, mark1=False, followed=followedFlag)
 
                 bot.navRibons.goBack()
-                bot.navRibons.reactionWait(0.5)
+                bot.navRibons.reactionWait()
                 bot.navRibons.goBack()
             except Exception as e:
                 logg.logSmth(e)
+                logg.logSmth(f"#### This is within the interaction phase for hashtag {hashPage.tag}")
                 continue
 
     # Load memory file
@@ -88,12 +96,28 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
         logg.logSmth(f"Today's hashtags are: {hashList}, with {numberOfPostsPerTag0} posts per tag")
 
     for hashtag in hashList:
-        hashPage = None
-        while not hashPage:
-            searchPage = bot.navRibons.goToSearchPage()
-            hashPage = searchPage.naviateToHashTagPage(hashtag)
 
-        logg.logSmth(f"### HashTag: {hashtag}")
+        hasTagPageVerified = None
+        hashPage = None
+        failCounter = 0
+        # Make sure you've navigated to the recents part of a hashTag page
+        while not hasTagPageVerified and failCounter < 3:
+
+            searchPage = bot.navRibons.goToSearchPage()
+            if not searchPage:
+                failCounter += 1
+                return 'Fail'
+
+            hashPage = searchPage.navigateToHashTagPage(hashtag)
+            if not hashPage:
+                bot.navRibons.goHome()
+                continue
+
+            hasTagPageVerified = hashPage.verifyPageType(hashtag)
+            # logg.logSmth(f"#### Verified {hashtag}: {hasTagPageVerified}")
+
+        # Once at the hashtag page interact with the most recent posts
+        # logg.logSmth(f"### At HashTag page for tag: {hashtag}")
         numberOfPostsPerTag = numberOfPostsPerTag0
 
         # Collect user handles OR Follow Users
@@ -124,7 +148,7 @@ def addUserToMemory(bot, userPage, user, mark1=False, followed=False):
         bot.memoryManager.updateUserRecord(newFollower)
 
         logg.logSmth(f"##### User {user} added to memory with mark1={mark1} and followed={followed}")
-        logg.logSmth(f"##### Follow mana left: {bot.followMana}")
+        logg.logSmth(f"##### Follow mana left: {bot.followMana} || {bot.followManaMax - bot.followMana} users followed today")
     else:
         if not newFollower:
             logg.logSmth(f"##### User {user} NOT added to memory with mark1={mark1} and followed={followed}")

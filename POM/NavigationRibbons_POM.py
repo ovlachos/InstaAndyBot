@@ -4,6 +4,8 @@ from POM import Screen_POM as screen
 from POM import SearchPage_POM as searchPage
 from POM import UserPage_POM as up
 
+import AnyBotLog as logg
+
 
 class NavigationRibbons(screen.Screen):
 
@@ -42,4 +44,5 @@ class NavigationRibbons(screen.Screen):
         backButton = self.findElementBy_ID(loc.ribbon_ID['backButton'])
         if backButton:
             backButton.click()
+            # logg.logSmth(f"# Back button clicked?")
             self.reactionWait()

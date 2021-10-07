@@ -131,7 +131,7 @@ myDict = {
 
 
 def reactionTime(length=1):
-    return random.uniform(length * 2, length * 4)
+    return random.uniform(length * 3, length * 5)
 
 
 def find_exception_handler(func):
@@ -143,7 +143,10 @@ def find_exception_handler(func):
             # logg.logSmth(f"{func.__name__} failed", 'WARNING')
             if len(args) > 1:
                 logg.logSmth(args[1], 'WARNING')
-            logg.logSmth(f"The cause is: {e}", 'WARNING')
+
+            if "DOM" not in e.msg:
+                logg.logSmth(f"The cause is: {e}", 'WARNING')
+
             return None
 
     return inner_function

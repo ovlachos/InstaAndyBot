@@ -58,8 +58,11 @@ class Post(screen.Screen):
 
     def updateLike(self, element):
         if element:
-            self.likeButton = element
-            self.likeButtonStatus = self.likeButton.tag_name
+            try:
+                self.likeButton = element
+                self.likeButtonStatus = self.likeButton.tag_name
+            except Exception as e:
+                logg.logSmth(e)
 
     def updateComment(self, element):
         if element:
@@ -88,12 +91,17 @@ class Post(screen.Screen):
         if self.canLike:
             try:
                 if self.pic:
-                    y_mid_Point = self.pic.location['y'] + (self.pic.rect['height'] / 2)
-                    x_mid_Point = self.pic.location['x'] + (self.pic.rect['width'] / 2)
-                    xPoint = randint(int(x_mid_Point * 0.85), int(x_mid_Point * 1.15))
-                    yPoint = randint(int(y_mid_Point * 0.85), int(y_mid_Point * 1.15))
+                    # y_mid_Point = self.pic.location['y'] + (self.pic.rect['height'] / 2)
+                    # x_mid_Point = self.pic.location['x'] + (self.pic.rect['width'] / 2)
+                    # xPoint = randint(int(x_mid_Point * 0.85), int(x_mid_Point * 1.15))
+                    # yPoint = randint(int(y_mid_Point * 0.85), int(y_mid_Point * 1.15))
+                    #
+                    # self.doubleClickCoordinates(int(xPoint), int(yPoint))
 
-                    self.doubleClickCoordinates(int(xPoint), int(yPoint))
+                    height = self.pic.rect['height']
+                    startY = self.pic.location['y']
+                    yPoint = height / 2 + startY
+                    self.doubleClickCoordinates(700, int(yPoint))
 
                     self.reactionWait(1)
                     return True
@@ -106,7 +114,8 @@ class Post(screen.Screen):
                         return True
 
             except Exception as e:
-                logg.logSmth(f"Could Not like post by {self.postingUser} because {e}", "ERROR")
+                if "DOM" not in e.msg:
+                    logg.logSmth(f"Could Not like post by {self.postingUser} because {e}", "ERROR")
                 return None
 
         return None
@@ -140,7 +149,7 @@ class Post_ScrolableArea(screen.Screen):
         return total
 
     def fastScreenScan(self):
-        logg.logSmth("FAST Scanning screen for posts...", 'INFO')
+        # logg.logSmth("FAST Scanning screen for posts...", 'INFO')
         self.allElements.clear()
         if self.posts:
             self.posts.clear()
@@ -157,7 +166,7 @@ class Post_ScrolableArea(screen.Screen):
         self.posts = self.reconstructPosts()
 
     def scanScreenForPosts(self):
-        logg.logSmth("Scanning screen for posts...", 'INFO')
+        # logg.logSmth("Scanning screen for posts...", 'INFO')
         self.allElements.clear()
         if self.posts:
             self.posts.clear()

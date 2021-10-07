@@ -1,6 +1,4 @@
 import AnyBotLog as logg
-from Services import theList_Service as theList
-
 
 def playTheGame(bot, num):
     logg.logSmth(f"Follow Mana: {bot.followMana}")
@@ -36,7 +34,7 @@ def playTheGame(bot, num):
         for user in unfollowList:
             user.daysSinceYouGotFollowed_Unfollowed('follow', True)
 
-            logg.logSmth(f"### Navigating to user {user.handle}")
+            # logg.logSmth(f"### Navigating to user {user.handle}")
             searchPage = None
             while not searchPage:
                 searchPage = bot.navRibons.goToSearchPage()
@@ -71,7 +69,7 @@ def playTheGame(bot, num):
 
         userNotFound_counter = 0
         for user in reservesList:
-            logg.logSmth(f"### Navigating to user {user.handle}")
+            # logg.logSmth(f"### Navigating to user {user.handle}")
             searchPage = bot.navRibons.goToSearchPage()
             userPage = searchPage.navigateToUserPage(user.handle)
 

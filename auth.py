@@ -12,6 +12,11 @@ devices = [
         'lowerScreenBound': 1960,
         'upperScreenBound': 260,
     },
+    {
+        'name': 'XEDNW18908001798',
+        'lowerScreenBound': 1970,
+        'upperScreenBound': 210,
+    },
 ]
 
 
@@ -20,12 +25,12 @@ def getDeviceName():
     output = str(test.communicate()[0])
     deviceName = output.split('attached\\n')[1].split('\\tdevice')[0]
 
-    # output_size, output_density = getScreenSizeAndSensity()
+    # output_size, output_density = getScreenSizeAndDensity()
     # print(f"Device {deviceName} with {output_size} and {output_density}")
     return deviceName
 
 
-def getScreenSizeAndSensity():
+def getScreenSizeAndDensity():
     size = subprocess.Popen(["adb shell wm", "size"], stdout=subprocess.PIPE)
     density = subprocess.Popen(["adb shell wm", "density"], stdout=subprocess.PIPE)
     output_size = str(size.communicate()[0])
@@ -35,8 +40,8 @@ def getScreenSizeAndSensity():
 
 
 def getDevice():
-    connectedDevicename = getDeviceName()
+    # connectedDevicename = getDeviceName()
     for device in devices:
         name = device.get('name')
-        if name == connectedDevicename:
+        if name == 'XEDNW18908001798':  # connectedDevicename:
             return device

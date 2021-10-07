@@ -34,10 +34,11 @@ class test(unittest.TestCase):
         try:
             myBot.theGame_Service(numberOfusersToCheck=30, randomArgs=False)
             self.driver.close_app()
+            self.driver.terminate_app("com.instagram.android")
         except:
-            logg.logSmth("\n###################\n")
+            logg.logSmth("#"*20+"\n")
             logg.logSmth("Exception occurred @#$", 'ERROR')
-            logg.logSmth("\n###################\n")
+            logg.logSmth("#"*20+"\n")
         finally:
             logg.logSmth('write Memory to file before quiting')
             myBot.memoryManager.writeMemoryFileToDrive()

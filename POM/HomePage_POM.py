@@ -41,6 +41,8 @@ class HomePage(screen.Screen):
         self.scrollAnd_(self.likePosts, count)
 
     def scrollAnd_(self, func, count=5):
+        logg.logSmth(f"##### Entering scrollAnd_ {func.__name__} with a count of {count}", 'INFO')
+
         result = None
         while not result and count > 0:
             result = func()
@@ -48,11 +50,14 @@ class HomePage(screen.Screen):
             swipesCount = choice([1, 2, 3])
             for i in range(swipesCount):
                 self.vSwipe('small')
+            self.reactionWait(0.5)
+
+        logg.logSmth(f"##### Returning from scrollAnd_ {func.__name__} with a count of {count}", 'INFO')
 
     def likePosts(self, randomise=True):
         self.scrollArea.scanScreenForPosts()
 
-        if self.scrollArea.posts:
+        if len(self.scrollArea.posts):
             for post in self.scrollArea.posts:
 
                 likeSwitch = 2
@@ -62,8 +67,11 @@ class HomePage(screen.Screen):
 
                 if likeSwitch > 1:  # some random chance I'm gonna hit the like button
                     likeResponse = post.likePost()
-                    logg.logSmth(f"Like response for {post.postingUser} is {likeResponse}", 'INFO')
+                    # logg.logSmth(f"Like response for {post.postingUser} is {likeResponse}", 'INFO')
                 else:
-                    logg.logSmth(f"Nope! No like for {post.postingUser} cause {likeSwitch}", 'INFO')
+                    # logg.logSmth(f"Nope! No like for {post.postingUser} cause {likeSwitch}", 'INFO')
+                    pass
 
-        return None
+            return None
+
+        return True

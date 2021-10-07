@@ -22,6 +22,19 @@ class UserPage(screen.Screen):
 
         self.grid = None
 
+    def verifyPageType(self):
+        if self.stats:
+            return True
+        return False
+
+    def verifyUser(self, handle=None):
+        if not self.verifyPageType():
+            logg.logSmth('##### Are you in a user page for sure?', 'WARNING')
+            return False
+
+        logg.logSmth(F'##### User name title {self.userName}', 'INFO')
+        return True
+
     def getAttributeBy_ID(self, locatorID):
         attr = None
         element = self.findElementBy_ID(locatorID)
