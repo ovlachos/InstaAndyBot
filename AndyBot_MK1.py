@@ -80,26 +80,30 @@ class AndyBot():
             self.daysBeforeIunLove = params['daysBeforeIunLove']
 
     def timeDiffForManaReplenishment(self):
-
         try:
-            lastCheck_Time = datetime.strptime(self.paramsTimeStamp, timeStampFormat)
+            lastCheck_Time = self.getDateTimeFromString(self.paramsTimeStamp)
             now_DateTime = self.getDateTimeNow()
 
-            # Convert to Unix timestamp
-            d1_ts = time.mktime(lastCheck_Time.timetuple())
-            d2_ts = time.mktime(now_DateTime.timetuple())
-            deltaT = int(d2_ts - d1_ts) / 60 / 60  # hours
-
-            return deltaT
+            return self.calcTimeDiff(lastCheck_Time, now_DateTime)
         except Exception as e:
             logg.logSmth(e)
             return 12
+
+    def calcTimeDiff(self, t1, t2):
+        # Convert to Unix timestamp
+        d1_ts = time.mktime(t1.timetuple())
+        d2_ts = time.mktime(t2.timetuple())
+        deltaT = int(d2_ts - d1_ts) / 60 / 60  # hours
+        return deltaT
 
     def getDateTimeNow(self):
         return datetime.now()
 
     def getTimeStampString(self):
         return datetime.now().strftime(timeStampFormat)
+
+    def getDateTimeFromString(self, timestamp):
+        return datetime.strptime(timestamp, timeStampFormat)
 
     def botSleep(self, factor=0.05, verbose=False):
         sleepTime = randint(self.timeLowerBound, self.timeUpperBound)

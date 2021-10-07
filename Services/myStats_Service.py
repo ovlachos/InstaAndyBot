@@ -11,16 +11,22 @@ def getMyStats(bot):
 
     datetimeNow = bot.getTimeStampString()
 
-    prev_Dict = getPreviousStats(bot)
+    prev_Dict, pastTimeStamp = getPreviousStats(bot)
     if prev_Dict and myStats:
         followed = myStats.get('following') - prev_Dict.get('following')
         newFollowers = myStats.get('followers') - prev_Dict.get('followers')
+
+        datetimeNow = bot.getTimeStampString()
+        timeElapsed_ = bot.calcTimeDiff(bot.getDateTimeFromString(pastTimeStamp), bot.getDateTimeNow())
+        timeElapsed = round(timeElapsed_, 2)
+
         newRow = [datetimeNow,
                   myStats.get('posts'),
                   myStats.get('followers'),
                   myStats.get('following'),
                   followed,
                   newFollowers,
+                  timeElapsed
                   ]
 
         BotStats.record_new_point(newRow, 'myStats')
@@ -28,14 +34,14 @@ def getMyStats(bot):
 
 def getPreviousStats(bot):
     frame = bot.fileHandler.CSV_getFrameFromCSVfile("myStats")
-    last_row = frame.iloc[-1].tolist()
+    latest = frame.iloc[0].tolist()
 
-    if len(last_row):
+    if len(latest):
         prevDict = {
-            'posts': last_row[1],
-            'followers': last_row[2],
-            'following': last_row[3]
+            'posts': latest[1],
+            'followers': latest[2],
+            'following': latest[3]
         }
-        return prevDict
+        return prevDict, latest[0]
 
     return None
