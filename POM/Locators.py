@@ -25,7 +25,7 @@ ribbon_XPath = {
 
 ribbon_ID = {
     'backButton': 'com.instagram.android:id/action_bar_button_back',
-
+    'bottomBar_OwnProfile': 'com.instagram.android:id/tab_avatar'
 }
 
 ### USER PAGE

@@ -32,6 +32,7 @@ class test(unittest.TestCase):
             myBot.driver.unlock()
 
         try:
+            myBot.myStats_Service()
             myBot.theGame_Service(numberOfusersToCheck=30, randomArgs=False)
             self.driver.close_app()
             self.driver.terminate_app("com.instagram.android")

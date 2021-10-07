@@ -10,10 +10,11 @@ from BotMemory import UserMemoryManager
 from Services import theGame_Service as theGame
 from Services import theList_Service as theList
 from Services import homePageScroller_Service as homeScroller
+from Services import myStats_Service as statService
 
 from POM import NavigationRibbons_POM as ribon
 
-timeStampFormat = "%m/%d/%Y, %H:%M:%S"
+timeStampFormat = "%m/%d/%Y-%H:%M"
 
 
 # TODO How to guarantee that every step of the way navigating on the app is successful and I am not stuck on previous page
@@ -48,7 +49,7 @@ class AndyBot():
 
         self.loadParams()
         self.replenishFollowMana()
-        logg.logSmth(f"Follow Mana: {self.followMana}")
+        logg.logSmth(f"Follow Mana: {self.followMana}/{self.followManaMax}")
 
         self.getMainPage()
 
@@ -82,7 +83,7 @@ class AndyBot():
 
         try:
             lastCheck_Time = datetime.strptime(self.paramsTimeStamp, timeStampFormat)
-            now_DateTime = datetime.now()
+            now_DateTime = self.getDateTimeNow()
 
             # Convert to Unix timestamp
             d1_ts = time.mktime(lastCheck_Time.timetuple())
@@ -93,6 +94,12 @@ class AndyBot():
         except Exception as e:
             logg.logSmth(e)
             return 12
+
+    def getDateTimeNow(self):
+        return datetime.now()
+
+    def getTimeStampString(self):
+        return datetime.now().strftime(timeStampFormat)
 
     def botSleep(self, factor=0.05, verbose=False):
         sleepTime = randint(self.timeLowerBound, self.timeUpperBound)
@@ -127,3 +134,6 @@ class AndyBot():
             numberOfPosts = int(randint(10, 20) * self.factor)
 
         return homeScroller.homePageScroll(self, numberOfPosts)
+
+    def myStats_Service(self):
+        return statService.getMyStats(self)

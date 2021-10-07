@@ -41,8 +41,11 @@ class UserPage(screen.Screen):
         if element:
             attr = element.text
 
-        if not attr:
-            logg.logSmth(f"Could not find {locatorID} on userpage for {self.userName}", 'INFO')
+        try:
+            if not attr:
+                logg.logSmth(f"Could not find {locatorID} on userpage for {self.userName}", 'INFO')
+        except Exception as e:
+            logg.logSmth(f"Error getting userPage attribute {e} ", 'WARNING')
 
         return attr
 

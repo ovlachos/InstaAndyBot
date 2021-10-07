@@ -27,7 +27,7 @@ class NavigationRibbons(screen.Screen):
             return searchPage.SearchPage(self.driver)
 
     def goToOwnProfile(self):
-        ownProfileButton = self.findElementBy_XPATH(loc.ribbon_XPath['bottomBar_OwnProfile'])
+        ownProfileButton = self.findElementBy_ID(loc.ribbon_ID['bottomBar_OwnProfile'])
         if ownProfileButton:
             self.doubleClick(ownProfileButton)
             self.reactionWait(1)
