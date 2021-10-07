@@ -15,19 +15,20 @@ from POM import NavigationRibbons_POM as ribon
 
 timeStampFormat = "%m/%d/%Y, %H:%M:%S"
 
+
 # TODO How to guarantee that every step of the way navigating on the app is successful and I am not stuck on previous page
 
 class AndyBot():
     def __init__(self, driver, deviceDict):
         self.driver = driver
         self.factor = 1
-        self.ownFollowers = 1290
 
         self.fileHandler = fh.FileHandlerBot()
         self.memoryManager = UserMemoryManager.UserMemoryManager()
         self.botParams = btprms.BotParams()
 
         # Bot Params Default values (that get replaced later on, maybe)
+        self.ownFollowers = 1730
         self.paramsTimeStamp = None
         self.timeUpperBound = 48
         self.timeLowerBound = 34
@@ -47,6 +48,7 @@ class AndyBot():
 
         self.loadParams()
         self.replenishFollowMana()
+        logg.logSmth(f"Follow Mana: {self.followMana}")
 
         self.getMainPage()
 
@@ -65,6 +67,7 @@ class AndyBot():
     def loadParams(self):
         params = self.botParams.getBotParams()
         if params:
+            self.ownFollowers = params['OwnFollowers']
             self.paramsTimeStamp = params['TimeStamp']
             self.timeUpperBound = params['sleepMaxSecs']
             self.timeLowerBound = params['sleepMinSecs']

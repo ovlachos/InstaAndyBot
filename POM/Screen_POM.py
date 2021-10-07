@@ -131,7 +131,7 @@ myDict = {
 
 
 def reactionTime(length=1):
-    return random.uniform(length * 2, length * 4)
+    return random.uniform(length * 3, length * 5)
 
 
 def find_exception_handler(func):
@@ -143,7 +143,10 @@ def find_exception_handler(func):
             # logg.logSmth(f"{func.__name__} failed", 'WARNING')
             if len(args) > 1:
                 logg.logSmth(args[1], 'WARNING')
-            logg.logSmth(f"The cause is: {e}", 'WARNING')
+
+            if "DOM" not in e.msg:
+                logg.logSmth(f"The cause is: {e}", 'WARNING')
+
             return None
 
     return inner_function
@@ -250,10 +253,14 @@ class Screen():
             photo = self.driver.find_element_by_id(loc.post_ID['pic'])
         except:
             photo = self.driver.find_element_by_id(loc.post_ID['imageCarousel'])
+        finally:
+            if not photo:
+                return 0, 0
 
         photoHeight = photo.rect['height']
-        print(f"Photo with ID {photo.id} has a height of {photoHeight}")
-        return photoHeight
+        photoWidth = photo.rect['width']
+
+        return photoHeight, photoWidth
 
     def reactionWait(self, length=1, verbose=False):
         tminsecs = reactionTime(length)
@@ -266,3 +273,11 @@ class Screen():
         element.click()
         sleep(time_between_clicks)
         element.click()
+
+    def doubleClickCoordinates(self, x, y):
+        padding = 0.02
+        if self.screenBoundUpper * (1 + padding) < y < (1 - padding) * self.screenBoundLower:  # add 2% padding on the screen edges
+            time_between_clicks = random.uniform(0.050, 0.090)
+            self.driver.tap([(x, y)])
+            sleep(time_between_clicks)
+            self.driver.tap([(x, y)])

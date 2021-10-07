@@ -10,16 +10,16 @@ class test(unittest.TestCase):
         desired_caps = {}
         desired_caps['deviceName'] = auth.getDeviceName()
         desired_caps['platformName'] = "Android"
-        # desired_caps['appPackage'] = "com.instagram.android"
-        # desired_caps['appActivity'] = "com.instagram.mainactivity.MainActivity"
+        desired_caps['appPackage'] = "com.instagram.android"
+        desired_caps['appActivity'] = "com.instagram.mainactivity.MainActivity"
         desired_caps['noReset'] = 'true'
 
         self.driver = wb.Remote('http://localhost:4723/wd/hub', desired_caps)
-        self.driver.implicitly_wait(5)
+        self.driver.implicitly_wait(3)
         self.driver.unlock()
-        logg.logSmth(f"Device is {desired_caps['deviceName']}")
 
-        # self.driver.launch_app()
+        logg.logSmth(f"#" * 50)
+        logg.logSmth(f"Device is {desired_caps['deviceName']}")
 
     def tearDown(self):
         self.driver.quit()
@@ -31,11 +31,25 @@ class test(unittest.TestCase):
             myBot.botSleep(verbose=True)
             myBot.driver.unlock()
 
-        searchPage = myBot.navRibons.goToSearchPage()
-        if searchPage:
-            user = searchPage.navigateToUserPage('vagflip')
-            if user:
-                theListU = user.get_following_hashTag_list()
+        try:
+            homePage = myBot.navRibons.goHome()
+            homePage.scrollArea.fastScreenScan()
+            if len(homePage.scrollArea.posts):
+                post = homePage.scrollArea.posts[0]
+                bounds = post.pic.rect
+                print(bounds)
+                t = 0
+
+            self.driver.close_app()
+        except:
+            logg.logSmth("\n" + "#" * 20 + "\n")
+            logg.logSmth("Exception occurred @#$", 'ERROR')
+            logg.logSmth("\n" + "#" * 20 + "\n")
+        finally:
+            logg.logSmth('write Memory to file before quiting')
+            self.driver.lock()
+            logg.logSmth("\nEND OF TEST\n")
+
         t = 0
 
 

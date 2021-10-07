@@ -1,3 +1,4 @@
+from random import randint
 from time import sleep
 import AnyBotLog as logg
 
@@ -57,8 +58,11 @@ class Post(screen.Screen):
 
     def updateLike(self, element):
         if element:
-            self.likeButton = element
-            self.likeButtonStatus = self.likeButton.tag_name
+            try:
+                self.likeButton = element
+                self.likeButtonStatus = self.likeButton.tag_name
+            except Exception as e:
+                logg.logSmth(e)
 
     def updateComment(self, element):
         if element:
@@ -83,11 +87,22 @@ class Post(screen.Screen):
                 if likeButton.id == self.likeButton.id:
                     self.likeButtonStatus = likeButton.tag_name
 
-    def likePost(self): # TODO like post by double-tapping within pic bounds (with some padding all around)
+    def likePost(self):  # TODO like post by double-tapping within pic bounds (with some padding all around)
         if self.canLike:
             try:
                 if self.pic:
-                    self.doubleClick(self.pic)
+                    # y_mid_Point = self.pic.location['y'] + (self.pic.rect['height'] / 2)
+                    # x_mid_Point = self.pic.location['x'] + (self.pic.rect['width'] / 2)
+                    # xPoint = randint(int(x_mid_Point * 0.85), int(x_mid_Point * 1.15))
+                    # yPoint = randint(int(y_mid_Point * 0.85), int(y_mid_Point * 1.15))
+                    #
+                    # self.doubleClickCoordinates(int(xPoint), int(yPoint))
+
+                    height = self.pic.rect['height']
+                    startY = self.pic.location['y']
+                    yPoint = height / 2 + startY
+                    self.doubleClickCoordinates(700, int(yPoint))
+
                     self.reactionWait(1)
                     return True
 
@@ -99,7 +114,8 @@ class Post(screen.Screen):
                         return True
 
             except Exception as e:
-                logg.logSmth(f"Could Not like post by {self.postingUser} because {e}", "ERROR")
+                if "DOM" not in e.msg:
+                    logg.logSmth(f"Could Not like post by {self.postingUser} because {e}", "ERROR")
                 return None
 
         return None
@@ -132,8 +148,8 @@ class Post_ScrolableArea(screen.Screen):
 
         return total
 
-    def scanScreenForPosts(self):
-        logg.logSmth("Scanning screen for posts...", 'INFO')
+    def fastScreenScan(self):
+        # logg.logSmth("FAST Scanning screen for posts...", 'INFO')
         self.allElements.clear()
         if self.posts:
             self.posts.clear()
@@ -144,21 +160,42 @@ class Post_ScrolableArea(screen.Screen):
 
         self.pics = self.findPostPics()
         for pic in self.pics:
-            if self.screenBoundUpper < pic.location['y'] < self.screenBoundLower:  # TODO: Find a more versatile limit like getting pic bounds
+            # if self.screenBoundUpper < pic.location['y'] < self.screenBoundLower:  # TODO: Find a more versatile limit like getting pic bounds
+            self.allElements.append([pic, 'pic'])
+
+        self.posts = self.reconstructPosts()
+
+    def scanScreenForPosts(self):
+        # logg.logSmth("Scanning screen for posts...", 'INFO')
+        self.allElements.clear()
+        if self.posts:
+            self.posts.clear()
+
+        self.headers = self.findElementsBy_ID(loc.post_ID['postingUser'])
+        if self.headers:
+            for header in self.headers:
+                self.allElements.append([header, 'header'])
+
+        self.pics = self.findPostPics()
+        if self.pics:
+            for pic in self.pics:
+                # if self.screenBoundUpper < pic.location['y'] < self.screenBoundLower:  # TODO: Find a more versatile limit like getting pic bounds
                 self.allElements.append([pic, 'pic'])
 
         self.likeButtons = self.findElementsBy_ID(loc.post_ID['like'])
-        for like in self.likeButtons:
-            if self.screenBoundUpper < like.location['y'] < self.screenBoundLower:  # TODO: Find a more versatile limit
-                self.allElements.append([like, 'like'])
+        if self.likeButtons:
+            for like in self.likeButtons:
+                if self.screenBoundUpper < like.location['y'] < self.screenBoundLower:  # TODO: Find a more versatile limit
+                    self.allElements.append([like, 'like'])
 
         self.comments = self.findElementsBy_ID(loc.post_ID['comment'])
-        for comment in self.comments:
-            self.allElements.append([comment, 'comment'])
-        try:
-            self.allElements.sort(key=lambda x: x[0].location['y'])
-        except Exception as e:
-            self.posts = None
+        if self.comments:
+            for comment in self.comments:
+                self.allElements.append([comment, 'comment'])
+            try:
+                self.allElements.sort(key=lambda x: x[0].location['y'])
+            except Exception as e:
+                self.posts = None
 
         self.posts = self.reconstructPosts()
 

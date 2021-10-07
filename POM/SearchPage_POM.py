@@ -63,12 +63,12 @@ class SearchPage(screen.Screen):
                 if element:
                     element[0].click()
                     sleep(2)
-                    logg.logSmth(f"### navigating to {fuzzyMatch} with an input of {username} and {query_firstPart}")
+                    # logg.logSmth(f"### navigating to {fuzzyMatch} with an input of {username} and {query_firstPart}")
                     return up.UserPage(self.driver)
 
         # If that did not work, then type the rest of it
-        logg.logSmth(f'### user not found | results are {[x.text for x in results]} and fuzzyMatch is {fuzzyMatch}')
-        logg.logSmth("### I need to type in more...")
+        # logg.logSmth(f'### user not found | results are {[x.text for x in results]} and fuzzyMatch is {fuzzyMatch}')
+        # logg.logSmth("### I need to type in more...")
         self.typeIntoSearchField(query_secondPart)
         self.reactionWait(0.5)
         results = self.getUserSearchResult()
@@ -79,14 +79,15 @@ class SearchPage(screen.Screen):
             if element:
                 element[0].click()
                 sleep(2)
-                logg.logSmth(f"### navigating to {fuzzyMatch} with an input of {username} and {query_firstPart}{query_secondPart}", "INFO")
+                # logg.logSmth(f"### navigating to {fuzzyMatch} with an input of {username} and {query_firstPart}{query_secondPart}", "INFO")
                 return up.UserPage(self.driver)
 
         # If no fuzzy match was found after both attempts then call it.
-        logg.logSmth(f'### user not found | results are {[x.text for x in results]} and fuzzyMatch is {fuzzyMatch}')
+        if results:
+            logg.logSmth(f'### user not found | results are {[x.text for x in results]} and fuzzyMatch is {fuzzyMatch}')
         return None
 
-    def naviateToHashTagPage(self, tag):
+    def navigateToHashTagPage(self, tag):
         self.typeIntoSearchField(tag)
         results = self.getTagSearchResults()
 
