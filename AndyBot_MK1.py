@@ -17,7 +17,7 @@ from POM import NavigationRibbons_POM as ribon
 timeStampFormat = "%m/%d/%Y-%H:%M"
 
 
-# TODO How to guarantee that every step of the way navigating on the app is successful and I am not stuck on previous page
+# TODO How to guarantee that every step of the way, navigating on the app is successful and I am not stuck on a previous/next page
 
 class AndyBot():
     def __init__(self, driver, deviceDict):
@@ -60,6 +60,9 @@ class AndyBot():
             self.botParams.updateMana(self.followManaMax, timeStamp)  # the only time a new timestamp is recorded on drive
         else:
             self.botParams.updateMana(self.followMana)
+
+    def updateOwnFollowers(self, count):
+        self.botParams.updateOwnFollowers(count)
 
     def decrementFolowMana(self, delta):
         self.followMana = self.followMana - delta

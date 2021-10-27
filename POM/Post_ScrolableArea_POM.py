@@ -76,7 +76,7 @@ class Post(screen.Screen):
             try:
                 self.postingUser = self.header.text.split(' ')[0]
             except Exception as e:
-                logg.logSmth("Could not update posting user", 'ERROR')
+                logg.logSmth("Could not update posting user", 'WARNING')
 
     def updateLikeButtonStatus(self):
         likes = self.findElementsBy_ID(loc.post_ID['like'])
@@ -100,7 +100,7 @@ class Post(screen.Screen):
 
                     height = self.pic.rect['height']
                     startY = self.pic.location['y']
-                    yPoint = height / 2 + startY
+                    yPoint = startY + (height / 2)
                     self.doubleClickCoordinates(700, int(yPoint))
 
                     self.reactionWait(1)

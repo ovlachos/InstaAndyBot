@@ -9,8 +9,6 @@ def getMyStats(bot):
     if myProfile:
         myStats = myProfile.stats
 
-    datetimeNow = bot.getTimeStampString()
-
     prev_Dict, pastTimeStamp = getPreviousStats(bot)
     if prev_Dict and myStats:
         followed = myStats.get('following') - prev_Dict.get('following')
@@ -30,6 +28,7 @@ def getMyStats(bot):
                   ]
 
         BotStats.record_new_point(newRow, 'myStats')
+        bot.updateOwnFollowers(myStats.get('followers'))
 
 
 def getPreviousStats(bot):

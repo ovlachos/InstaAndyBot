@@ -15,7 +15,7 @@ homePage_ID = {
 
 ### Ribbon
 ribbon_XPath = {
-    'bottomBar_homeButton': "//android.widget.FrameLayout[@content-desc='Home']",
+    'bottomBar_homeButton': "//android.widget.FrameLayout[@content-desc='Home']/android.view.ViewGroup/android.widget.FrameLayout/android.widget.ImageView",
     'topBar_homeButton': "//android.widget.Button[@content-desc='Scroll to top']",
     'bottomBar_Search': "//android.widget.FrameLayout[@content-desc='Search and Explore']",
     'bottomBar_OwnProfile': "//android.widget.Button[@content-desc='Profile']/android.view.ViewGroup",

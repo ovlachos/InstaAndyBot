@@ -33,7 +33,7 @@ class test(unittest.TestCase):
 
         try:
             myBot.myStats_Service()
-            myBot.homePageScroller(numberOfPosts=120, randomArgs=False)
+            myBot.homePageScroller(numberOfPosts=110, randomArgs=False)
             self.driver.close_app()
             self.driver.terminate_app("com.instagram.android")
         except:
@@ -41,8 +41,6 @@ class test(unittest.TestCase):
             logg.logSmth("Exception occurred @#$\n", 'ERROR')
             logg.logSmth("#" * 20 + "\n")
         finally:
-            logg.logSmth('write Memory to file before quiting')
-            myBot.memoryManager.writeMemoryFileToDrive()
             self.driver.lock()
             logg.logSmth("\nEND OF TEST\n")
 

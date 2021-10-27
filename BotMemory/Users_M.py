@@ -288,8 +288,7 @@ class User_M:
             deltaT = int(d2_ts - d1_ts) / 60 / 60 / 24
 
             if verbose:
-                pass
-                logg.logSmth(f'### {datetime.today()}:  {str(round(deltaT, 1))} days since I followed {self.handle}')
+                logg.logSmth(f'########## {datetime.today()}:  {str(round(deltaT, 1))} days since I followed {self.handle}')
 
             return deltaT
         except Exception as e:

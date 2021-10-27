@@ -18,7 +18,7 @@ class test(unittest.TestCase):
         self.driver.implicitly_wait(3)
         self.driver.unlock()
 
-        logg.logSmth(f"#"*50)
+        logg.logSmth(f"#" * 50)
         logg.logSmth(f"Device is {desired_caps['deviceName']}")
 
     def tearDown(self):
@@ -32,13 +32,13 @@ class test(unittest.TestCase):
             myBot.driver.unlock()
 
         try:
-            myBot.theList_Service(numberOfTags=15, numberOfPostsPerTag=5, randomArgs=False)
+            myBot.theList_Service(numberOfTags=15, numberOfPostsPerTag=8, randomArgs=False)
             self.driver.close_app()
             self.driver.terminate_app("com.instagram.android")
         except:
-            logg.logSmth("#"*20+"\n")
+            logg.logSmth("#" * 20 + "\n")
             logg.logSmth("Exception occurred @#$", 'ERROR')
-            logg.logSmth("#"*20+"\n")
+            logg.logSmth("#" * 20 + "\n")
         finally:
             logg.logSmth('write Memory to file before quiting')
             myBot.memoryManager.writeMemoryFileToDrive()

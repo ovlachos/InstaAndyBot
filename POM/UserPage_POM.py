@@ -175,7 +175,7 @@ class UserPage(screen.Screen):
         return f"I {descriptionFollowAccess[str(self.followAccess)]} user {self.userName} and I have {descriptionInfoAccess[str(self.infoAccess)]}"  # description[str(self.type)]
 
     def printProfileTypeDescription(self):
-        logg.logSmth(f'~~> {self.get_profileTypeDescription()}')
+        logg.logSmth(f'~~~~~~~~~> {self.get_profileTypeDescription()}')
 
     def get_followers_list(self):
         page = self.navToFolowers()
@@ -205,14 +205,14 @@ class UserPage(screen.Screen):
             self.determineLevelOfFollowAccess()
 
             if self.followAccess < 45:
-                logg.logSmth('#### OK followed {}'.format(self.userName), 'INFO')
+                logg.logSmth('########## OK followed {}'.format(self.userName), 'INFO')
                 return 'OK'
             else:
                 return 'fail'
         else:
-            logg.logSmth('#### nahh - no follow access for this user because:')
+            logg.logSmth('########## nahh - no follow access for this user because:')
             self.printProfileTypeDescription()
-            return 'OK'  # TODO although already followed or requested this result still subtracts from daily follow mana
+            return 'ΝΟΤ'  # TODO although already followed or requested this result still subtracts from daily follow mana
 
     def unfollow(self):
         self.determineLevelOfFollowAccess()
@@ -245,13 +245,13 @@ class UserPage(screen.Screen):
 
             self.determineLevelOfFollowAccess()
             if self.followAccess > 45:
-                logg.logSmth('#### OK UNfollowed {}'.format(self.userName), 'INFO')
+                logg.logSmth('########## OK UNfollowed {}'.format(self.userName), 'INFO')
                 self.printProfileTypeDescription()
                 return 'OK'
             else:
                 return 'fail'
         else:
-            logg.logSmth('#### nahh - no unfollow access for this user because:')
+            logg.logSmth('########## nahh - no unfollow access for this user because:')
             self.printProfileTypeDescription()
             return 'OK'
 
