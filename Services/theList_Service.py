@@ -5,6 +5,10 @@ import AnyBotLog as logg
 def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPerTag0):
     import random
 
+    logg.logSmth(f"#" * 40)
+    logg.logSmth(f" " * 10 + "*" * 5 + " The List " + "*" * 5 + " " * 10)
+    logg.logSmth(f"#" * 40)
+
     def L1_criteria(userStats):
         # Filter out users with more followers than myself, 0 posts etc.- aka L1
         followerCountLimit = bot.ownFollowers
@@ -147,12 +151,12 @@ def addUserToMemory(bot, userPage, user, mark1=False, followed=False):
 
         bot.memoryManager.updateUserRecord(newFollower)
 
-        logg.logSmth(f"##### User {user} added to memory with mark1={mark1} and followed={followed}")
-        logg.logSmth(f"##### Follow mana left: {bot.followMana} || {bot.followManaMax - bot.followMana} users followed today")
+        logg.logSmth(f"########## User {user} added to memory with mark1={mark1} and followed={followed}")
+        logg.logSmth(f"########## Follow mana left: {bot.followMana} || {bot.followManaMax - bot.followMana} users followed today")
     else:
         if not newFollower:
-            logg.logSmth(f"##### User {user} NOT added to memory with mark1={mark1} and followed={followed}")
+            logg.logSmth(f"########## User {user} NOT added to memory with mark1={mark1} and followed={followed}")
         else:
-            logg.logSmth(f"##### User {user} already exists in memory with mark1={mark1} and followed={followed}")
+            logg.logSmth(f"########## User {user} already exists in memory with mark1={mark1} and followed={followed}")
 
     return "OK"

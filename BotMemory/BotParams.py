@@ -34,3 +34,8 @@ class BotParams:
                 self.paramsDict['TimeStamp'] = timeStamp
 
             self.writeBotParams()
+
+    def updateOwnFollowers(self, newValue):
+        if newValue:
+            self.paramsDict['OwnFollowers'] = newValue
+            self.writeBotParams()

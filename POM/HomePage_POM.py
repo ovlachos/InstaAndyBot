@@ -27,14 +27,14 @@ class HomePage(screen.Screen):
             user = chosen_story.tag_name
             user = user.split("'s story")[0]
 
-            logg.logSmth(f"Whatching {user}'s story for {duration} secs", 'INFO')
+            logg.logSmth(f"##### Whatching {user}'s story for {duration} secs", 'INFO')
             chosen_story.click()
 
             while duration > 0:
                 duration -= 1
                 sleep(1)
 
-            logg.logSmth(f"Done watching stories", 'INFO')
+            logg.logSmth(f"##### Done watching stories", 'INFO')
             self.driver.back()
 
     def scrollAnd_Like(self, count=10):

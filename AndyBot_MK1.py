@@ -10,13 +10,14 @@ from BotMemory import UserMemoryManager
 from Services import theGame_Service as theGame
 from Services import theList_Service as theList
 from Services import homePageScroller_Service as homeScroller
+from Services import myStats_Service as statService
 
 from POM import NavigationRibbons_POM as ribon
 
-timeStampFormat = "%m/%d/%Y, %H:%M:%S"
+timeStampFormat = "%m/%d/%Y-%H:%M"
 
 
-# TODO How to guarantee that every step of the way navigating on the app is successful and I am not stuck on previous page
+# TODO How to guarantee that every step of the way, navigating on the app is successful and I am not stuck on a previous/next page
 
 class AndyBot():
     def __init__(self, driver, deviceDict):
@@ -48,7 +49,7 @@ class AndyBot():
 
         self.loadParams()
         self.replenishFollowMana()
-        logg.logSmth(f"Follow Mana: {self.followMana}")
+        logg.logSmth(f"Follow Mana: {self.followMana}/{self.followManaMax}")
 
         self.getMainPage()
 
@@ -59,6 +60,9 @@ class AndyBot():
             self.botParams.updateMana(self.followManaMax, timeStamp)  # the only time a new timestamp is recorded on drive
         else:
             self.botParams.updateMana(self.followMana)
+
+    def updateOwnFollowers(self, count):
+        self.botParams.updateOwnFollowers(count)
 
     def decrementFolowMana(self, delta):
         self.followMana = self.followMana - delta
@@ -79,20 +83,30 @@ class AndyBot():
             self.daysBeforeIunLove = params['daysBeforeIunLove']
 
     def timeDiffForManaReplenishment(self):
-
         try:
-            lastCheck_Time = datetime.strptime(self.paramsTimeStamp, timeStampFormat)
-            now_DateTime = datetime.now()
+            lastCheck_Time = self.getDateTimeFromString(self.paramsTimeStamp)
+            now_DateTime = self.getDateTimeNow()
 
-            # Convert to Unix timestamp
-            d1_ts = time.mktime(lastCheck_Time.timetuple())
-            d2_ts = time.mktime(now_DateTime.timetuple())
-            deltaT = int(d2_ts - d1_ts) / 60 / 60  # hours
-
-            return deltaT
+            return self.calcTimeDiff(lastCheck_Time, now_DateTime)
         except Exception as e:
             logg.logSmth(e)
             return 12
+
+    def calcTimeDiff(self, t1, t2):
+        # Convert to Unix timestamp
+        d1_ts = time.mktime(t1.timetuple())
+        d2_ts = time.mktime(t2.timetuple())
+        deltaT = int(d2_ts - d1_ts) / 60 / 60  # hours
+        return deltaT
+
+    def getDateTimeNow(self):
+        return datetime.now()
+
+    def getTimeStampString(self):
+        return datetime.now().strftime(timeStampFormat)
+
+    def getDateTimeFromString(self, timestamp):
+        return datetime.strptime(timestamp, timeStampFormat)
 
     def botSleep(self, factor=0.05, verbose=False):
         sleepTime = randint(self.timeLowerBound, self.timeUpperBound)
@@ -127,3 +141,6 @@ class AndyBot():
             numberOfPosts = int(randint(10, 20) * self.factor)
 
         return homeScroller.homePageScroll(self, numberOfPosts)
+
+    def myStats_Service(self):
+        return statService.getMyStats(self)

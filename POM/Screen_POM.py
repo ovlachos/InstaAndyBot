@@ -140,12 +140,10 @@ def find_exception_handler(func):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            # logg.logSmth(f"{func.__name__} failed", 'WARNING')
-            if len(args) > 1:
-                logg.logSmth(args[1], 'WARNING')
 
-            if "DOM" not in e.msg:
+            if "DOM" not in e.msg and "@content-desc" not in args[1]:
                 logg.logSmth(f"The cause is: {e}", 'WARNING')
+                logg.logSmth(args[1], 'WARNING')
 
             return None
 
