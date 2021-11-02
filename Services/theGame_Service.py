@@ -34,6 +34,7 @@ def playTheGame(bot, num):
         logg.logSmth(f"##### - {len(unfollowList)} users to be un-Followed")
 
         userNotFound_counter = 0
+        unfollow_counter = 0
         for user in unfollowList:
             user.daysSinceYouGotFollowed_Unfollowed('follow', True)
 
@@ -61,6 +62,10 @@ def playTheGame(bot, num):
             if 'OK' in userPage.unfollow():
                 user.markDateUnfollowed()
                 bot.memoryManager.updateUserRecord(user)
+
+                unfollow_counter += 1
+                logg.logSmth(f"##### {unfollow_counter} / {len(unfollowList)} users unfollowed today")
+
                 bot.botSleep()
     else:
         logg.logSmth(f"##### - {0} users to be un-Followed")
@@ -71,31 +76,32 @@ def playTheGame(bot, num):
 
         userNotFound_counter = 0
         for user in reservesList:
-            # logg.logSmth(f"### Navigating to user {user.handle}")
-            searchPage = bot.navRibons.goToSearchPage()
-            userPage = searchPage.navigateToUserPage(user.handle)
+            if bot.followMana > 0:
 
-            if not userPage:
-                bot.memoryManager.userPageCannotBeFound(user)
+                searchPage = bot.navRibons.goToSearchPage()
+                userPage = searchPage.navigateToUserPage(user.handle)
 
-                userNotFound_counter += 1
-                if userNotFound_counter > 3:
-                    return "No Internet - ...or search shadow ban"
+                if not userPage:
+                    bot.memoryManager.userPageCannotBeFound(user)
 
-                continue
+                    userNotFound_counter += 1
+                    if userNotFound_counter > 3:
+                        return "No Internet - ...or search shadow ban"
 
-            logg.logSmth(f"########## Will follow user {user.handle}", 'INFO')
-            userNotFound_counter = 0  # restart this counter as we only want to see if we fail to get X users in a row, before shuting things down
+                    continue
 
-            if user.iShouldFollowThisUser() and bot.followMana > 0:
-                if 'OK' in userPage.follow():
-                    user.markTimeFollowed()
-                    user.addToLoveDaily()
-                    bot.decrementFolowMana(1)
+                logg.logSmth(f"########## Will follow user {user.handle}", 'INFO')
+                userNotFound_counter = 0  # restart this counter as we only want to see if we fail to get X users in a row, before shuting things down
 
-            bot.memoryManager.updateUserRecord(user)
-            if user.dateFollowed_byMe:
-                bot.botSleep()
+                if user.iShouldFollowThisUser() and bot.followMana > 0:
+                    if 'OK' in userPage.follow():
+                        user.markTimeFollowed()
+                        user.addToLoveDaily()
+                        bot.decrementFolowMana(1)
+
+                bot.memoryManager.updateUserRecord(user)
+                if user.dateFollowed_byMe:
+                    bot.botSleep()
     else:
         logg.logSmth(f"##### - {0} reserve users to be Followed")
 

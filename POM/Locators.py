@@ -62,6 +62,7 @@ searchPage_ID = {
 hashTagPage_Xpath = {
     'recent': "//android.widget.TextView[@content-desc='Recent']",
     'top': "//android.widget.TextView[@content-desc='Top']",
+    'count_desktop_browser': "//*[@class='g47SY ']"
 }
 
 hashTagPage_ID = {

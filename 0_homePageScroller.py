@@ -33,7 +33,7 @@ class test(unittest.TestCase):
 
         try:
             myBot.myStats_Service()
-            myBot.homePageScroller(numberOfPosts=110, randomArgs=False)
+            myBot.homePageScroller(numberOfPosts=120, randomArgs=False)
             self.driver.close_app()
             self.driver.terminate_app("com.instagram.android")
         except:
@@ -42,7 +42,7 @@ class test(unittest.TestCase):
             logg.logSmth("#" * 20 + "\n")
         finally:
             self.driver.lock()
-            logg.logSmth("\nEND OF TEST\n")
+            logg.logSmth("\n\nEND OF TEST\n")
 
 
 if __name__ == '__main__':
