@@ -11,6 +11,10 @@ class StatsRecorder:
     def recordMyStats(self, dataPoint):
         self.f_h.CSV_addNewRowToCSV("myStats", dataPoint)
 
+    def recordMyFollowing(self, myFollowing):
+        frame = self.f_h.listToFrame(myFollowing)
+        self.f_h.CSV_saveFrametoCSVfile('myFollowing', frame)
+
     def recordHashTagStats(self, dataPoint):
         pass
 
@@ -25,8 +29,11 @@ def createStatsRecorder():
 
 def record_new_point(dataPoint, fileName):
     with createStatsRecorder() as statRec:
-        if "my" in fileName:
+        if "Stats" in fileName:
             statRec.recordMyStats(dataPoint)
 
         if "hash" in fileName:
             statRec.recordHashTagStats(dataPoint)
+
+        if "Following" in fileName:
+            statRec.recordMyFollowing(dataPoint)

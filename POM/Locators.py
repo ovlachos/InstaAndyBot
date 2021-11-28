@@ -35,6 +35,7 @@ userPage_ID = {
     'followingHashTagWindow': 'com.instagram.android:id/row_hashtag_link_title',
     'followingSearchField': 'com.instagram.android:id/row_search_edit_text',
     'followingSearchResult': 'com.instagram.android:id/follow_list_username',
+    'followingSortingButton': 'com.instagram.android:id/sorting_entry_row_icon',
     'followingHashTagSearchResult': 'com.instagram.android:id/follow_list_username',
     'postsCount': "com.instagram.android:id/row_profile_header_textview_post_count",
     'userName': 'com.instagram.android:id/action_bar_title',
@@ -50,6 +51,9 @@ userPage_XPATH = {
     'Button_Follow': "//android.widget.Button[contains(@content-desc,'Follow')]",
     'Button_FollowBack': "//android.widget.Button[contains(@content-desc,'back')]",
     'Button_Requested': "//android.widget.Button[contains(@content-desc,'Requested')]",
+    'following_sorting_option_latest': "//android.widget.TextView[contains(@text,'Latest')]/..//android.widget.RadioButton",
+    'following_sorting_option_earliest': "//android.widget.TextView[contains(@text,'Earliest')]/..//android.widget.RadioButton",
+    'following_sorting_option_default': "//android.widget.TextView[contains(@text,'Default')]/..//android.widget.RadioButton",
 }
 ### SEARCH PAGE
 searchPage_ID = {
@@ -77,6 +81,7 @@ post_ID = {
     "buttonRow": "com.instagram.android:id/row_feed_view_group_buttons",
     "like": "com.instagram.android:id/row_feed_button_like",
     "comment": "com.instagram.android:id/row_feed_button_comment",
+    "commentExpanded": "com.instagram.android:id/row_comment_textview_comment",
     "save": "com.instagram.android:id/row_feed_button_save",
     "likes": "com.instagram.android:id/like_row",
     "usersLiked_Common": "com.instagram.android:id/row_user_primary_name",

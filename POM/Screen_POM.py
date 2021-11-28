@@ -130,8 +130,8 @@ myDict = {
 }
 
 
-def reactionTime(length=1):
-    return random.uniform(length * 3, length * 5)
+def reactionTime(scale=1):
+    return random.uniform(scale * 3, scale * 5)
 
 
 def find_exception_handler(func):
@@ -179,6 +179,15 @@ class Screen():
         button = self.findElementBy_ID(elementLocator)
         if button:
             button.click()
+            self.reactionWait(.5)
+            return True
+        return False
+
+    def getAndClickElementBy_XPATH(self, elementLocator):
+        button = self.findElementBy_XPATH(elementLocator)
+        if button:
+            button.click()
+            self.reactionWait(.5)
             return True
         return False
 
@@ -224,22 +233,31 @@ class Screen():
         if 'small' in length:
             startX = random.randint(700, 800)
             endX = random.randint(700, 800)
-            startY = random.randint((self.screenBoundLower - 300), (self.screenBoundLower - 200))
-            endY = random.randint(self.screenBoundUpper, (self.screenBoundUpper + 250))
-            hold = random.randint(300, 600)
+            # startY = random.randint((self.screenBoundLower - 300), (self.screenBoundLower - 200))
+            # endY = random.randint(self.screenBoundUpper, (self.screenBoundUpper + 250))
+            startY = random.randint(1400, 1600)
+            endY = random.randint(600, 800)
+            hold = random.randint(630, 660)
             # print(startY, endY)
 
         if 'tiny' in length:
             startX = random.randint(700, 800)
             endX = random.randint(700, 800)
             startY = random.randint(1300, 1500)
-            endY = random.randint(800, 1200)
+            endY = random.randint(800, 1000)
             hold = random.randint(666, 666)
             # print(startY, endY)
 
         return startX, endX, startY, endY, hold
 
-    def vSwipe(self, length='medium'):
+    def vSwipeDown(self, length='medium'):
+        # Coordinates randomised at start
+        startX, endX, startY, endY, hold = self.getScrollLengthCoordinates(length)
+
+        self.driver.swipe(startX, endY, endX, startY)
+        self.reactionWait(0.75)
+
+    def vSwipeUp(self, length='medium'):
         # Coordinates randomised at start
         startX, endX, startY, endY, hold = self.getScrollLengthCoordinates(length)
 
@@ -260,8 +278,8 @@ class Screen():
 
         return photoHeight, photoWidth
 
-    def reactionWait(self, length=1, verbose=False):
-        tminsecs = reactionTime(length)
+    def reactionWait(self, scale=1, verbose=False):
+        tminsecs = reactionTime(scale)
         if verbose:
             logg.logSmth(f'sleep for {tminsecs}', 'INFO')
         sleep(tminsecs)

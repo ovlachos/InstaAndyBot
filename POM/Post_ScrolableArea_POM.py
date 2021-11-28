@@ -17,6 +17,7 @@ class Post(screen.Screen):
         self.comment = None
         self.postingUser = None
         self.possiblepostingUser = None
+        self.firstComment_txt = ""
         self.canLike = False
         # print(f"Generating a post with:")
 
@@ -120,6 +121,26 @@ class Post(screen.Screen):
 
         return None
 
+    def expandComments(self):
+        if self.comment:
+            try:
+                self.comment.click()
+                self.reactionWait(2)
+                self.driver.back()
+                return True
+            except:
+                return False
+
+    def getFirstCommentText(self):
+        if self.expandComments():
+            expandedfirstComment = self.findElementBy_ID(loc.post_ID['commentExpanded'])
+            if expandedfirstComment:
+                self.firstComment_txt = expandedfirstComment.text
+
+            self.driver.back()
+
+        return self.firstComment_txt
+
     def navigateToPostingUserProfile(self):
         if self.header:
             self.header.click()
@@ -148,54 +169,46 @@ class Post_ScrolableArea(screen.Screen):
 
         return total
 
-    def fastScreenScan(self):
-        # logg.logSmth("FAST Scanning screen for posts...", 'INFO')
+    def scanScreenForPosts(self, level=[1, 1, 1, 1]):
+        # Level:
+        #  level[0] : Headers,
+        #  level[1] : pics,
+        #  level[2] : Like Buttons,
+        #  level[3] : comments,
+
         self.allElements.clear()
         if self.posts:
             self.posts.clear()
 
-        self.headers = self.findElementsBy_ID(loc.post_ID['postingUser'])
-        for header in self.headers:
-            self.allElements.append([header, 'header'])
+        if level[0] == 1:
+            self.headers = self.findElementsBy_ID(loc.post_ID['postingUser'])
+            if self.headers:
+                for header in self.headers:
+                    self.allElements.append([header, 'header'])
 
-        self.pics = self.findPostPics()
-        for pic in self.pics:
-            # if self.screenBoundUpper < pic.location['y'] < self.screenBoundLower:  # TODO: Find a more versatile limit like getting pic bounds
-            self.allElements.append([pic, 'pic'])
+        if level[1] == 1:
+            self.pics = self.findPostPics()
+            if self.pics:
+                for pic in self.pics:
+                    self.allElements.append([pic, 'pic'])
 
-        self.posts = self.reconstructPosts()
+        if level[2] == 1:
+            self.likeButtons = self.findElementsBy_ID(loc.post_ID['like'])
+            if self.likeButtons:
+                for like in self.likeButtons:
+                    if self.screenBoundUpper < like.location['y'] < self.screenBoundLower:  # TODO: Find a more versatile limit
+                        self.allElements.append([like, 'like'])
 
-    def scanScreenForPosts(self):
-        # logg.logSmth("Scanning screen for posts...", 'INFO')
-        self.allElements.clear()
-        if self.posts:
-            self.posts.clear()
+        if level[3] == 1:
+            self.comments = self.findElementsBy_ID(loc.post_ID['comment'])
+            if self.comments:
+                for comment in self.comments:
+                    self.allElements.append([comment, 'comment'])
 
-        self.headers = self.findElementsBy_ID(loc.post_ID['postingUser'])
-        if self.headers:
-            for header in self.headers:
-                self.allElements.append([header, 'header'])
-
-        self.pics = self.findPostPics()
-        if self.pics:
-            for pic in self.pics:
-                # if self.screenBoundUpper < pic.location['y'] < self.screenBoundLower:  # TODO: Find a more versatile limit like getting pic bounds
-                self.allElements.append([pic, 'pic'])
-
-        self.likeButtons = self.findElementsBy_ID(loc.post_ID['like'])
-        if self.likeButtons:
-            for like in self.likeButtons:
-                if self.screenBoundUpper < like.location['y'] < self.screenBoundLower:  # TODO: Find a more versatile limit
-                    self.allElements.append([like, 'like'])
-
-        self.comments = self.findElementsBy_ID(loc.post_ID['comment'])
-        if self.comments:
-            for comment in self.comments:
-                self.allElements.append([comment, 'comment'])
-            try:
-                self.allElements.sort(key=lambda x: x[0].location['y'])
-            except Exception as e:
-                self.posts = None
+        try:
+            self.allElements.sort(key=lambda x: x[0].location['y'])
+        except Exception as e:
+            self.posts = None
 
         self.posts = self.reconstructPosts()
 

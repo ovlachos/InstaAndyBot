@@ -43,7 +43,7 @@ class PostGrid(screen.Screen):
             self.reactionWait(1.5)
             self.scrollablePostArea = postScrol.Post_ScrolableArea(self.driver)
 
-    def likePostByOrder(self, order):
+    def likePostByOrder(self, order):  # starting from '1'
         self.openPostByOrder(order)
         for post in self.scrollablePostArea.posts:
             likeResponse = post.likePost()

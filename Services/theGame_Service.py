@@ -93,6 +93,9 @@ def playTheGame(bot, num):
                 logg.logSmth(f"########## Will follow user {user.handle}", 'INFO')
                 userNotFound_counter = 0  # restart this counter as we only want to see if we fail to get X users in a row, before shuting things down
 
+                # userPage = userPage.likeUserPostByOrder(1) # like the latest post to rekindle love.
+                # remember to go back to userpage and re scan to get everything
+
                 if user.iShouldFollowThisUser() and bot.followMana > 0:
                     if 'OK' in userPage.follow():
                         user.markTimeFollowed()

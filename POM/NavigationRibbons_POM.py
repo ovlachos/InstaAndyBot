@@ -14,6 +14,7 @@ class NavigationRibbons(screen.Screen):
 
         if bottomHomeButton:
             self.doubleClick(bottomHomeButton)
+            self.vSwipeDown()
             self.reactionWait()
 
             return home.HomePage(self.driver)

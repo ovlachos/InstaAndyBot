@@ -32,7 +32,7 @@ class Browser:
             "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36")
 
         self.driver = webdriver.Chrome(options=option)
-        self.driver.implicitly_wait(15)
+        self.driver.implicitly_wait(5)
 
         executor_url = self.driver.command_executor._url
         session_id = self.driver.session_id

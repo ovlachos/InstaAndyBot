@@ -49,10 +49,18 @@ class HomePage(screen.Screen):
             count -= 1
             swipesCount = choice([1, 2, 3])
             for i in range(swipesCount):
-                self.vSwipe('small')
-            self.reactionWait(0.5)
+                self.vSwipeUp('small')
+            self.reactionWait(0.25)
 
         logg.logSmth(f"##### Returning from scrollAnd_ {func.__name__} with a count of {count}", 'INFO')
+
+    def farmFirstComments(self):
+        self.scrollArea.scanScreenForPosts([1, 1, 0, 1])
+
+        if len(self.scrollArea.posts):
+            for post in self.scrollArea.posts:
+                textCom = post.getFirstCommentText()
+                print(textCom)
 
     def likePosts(self, randomise=True):
         self.scrollArea.scanScreenForPosts()
@@ -62,7 +70,7 @@ class HomePage(screen.Screen):
 
                 likeSwitch = 2
                 if randomise:
-                    regulator = randint(3, 6)
+                    regulator = randint(3, 4)
                     likeSwitch = randint(1, regulator)
 
                 if likeSwitch > 1:  # some random chance I'm gonna hit the like button

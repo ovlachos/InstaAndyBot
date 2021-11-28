@@ -31,6 +31,18 @@ def getMyStats(bot):
         bot.updateOwnFollowers(myStats.get('followers'))
 
 
+def getMyFollowingList(bot):
+    myFollowing = None
+
+    myProfile = bot.navRibons.goToOwnProfile()
+    if myProfile:
+        myProfile.get_following_list(.25)
+        myFollowing = myProfile.following
+
+    if myFollowing:
+        BotStats.record_new_point(myFollowing, 'myFollowing')
+
+
 def getPreviousStats(bot):
     frame = bot.fileHandler.CSV_getFrameFromCSVfile("myStats")
     latest = frame.iloc[0].tolist()

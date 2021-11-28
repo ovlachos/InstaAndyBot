@@ -1,4 +1,5 @@
 import AnyBotLog as logg
+from Services import HasTagUsage_Service as hstgu
 
 
 #### HASHTAGS ####
@@ -42,16 +43,27 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
                 scrollArea = hashPage.grid.scrollablePostArea
                 if scrollArea:
                     scrollArea.reactionWait()
-                    scrollArea.fastScreenScan()
+                    scrollArea.scanScreenForPosts(level=[0, 0, 0, 1])
+
+                    if scrollArea.posts[0]:
+
+                        post = scrollArea.posts[0]
+                        if post.comment:
+                            recorder = hstgu.recordTags(post.getFirstCommentText())
+                            if recorder:
+                                print(recorder)
+
+                    # I need to rescan scrolable area after recording 1st comment cause the DOM is stale by then
+                    scrollArea.scanScreenForPosts(level=[1, 1, 0, 0])
 
                     if scrollArea.posts[0]:  # Do we have even one post on open/initial scan of scrollable area?
                         post = scrollArea.posts[0]
 
                         if toLike:
                             liked = post.likePost()
-                            # logg.logSmth(f"#### Like status of post by {post.postingUser} is {liked}")
+                            logg.logSmth(f"#### Like status of post by {post.postingUser} is {liked}")
 
-                        if not post.header:  # Can I navigate to the user's profile?
+                        if not post.header:  # Can I navigate to the user's profile? If not lets go back to the grid and open the next post.
                             continue
 
                         userProf = post.navigateToPostingUserProfile()  # Have I arrived?

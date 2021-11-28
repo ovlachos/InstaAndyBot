@@ -32,7 +32,7 @@ class test(unittest.TestCase):
             myBot.driver.unlock()
 
         try:
-            myBot.theList_Service(numberOfTags=13, numberOfPostsPerTag=5, randomArgs=False)
+            myBot.theList_Service(numberOfTags=13, numberOfPostsPerTag=7, randomArgs=False)
             self.driver.close_app()
             self.driver.terminate_app("com.instagram.android")
         except:
@@ -42,7 +42,6 @@ class test(unittest.TestCase):
         finally:
             logg.logSmth('write Memory to file before quiting')
             myBot.memoryManager.writeMemoryFileToDrive()
-            self.driver.lock()
             logg.logSmth("\n\nEND OF TEST\n")
 
 

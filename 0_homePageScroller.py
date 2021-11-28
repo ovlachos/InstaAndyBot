@@ -28,8 +28,8 @@ class test(unittest.TestCase):
         myBot = bot.AndyBot(self.driver, auth.getDevice())
 
         for i in range(2):
-            myBot.botSleep(verbose=True)
             myBot.driver.unlock()
+            myBot.botSleep(verbose=True)
 
         try:
             myBot.myStats_Service()
@@ -41,7 +41,6 @@ class test(unittest.TestCase):
             logg.logSmth("Exception occurred @#$\n", 'ERROR')
             logg.logSmth("#" * 20 + "\n")
         finally:
-            self.driver.lock()
             logg.logSmth("\n\nEND OF TEST\n")
 
 

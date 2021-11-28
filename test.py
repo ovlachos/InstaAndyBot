@@ -32,22 +32,12 @@ class test(unittest.TestCase):
             myBot.driver.unlock()
 
         try:
-            homePage = myBot.navRibons.goHome()
-            homePage.scrollArea.fastScreenScan()
-            if len(homePage.scrollArea.posts):
-                post = homePage.scrollArea.posts[0]
-                bounds = post.pic.rect
-                print(bounds)
-                t = 0
-
-            self.driver.close_app()
+            myBot.myFollowing_Service()
         except:
             logg.logSmth("\n" + "#" * 20 + "\n")
             logg.logSmth("Exception occurred @#$", 'ERROR')
             logg.logSmth("\n" + "#" * 20 + "\n")
         finally:
-            logg.logSmth('write Memory to file before quiting')
-            self.driver.lock()
             logg.logSmth("\nEND OF TEST\n")
 
         t = 0

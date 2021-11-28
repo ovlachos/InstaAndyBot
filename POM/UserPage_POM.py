@@ -1,3 +1,5 @@
+import random
+
 import auth
 
 from time import sleep
@@ -177,13 +179,27 @@ class UserPage(screen.Screen):
     def printProfileTypeDescription(self):
         logg.logSmth(f'~~~~~~~~~> {self.get_profileTypeDescription()}')
 
-    def get_followers_list(self):
+    def get_followers_list(self, percentage=1):
         page = self.navToFolowers()
-        self.followers = page.getListOfUsers(self.stats['followers'])
 
-    def get_following_list(self):
-        page = self.navToFolowers()
-        self.following = page.getListOfUsers(self.stats['following'])
+        self.followers = page.getListOfUsers(int(self.stats['followers'] * percentage))
+
+    def get_following_list(self, percentage=1):
+        page = self.navToFolowing()
+        page.reactionWait()
+
+        # Sort by 'earliest'
+        for i in range(2):
+            randParam = random.choice(['following_sorting_option_latest', 'following_sorting_option_default'])
+            page.getAndClickElementBy_ID(loc.userPage_ID.get('followingSortingButton'))
+            page.getAndClickElementBy_XPATH(loc.userPage_XPATH.get('following_sorting_option_latest'))
+            page.reactionWait(.5)
+
+            page.getAndClickElementBy_ID(loc.userPage_ID.get('followingSortingButton'))
+            page.getAndClickElementBy_XPATH(loc.userPage_XPATH.get('following_sorting_option_earliest'))
+            page.reactionWait(.5)
+
+        self.following = page.getListOfUsers(int(self.stats['following'] * percentage))
 
     def get_following_hashTag_list(self):
         page = self.navToFolowingHashTags()
@@ -265,6 +281,8 @@ class UserPage(screen.Screen):
     def likeUserPostByOrder(self, order):
         self.bringUpPostGrid()
         self.grid.likePostByOrder(order)
+        self.driver.back()
+        return UserPage(self.driver)
 
     def navToFolowers(self):
         followersCount = self.findElementBy_ID(loc.userPage_ID['followersWindow'])
@@ -307,7 +325,7 @@ class followListPage(screen.Screen):
         listOfUsers.extend(firstView)
 
         while len(listOfUsers) <= 0.95 * expectedCount:
-            self.vSwipe('tiny')
+            self.vSwipeUp('small')
             allOtherViews = self.findElementsBy_ID(loc.userPage_ID['followingSearchResult'])
             allOtherViews = [x.text for x in allOtherViews]
             listOfUsers.extend(allOtherViews)
@@ -323,7 +341,7 @@ class followListPage(screen.Screen):
 
         arbitraryCounter = 0
         while arbitraryCounter <= 5:
-            self.vSwipe('tiny')
+            self.vSwipeUp('tiny')
             allOtherViews = self.findElementsBy_ID(loc.userPage_ID['followingHashTagSearchResult'])
             allOtherViews = [x.text for x in allOtherViews]
             listOfTags.extend(allOtherViews)

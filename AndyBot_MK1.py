@@ -12,7 +12,6 @@ from Services import theList_Service as theList
 from Services import homePageScroller_Service as homeScroller
 from Services import myStats_Service as statService
 
-
 from POM import NavigationRibbons_POM as ribon
 
 timeStampFormat = "%m/%d/%Y-%H:%M"
@@ -145,3 +144,6 @@ class AndyBot():
 
     def myStats_Service(self):
         return statService.getMyStats(self)
+
+    def myFollowing_Service(self, percentage=1):
+        return statService.getMyFollowingList(self)
