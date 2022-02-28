@@ -6,20 +6,20 @@ def playTheGame(bot, num):
     logg.logSmth(f" " * 10 + "*" * 5 + " The Game " + "*" * 5 + " " * 10)
     logg.logSmth(f"#" * 40)
 
-    ### Read User Memory
-    bot.memoryManager.readMemoryFileFromDriveJSON()
-
+    # ~~ Read User Memory
+    bot.memoryManager.readStoredMemoryFile()
     # bot.memoryManager.readMemoryFileFromDrivePickle()
+
     # handle =bot.memoryManager.getUID_fromHandle('tooironictospeak')
     # print(f"Handle is: {handle} tooironictospeak")
 
-    ### Derive Lists
+    # ~~ Derive Lists
     reservesList = bot.memoryManager.getListOfReserveUsersToFollow()[:num]
     unfollowList = bot.memoryManager.getListOfUsersToUnFollow(bot.daysBeforeIunFollow)  # [:num]
     unLoveList = bot.memoryManager.getListOfUsersToUnLove(bot.daysBeforeIunLove)
     manuallyAddedList = bot.memoryManager.manuallyAddNewUsersTo_theGame()
 
-    ### Un Love ###
+    # ~~ Un Love ###
     if unLoveList:
         logg.logSmth(f"##### - {len(unLoveList)} users to be un-Loved")
         for user in unLoveList:
@@ -29,7 +29,7 @@ def playTheGame(bot, num):
     else:
         logg.logSmth(f"##### - {0} users to be un-Loved")
 
-    ### Un Follow ###
+    # ~~ Un Follow ###
     if unfollowList:
         logg.logSmth(f"##### - {len(unfollowList)} users to be un-Followed")
 
@@ -70,7 +70,7 @@ def playTheGame(bot, num):
     else:
         logg.logSmth(f"##### - {0} users to be un-Followed")
 
-    ### Follow Reserves ###
+    # ~~ Follow Reserves ###
     if reservesList and bot.followMana > 0:
         logg.logSmth(f"##### - {len(reservesList)} reserve users to be Followed")
 
@@ -108,7 +108,7 @@ def playTheGame(bot, num):
     else:
         logg.logSmth(f"##### - {0} reserve users to be Followed")
 
-    ### USERS MANUALLY ADDED
+    # ~~ USERS MANUALLY ADDED
     if manuallyAddedList and bot.followMana > 0:
 
         # reduce size to available follow mana

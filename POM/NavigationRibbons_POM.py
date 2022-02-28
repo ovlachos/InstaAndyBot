@@ -32,6 +32,7 @@ class NavigationRibbons(screen.Screen):
         if ownProfileButton:
             self.doubleClick(ownProfileButton)
             self.reactionWait(1)
+            self.vSwipeDown()
 
             return up.UserPage(self.driver)
 
@@ -46,4 +47,7 @@ class NavigationRibbons(screen.Screen):
         if backButton:
             backButton.click()
             # logg.logSmth(f"# Back button clicked?")
+            self.reactionWait()
+        else:
+            self.driver.back()
             self.reactionWait()

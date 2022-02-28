@@ -18,7 +18,7 @@ class HomePage(screen.Screen):
             durationUpperBound = randint(45, 55)
             duration = randint(durationLowerBound, durationUpperBound)
 
-        all_visible_stories_but_mine = self.driver.find_elements_by_id(loc.homePage_ID['storiesCommon'])[1:]
+        all_visible_stories_but_mine = self.findElementsBy_ID(loc.homePage_ID['storiesCommon'])[1:]
 
         if all_visible_stories_but_mine:
             all_visible_stories_but_mine = [x for x in all_visible_stories_but_mine if "Unseen" in x.tag_name]

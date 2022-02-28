@@ -27,7 +27,7 @@ class SearchPage(screen.Screen):
             return resultsList
 
     def getTagSearchResults(self):
-        resultsList = self.driver.find_elements_by_id(loc.searchPage_ID['resultsCommon_Tags'])
+        resultsList = self.findElementsBy_ID(loc.searchPage_ID['resultsCommon_Tags'])
         if resultsList:
             return resultsList
 
@@ -89,6 +89,7 @@ class SearchPage(screen.Screen):
 
     def navigateToHashTagPage(self, tag):
         self.typeIntoSearchField(tag)
+        self.reactionWait()
         results = self.getTagSearchResults()
 
         if results:

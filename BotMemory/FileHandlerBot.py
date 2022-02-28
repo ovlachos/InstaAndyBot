@@ -94,7 +94,7 @@ class FileHandlerBot:
             oldframe = oldframe.drop(oldframe.index[row_index])
             oldframe.to_csv(file['filepath'], index=False, encoding='utf-8')
 
-    def CSV_addNewRowToCSV(self, filename, row):
+    def CSV_addNewRowToCSV(self, filename, row):  # 'row' is a list type
         file = self.getFileFromFilename(filename)
         if file:
             oldFrame = pd.read_csv(file['filepath'])

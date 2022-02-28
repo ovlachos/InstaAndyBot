@@ -38,6 +38,13 @@ class PostGrid(screen.Screen):
         postXPATH = postXPATH.replace("Row 1", f"Row {row}").replace("Column 1", f"Column {column}")
 
         post = self.findElementBy_XPATH(postXPATH)
+
+        if not post:
+            postXPATH = loc.page_XPATH['postsGrid']
+            postXPATH = postXPATH.replace("Row 1", f"row {row}").replace("Column 1", f"column {column}")
+
+            post = self.findElementBy_XPATH(postXPATH)
+
         if post:
             post.click()
             self.reactionWait(1.5)

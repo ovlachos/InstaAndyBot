@@ -1,6 +1,6 @@
 import subprocess
 
-username = 'lentotheeye'
+username = 'a.lens.pointed.at.you'
 devices = [
     {
         'name': 'LGV5005ed279c7',
@@ -40,8 +40,12 @@ def getScreenSizeAndDensity():
 
 
 def getDevice():
-    # connectedDevicename = getDeviceName()
+    connectedDevicename = getDeviceName()
     for device in devices:
         name = device.get('name')
-        if name == 'XEDNW18908001798':  # connectedDevicename:
+
+        # if name == '08021b480705':  # 'XEDNW18908001798':  # connectedDevicename:
+        #     return device
+
+        if connectedDevicename == name:
             return device

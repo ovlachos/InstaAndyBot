@@ -28,11 +28,11 @@ class test(unittest.TestCase):
         myBot = bot.AndyBot(self.driver, auth.getDevice())
 
         for i in range(2):
-            myBot.botSleep(verbose=True)
+            myBot.botSleep(factor=0.02, verbose=True)
             myBot.driver.unlock()
 
         try:
-            myBot.theList_Service(numberOfTags=13, numberOfPostsPerTag=7, randomArgs=False)
+            myBot.theList_Service(numberOfTags=14, numberOfPostsPerTag=7, randomArgs=False)
             self.driver.close_app()
             self.driver.terminate_app("com.instagram.android")
         except:

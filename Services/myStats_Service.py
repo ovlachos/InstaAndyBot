@@ -36,10 +36,10 @@ def getMyFollowingList(bot):
 
     myProfile = bot.navRibons.goToOwnProfile()
     if myProfile:
-        myProfile.get_following_list(.25)
-        myFollowing = myProfile.following
+        myProfile.get_following_list()
 
-    if myFollowing:
+    if myProfile.following:
+        myFollowing = myProfile.following
         BotStats.record_new_point(myFollowing, 'myFollowing')
 
 

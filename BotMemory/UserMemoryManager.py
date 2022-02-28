@@ -38,6 +38,10 @@ class UserMemoryManager:
         file = self.memoryFileHandler.paths['User_Memory'] + userM.uid + '.json'
         self.memoryFileHandler.writeToUserMemory([userM], JSONencoder, file)
 
+    def readStoredMemoryFile(self): #memory source switch
+        self.readMemoryFileFromDrivePickle()
+        # self.readMemoryFileFromDriveJSON()
+
     def readMemoryFileFromDrivePickle(self):
         self.readRejected_Users()
 

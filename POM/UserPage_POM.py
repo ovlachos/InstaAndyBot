@@ -104,36 +104,28 @@ class UserPage(screen.Screen):
 
         # Ok so it is NOT me.
         # One step further away from me are people I am following. Check for that
-        try:
-            # @20
-            self.driver.find_element_by_xpath(loc.userPage_XPATH['Button_Following'])
-            return
-        except Exception as e:
+        if self.findElementBy_XPATH(loc.userPage_XPATH['Button_Following']):
+            return  # @20
+        else:
             self.followAccess += 20  # @40
 
         # Ok so it is NOT someone I am following.
         # One step further away from me are people I have requested to follow. Check for that
-        try:
-            # @40
-            self.driver.find_element_by_xpath(loc.userPage_XPATH['Button_Requested'])
-            return
-        except Exception as e:
+        if self.findElementBy_XPATH(loc.userPage_XPATH['Button_Requested']):
+            return  # @40
+        else:
             self.followAccess += 20  # @60
 
         # If we get to this point it turns out to be someone I am not following at all,
         # and neither have requested to follow. Do THEY follow me though?
-        try:
-            # @60
-            self.driver.find_element_by_xpath(loc.userPage_XPATH['Button_FollowBack'])
-            return
-        except Exception as e:
+        if self.findElementBy_XPATH(loc.userPage_XPATH['Button_FollowBack']):
+            return  # @60
+        else:
             self.followAccess += 10  # @70
 
-        try:
-            # @70
-            self.driver.find_element_by_xpath(loc.userPage_XPATH['Button_Follow'])
-            return
-        except Exception as e:
+        if self.findElementBy_XPATH(loc.userPage_XPATH['Button_Follow']):
+            return  # @70
+        else:
             self.followAccess += 10  # @80
 
     def determineLevelOfInfoAccess(self):
@@ -151,7 +143,7 @@ class UserPage(screen.Screen):
 
         # If it's not me it could either be an open or private profile. Let us check for that.
         try:
-            self.driver.find_element_by_id(loc.userPage_ID['EmptyProfileNotice'])
+            self.findElementBy_ID(loc.userPage_ID['EmptyProfileNotice'])
             self.infoAccess += 25  # @50
         except Exception as e:
             pass
@@ -182,6 +174,7 @@ class UserPage(screen.Screen):
     def get_followers_list(self, percentage=1):
         page = self.navToFolowers()
 
+        logg.logSmth(f"I am getting my followers for a count of {int(self.stats['followers'] * percentage)} and a percentage of {percentage}")
         self.followers = page.getListOfUsers(int(self.stats['followers'] * percentage))
 
     def get_following_list(self, percentage=1):
@@ -199,6 +192,7 @@ class UserPage(screen.Screen):
             page.getAndClickElementBy_XPATH(loc.userPage_XPATH.get('following_sorting_option_earliest'))
             page.reactionWait(.5)
 
+        logg.logSmth(f"I am getting my follwing for a count of {int(self.stats['following'] * percentage)} and a percentage of {percentage}")
         self.following = page.getListOfUsers(int(self.stats['following'] * percentage))
 
     def get_following_hashTag_list(self):
@@ -242,7 +236,7 @@ class UserPage(screen.Screen):
 
                 # if their profile is private and Insta warns I would need to request access if I Unfollow
                 try:
-                    is_there_a_final_button = self.driver.find_element_by_id(loc.userPage_ID['UnfollowFinal'])
+                    is_there_a_final_button = self.findElementBy_ID(loc.userPage_ID['UnfollowFinal'])
                     if is_there_a_final_button:
                         is_there_a_final_button.click()
                 except:
@@ -324,7 +318,7 @@ class followListPage(screen.Screen):
         firstView = [x.text for x in firstView]
         listOfUsers.extend(firstView)
 
-        while len(listOfUsers) <= 0.95 * expectedCount:
+        while len(listOfUsers) <= 0.99 * expectedCount:
             self.vSwipeUp('small')
             allOtherViews = self.findElementsBy_ID(loc.userPage_ID['followingSearchResult'])
             allOtherViews = [x.text for x in allOtherViews]

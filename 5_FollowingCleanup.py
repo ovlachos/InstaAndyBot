@@ -1,3 +1,5 @@
+from time import sleep
+
 import auth
 import unittest
 import AndyBot_MK1 as bot
@@ -36,35 +38,39 @@ class test(unittest.TestCase):
             myBot.memoryManager.readStoredMemoryFile()
 
             # mode 1 start
-            mst.getMyFollowingList(myBot) #mode 1
+            # mst.getMyFollowingList(myBot)  # mode 1
+            # sleep(180)
             # mode 1 end
 
             # mode 2 start
-            # mfollowingFrame = myBot.fileHandler.CSV_getFrameFromCSVfile('myFollowing')
-            # mfollowing_ = mfollowingFrame.values.tolist()
-            # mfollowing = [item for sublist in mfollowing_ for item in sublist]
-            #
-            # mem = myBot.memoryManager.listOfUserMemory
-            #
-            # one = [x for x in mem if x.dateUnFollowed_byMe]
-            # firstDraft_peopleAlreadyUnfollowed = [x for x in one if x.daysSinceYouGotFollowed_Unfollowed('unfollow') > 3]
-            # secondDraft_peopleAlreadyUnfollowed = [x for x in firstDraft_peopleAlreadyUnfollowed if
-            #                                        x.daysSinceYouGotFollowed_Unfollowed('unfollow') < 110]
-            # for user in secondDraft_peopleAlreadyUnfollowed:
-            #     if user.handle in mfollowing:
-            #         print(user.handle, user.dateUnFollowed_byMe)
-            #
-            # nameMemory_peopleAlreadyUnfollowed = [y for y in secondDraft_peopleAlreadyUnfollowed]
-            # filteredList_shouldUnfollow = [x for x in nameMemory_peopleAlreadyUnfollowed if x.handle in mfollowing]
-            #
-            # print(len(filteredList_shouldUnfollow))
-            # self.gameSortOf(filteredList_shouldUnfollow, myBot)
+            mfollowingFrame = myBot.fileHandler.CSV_getFrameFromCSVfile('myFollowing')
+            mfollowing_ = mfollowingFrame.values.tolist()
+            mfollowing = [item for sublist in mfollowing_ for item in sublist]
+
+            mem = myBot.memoryManager.listOfUserMemory
+
+            one = [x for x in mem if x.dateUnFollowed_byMe]
+            firstDraft_peopleAlreadyUnfollowed = [x for x in one if x.daysSinceYouGotFollowed_Unfollowed('unfollow') > 3]
+            secondDraft_peopleAlreadyUnfollowed = [x for x in firstDraft_peopleAlreadyUnfollowed if
+                                                   x.daysSinceYouGotFollowed_Unfollowed('unfollow') < 110]
+            for user in secondDraft_peopleAlreadyUnfollowed:
+                if user.handle in mfollowing:
+                    print(
+                        f'Still follwing user {user.handle}, marked as unfollowed on: {user.dateUnFollowed_byMe} and followed on: {user.dateFollowed_byMe}', )
+
+            nameMemory_peopleAlreadyUnfollowed = [y for y in secondDraft_peopleAlreadyUnfollowed]
+            filteredList_shouldUnfollow = [x for x in nameMemory_peopleAlreadyUnfollowed if x.handle in mfollowing]
+
+            print(len(filteredList_shouldUnfollow))
+            self.gameSortOf(filteredList_shouldUnfollow, myBot)
             # mode 2 end
         except Exception as e:
             logg.logSmth("\n" + "#" * 20 + "\n")
             logg.logSmth("Exception occurred @#$", 'ERROR')
             logg.logSmth("\n" + "#" * 20 + "\n")
         finally:
+            logg.logSmth('write Memory to file before quiting')
+            myBot.memoryManager.writeMemoryFileToDrive()
             logg.logSmth("\nEND OF TEST\n")
 
         t = 0

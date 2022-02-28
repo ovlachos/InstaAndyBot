@@ -1,5 +1,8 @@
 import random
+
 import auth
+from selenium.webdriver.common.by import By
+from appium.webdriver.common.touch_action import TouchAction
 import AnyBotLog as logg
 
 from functools import wraps
@@ -141,7 +144,7 @@ def find_exception_handler(func):
             return func(*args, **kwargs)
         except Exception as e:
 
-            if "DOM" not in e.msg and "@content-desc" not in args[1]:
+            if "DOM" not in e.args[0] and "@content-desc" not in args[1]:
                 logg.logSmth(f"The cause is: {e}", 'WARNING')
                 logg.logSmth(args[1], 'WARNING')
 
@@ -154,6 +157,7 @@ class Screen():
     def __init__(self, driver):
         self.driver = driver
         self.loc = loc
+
         self.device = auth.getDevice()
         self.deviceName = self.device['name']
         self.screenBoundUpper = self.device['upperScreenBound']
@@ -161,19 +165,19 @@ class Screen():
 
     @find_exception_handler
     def findElementBy_ID(self, ID):
-        return self.driver.find_element_by_id(ID)
+        return self.driver.find_element(by=By.ID, value=ID)
 
     @find_exception_handler
     def findElementsBy_ID(self, ID):
-        return self.driver.find_elements_by_id(ID)
+        return self.driver.find_elements(by=By.ID, value=ID)
 
     @find_exception_handler
     def findElementBy_XPATH(self, XPATH):
-        return self.driver.find_element_by_xpath(XPATH)
+        return self.driver.find_element(by=By.XPATH, value=XPATH)
 
     @find_exception_handler
     def findElementsBy_XPATH(self, XPATH):
-        return self.driver.find_elements_by_xpath()
+        return self.driver.find_elements(by=By.XPATH, value=XPATH)
 
     def getAndClickElementBy_ID(self, elementLocator):
         button = self.findElementBy_ID(elementLocator)
@@ -235,9 +239,9 @@ class Screen():
             endX = random.randint(700, 800)
             # startY = random.randint((self.screenBoundLower - 300), (self.screenBoundLower - 200))
             # endY = random.randint(self.screenBoundUpper, (self.screenBoundUpper + 250))
-            startY = random.randint(1400, 1600)
-            endY = random.randint(600, 800)
-            hold = random.randint(630, 660)
+            startY = random.randint(1300, 1550)
+            endY = random.randint(700, 850)
+            hold = random.randint(600, 660)
             # print(startY, endY)
 
         if 'tiny' in length:
@@ -266,9 +270,9 @@ class Screen():
 
     def getPhotoBounds(self):
         try:
-            photo = self.driver.find_element_by_id(loc.post_ID['pic'])
+            photo = self.findElementBy_ID(loc.post_ID['pic'])
         except:
-            photo = self.driver.find_element_by_id(loc.post_ID['imageCarousel'])
+            photo = self.findElementBy_ID(loc.post_ID['imageCarousel'])
         finally:
             if not photo:
                 return 0, 0
@@ -293,7 +297,10 @@ class Screen():
     def doubleClickCoordinates(self, x, y):
         padding = 0.02
         if self.screenBoundUpper * (1 + padding) < y < (1 - padding) * self.screenBoundLower:  # add 2% padding on the screen edges
-            time_between_clicks = random.uniform(0.050, 0.090)
-            self.driver.tap([(x, y)])
-            sleep(time_between_clicks)
-            self.driver.tap([(x, y)])
+            time_between_clicks = random.randint(50, 110)
+
+            for i in range(2):
+                actions = TouchAction(self.driver)
+                actions.tap(x=x, y=y)
+                actions.wait(time_between_clicks)
+                actions.perform()

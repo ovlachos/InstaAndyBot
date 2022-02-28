@@ -2,7 +2,7 @@ import AnyBotLog as logg
 from Services import HasTagUsage_Service as hstgu
 
 
-#### HASHTAGS ####
+# ~~~ HASHTAGS ~~~#
 def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPerTag0):
     import random
 
@@ -30,6 +30,7 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
 
     def actOnPostingUsers(toLike=True):
 
+        numberOfFaults = 0
         for i in range(0, numberOfPostsPerTag):
 
             hashPage.reactionWait()
@@ -91,17 +92,24 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
                             addUserToMemory(bot, userProf, user=userProf.userName, mark1=True, followed=followedFlag)
                         else:
                             addUserToMemory(bot, userProf, user=userProf.userName, mark1=False, followed=followedFlag)
+                else:
+                    return
 
                 bot.navRibons.goBack()
                 bot.navRibons.reactionWait()
                 bot.navRibons.goBack()
             except Exception as e:
                 logg.logSmth(e)
-                logg.logSmth(f"#### This is within the interaction phase for hashtag {hashPage.tag}")
-                continue
+                logg.logSmth(f"#### This is within the interaction phase for hashtag {hashPage.tag} and is strike no {numberOfFaults}")
+
+                numberOfFaults += 1  # TODO Let us see if this helps with list crashes and lost time. Check if the flow of the service is ok or if i need to press the back button
+                if numberOfFaults > 3:
+                    return
+                else:
+                    continue
 
     # Load memory file
-    bot.memoryManager.readMemoryFileFromDriveJSON()
+    bot.memoryManager.readStoredMemoryFile()
 
     # Load Target Hashtags list
     hashList = bot.targetHashtags_List
@@ -130,7 +138,6 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
                 continue
 
             hasTagPageVerified = hashPage.verifyPageType(hashtag)
-            # logg.logSmth(f"#### Verified {hashtag}: {hasTagPageVerified}")
 
         # Once at the hashtag page interact with the most recent posts
         # logg.logSmth(f"### At HashTag page for tag: {hashtag}")
@@ -145,6 +152,9 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
 
 def addUserToMemory(bot, userPage, user, mark1=False, followed=False):
     bot.memoryManager.addUserToMemory(user)
+    F = userPage.stats['followers']
+    f = userPage.stats['following']
+    P = userPage.stats['posts']
 
     # Get the newly created memory object of the new user
     newFollower = bot.memoryManager.retrieveUserFromMemory(user)
@@ -163,12 +173,12 @@ def addUserToMemory(bot, userPage, user, mark1=False, followed=False):
 
         bot.memoryManager.updateUserRecord(newFollower)
 
-        logg.logSmth(f"########## User {user} added to memory with mark1={mark1} and followed={followed}")
+        logg.logSmth(f"########## User {user} added to memory with mark1={mark1} and followed={followed} || F/f/P = {F}/{f}/{P}")
         logg.logSmth(f"########## Follow mana left: {bot.followMana} || {bot.followManaMax - bot.followMana} users followed today")
     else:
         if not newFollower:
-            logg.logSmth(f"########## User {user} NOT added to memory with mark1={mark1} and followed={followed}")
+            logg.logSmth(f"########## User {user} NOT added to memory with mark1={mark1} and followed={followed} || F/f/P = {F}/{f}/{P}")
         else:
-            logg.logSmth(f"########## User {user} already exists in memory with mark1={mark1} and followed={followed}")
+            logg.logSmth(f"########## User {user} already exists in memory with mark1={mark1} and followed={followed} || F/f/P = {F}/{f}/{P}")
 
     return "OK"

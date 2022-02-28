@@ -7,6 +7,8 @@ from appium import webdriver as wb
 
 class test(unittest.TestCase):
     def setUp(self):
+
+        logg.logSmth(f"#" * 50)
         desired_caps = {}
         desired_caps['deviceName'] = auth.getDeviceName()
         desired_caps['platformName'] = "Android"
@@ -28,8 +30,8 @@ class test(unittest.TestCase):
         myBot = bot.AndyBot(self.driver, auth.getDevice())
 
         for i in range(2):
-            myBot.driver.unlock()
             myBot.botSleep(verbose=True)
+            myBot.driver.unlock()
 
         try:
             myBot.myStats_Service()

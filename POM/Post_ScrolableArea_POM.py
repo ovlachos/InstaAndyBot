@@ -88,9 +88,16 @@ class Post(screen.Screen):
                 if likeButton.id == self.likeButton.id:
                     self.likeButtonStatus = likeButton.tag_name
 
-    def likePost(self):  # TODO like post by double-tapping within pic bounds (with some padding all around)
+    def likePost(self):
         if self.canLike:
             try:
+                if self.likeButton:
+
+                    if 'ed' not in self.likeButton.tag_name:
+                        self.likeButton.click()
+                        self.reactionWait(1)
+                        return True
+
                 if self.pic:
                     # y_mid_Point = self.pic.location['y'] + (self.pic.rect['height'] / 2)
                     # x_mid_Point = self.pic.location['x'] + (self.pic.rect['width'] / 2)
@@ -107,15 +114,8 @@ class Post(screen.Screen):
                     self.reactionWait(1)
                     return True
 
-                if self.likeButton:
-
-                    if 'ed' not in self.likeButton.tag_name:
-                        self.likeButton.click()
-                        self.reactionWait(1)
-                        return True
-
             except Exception as e:
-                if "DOM" not in e.msg:
+                if "DOM" not in e.args[0]:
                     logg.logSmth(f"Could Not like post by {self.postingUser} because {e}", "ERROR")
                 return None
 
