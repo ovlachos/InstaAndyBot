@@ -29,7 +29,7 @@ class AndyBot():
         self.botParams = btprms.BotParams()
 
         # Bot Params Default values (that get replaced later on, maybe)
-        self.ownFollowers = 1730
+        self.ownFollowers = 3500
         self.paramsTimeStamp = None
         self.timeUpperBound = 48
         self.timeLowerBound = 34

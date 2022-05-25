@@ -14,7 +14,7 @@ def playTheGame(bot, num):
     # print(f"Handle is: {handle} tooironictospeak")
 
     # ~~ Derive Lists
-    reservesList = bot.memoryManager.getListOfReserveUsersToFollow()[:num]
+    # reservesList = bot.memoryManager.getListOfReserveUsersToFollow()[:num]
     unfollowList = bot.memoryManager.getListOfUsersToUnFollow(bot.daysBeforeIunFollow)  # [:num]
     unLoveList = bot.memoryManager.getListOfUsersToUnLove(bot.daysBeforeIunLove)
     manuallyAddedList = bot.memoryManager.manuallyAddNewUsersTo_theGame()
@@ -71,7 +71,7 @@ def playTheGame(bot, num):
         logg.logSmth(f"##### - {0} users to be un-Followed")
 
     # ~~ Follow Reserves ###
-    if reservesList and bot.followMana > 0:
+    '''if reservesList and bot.followMana > 0:
         logg.logSmth(f"##### - {len(reservesList)} reserve users to be Followed")
 
         userNotFound_counter = 0
@@ -106,7 +106,7 @@ def playTheGame(bot, num):
                 if user.dateFollowed_byMe:
                     bot.botSleep()
     else:
-        logg.logSmth(f"##### - {0} reserve users to be Followed")
+        logg.logSmth(f"##### - {0} reserve users to be Followed")'''
 
     # ~~ USERS MANUALLY ADDED
     if manuallyAddedList and bot.followMana > 0:

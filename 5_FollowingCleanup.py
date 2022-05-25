@@ -18,7 +18,7 @@ class test(unittest.TestCase):
         desired_caps['noReset'] = 'true'
 
         self.driver = wb.Remote('http://localhost:4723/wd/hub', desired_caps)
-        self.driver.implicitly_wait(3)
+        self.driver.implicitly_wait(5)
         self.driver.unlock()
 
         logg.logSmth(f"#" * 50)
@@ -36,11 +36,6 @@ class test(unittest.TestCase):
 
         try:
             myBot.memoryManager.readStoredMemoryFile()
-
-            # mode 1 start
-            # mst.getMyFollowingList(myBot)  # mode 1
-            # sleep(180)
-            # mode 1 end
 
             # mode 2 start
             mfollowingFrame = myBot.fileHandler.CSV_getFrameFromCSVfile('myFollowing')

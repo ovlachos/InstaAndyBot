@@ -144,7 +144,7 @@ def find_exception_handler(func):
             return func(*args, **kwargs)
         except Exception as e:
 
-            if "DOM" not in e.args[0] and "@content-desc" not in args[1]:
+            if "DOM" not in e.args[0] and "@content-desc" not in args[1] and "primary_button" not in args[1]:
                 logg.logSmth(f"The cause is: {e}", 'WARNING')
                 logg.logSmth(args[1], 'WARNING')
 

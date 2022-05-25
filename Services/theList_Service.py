@@ -44,17 +44,17 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
                 scrollArea = hashPage.grid.scrollablePostArea
                 if scrollArea:
                     scrollArea.reactionWait()
-                    scrollArea.scanScreenForPosts(level=[0, 0, 0, 1])
+                    # scrollArea.scanScreenForPosts(level=[0, 0, 0, 1])
 
-                    if scrollArea.posts[0]:
-
-                        post = scrollArea.posts[0]
-                        if post.comment:
-                            recorder = hstgu.recordTags(post.getFirstCommentText())
-                            if recorder:
-                                print(recorder)
-
-                    # I need to rescan scrolable area after recording 1st comment cause the DOM is stale by then
+                    # if scrollArea.posts[0]:
+                    #
+                    #     post = scrollArea.posts[0]
+                    #     if post.comment:
+                    #         recorder = hstgu.recordTags(post.getFirstCommentText())
+                    #         if recorder:
+                    #             print(recorder)
+                    #
+                    # # I need to rescan scrolable area after recording 1st comment cause the DOM is stale by then
                     scrollArea.scanScreenForPosts(level=[1, 1, 0, 0])
 
                     if scrollArea.posts[0]:  # Do we have even one post on open/initial scan of scrollable area?
