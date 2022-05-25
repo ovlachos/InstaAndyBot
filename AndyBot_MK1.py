@@ -129,12 +129,12 @@ class AndyBot():
         logg.logSmth(f" Number of users to check: {numberOfusersToCheck}")
         return theGame.playTheGame(self, numberOfusersToCheck)
 
-    def theList_Service(self, numberOfTags=1, numberOfPostsPerTag=1, randomArgs=True):
+    def theList_Service(self, numberOfTags=1, numberOfPostsPerTag=1, randomArgs=True, toLike=True, toFollow=True):
         if randomArgs:
             numberOfTags = int(randint(1, 3) * self.factor)
             numberOfPostsPerTag = int(randint(1, 5) * self.factor)
 
-        return theList.foilowOrCollectUsernamesFromHashtagPages(self, numberOfTags, numberOfPostsPerTag)
+        return theList.foilowOrCollectUsernamesFromHashtagPages(self, numberOfTags, numberOfPostsPerTag, toLike, toFollow)
 
     def homePageScroller(self, numberOfPosts=30, randomArgs=True):
         if randomArgs:

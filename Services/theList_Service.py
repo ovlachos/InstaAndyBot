@@ -3,7 +3,7 @@ from Services import HasTagUsage_Service as hstgu
 
 
 # ~~~ HASHTAGS ~~~#
-def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPerTag0):
+def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPerTag0, toLike, toFollow):
     import random
 
     logg.logSmth(f"#" * 40)
@@ -28,7 +28,7 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
         else:
             return True
 
-    def actOnPostingUsers(toLike=True):
+    def actOnPostingUsers(toLike, toFollow):
 
         numberOfFaults = 0
         for i in range(0, numberOfPostsPerTag):
@@ -64,7 +64,8 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
                             liked = post.likePost()
                             logg.logSmth(f"#### Like status of post by {post.postingUser} is {liked}")
 
-                        if not post.header:  # Can I navigate to the user's profile? If not lets go back to the grid and open the next post.
+                        if not post.header or not toFollow:  # Can I navigate to the user's profile? If not lets go back to the grid and open the next post.
+                            bot.navRibons.goBack()
                             continue
 
                         userProf = post.navigateToPostingUserProfile()  # Have I arrived?
@@ -145,7 +146,7 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
 
         # Collect user handles OR Follow Users
         hashPage.goToRecentPosts()  # Go to most recent posts grid
-        actOnPostingUsers()
+        actOnPostingUsers(toLike, toFollow)
 
     return 'OK'
 

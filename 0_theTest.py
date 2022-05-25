@@ -1,15 +1,16 @@
-from time import sleep
-
 import auth
+import sys
 import unittest
 import AndyBot_MK1 as bot
 import AnyBotLog as logg
+
 from appium import webdriver as wb
 from Services import myStats_Service as mst
 
 
 class test(unittest.TestCase):
     def setUp(self):
+
         desired_caps = {}
         desired_caps['deviceName'] = auth.getDeviceName()
         desired_caps['platformName'] = "Android"
@@ -24,25 +25,97 @@ class test(unittest.TestCase):
         logg.logSmth(f"#" * 50)
         logg.logSmth(f"Device is {desired_caps['deviceName']}")
 
+        self.bot = bot.AndyBot(self.driver, auth.getDevice())
+        for i in range(2):
+            self.bot.botSleep(factor=0.02, verbose=True)
+            self.bot.driver.unlock()
+
+        # self.theHome()
+
     def tearDown(self):
+        self.driver.close_app()
+        self.driver.terminate_app("com.instagram.android")
         self.driver.quit()
+        logg.logSmth("\nEND OF TEST\n\n")
 
     def testRun(self):
-        myBot = bot.AndyBot(self.driver, auth.getDevice())
+        if len(sys.argv) > 1:
+            nameIs = str(sys.argv[1])
+            print('in testRun | name is: - ', nameIs)
+        funcDict = {
+            "theListLike": self.theListLike,
+            "theList": self.theList,
+            "theGame": self.theGame,
+            "theFollowingRecord": self.theFollowingRecord,
+            "theFollowingCleanup": self.theFollowingCleanup,
+            "theHome": self.theHome
+        }
+        func = funcDict.get(nameIs)
+        print("The test to run is ", nameIs)
+        func()
 
-        for i in range(2):
-            myBot.botSleep(verbose=True)
-            myBot.driver.unlock()
-
+    def theListLike(self):
         try:
-            myBot.memoryManager.readStoredMemoryFile()
+            self.bot.theList_Service(numberOfTags=14, numberOfPostsPerTag=7, randomArgs=False, toLike=True, toFollow=False)
+        except:
+            logg.logSmth("#" * 20 + "\n")
+            logg.logSmth("Exception occurred @#$", 'ERROR')
+            logg.logSmth("#" * 20 + "\n")
+        finally:
+            logg.logSmth('write Memory to file before quiting')
+            self.bot.memoryManager.writeMemoryFileToDrive()
+
+    def theList(self):
+        try:
+            self.bot.theList_Service(numberOfTags=14, numberOfPostsPerTag=7, randomArgs=False)
+        except:
+            logg.logSmth("#" * 20 + "\n")
+            logg.logSmth("Exception occurred @#$", 'ERROR')
+            logg.logSmth("#" * 20 + "\n")
+        finally:
+            logg.logSmth('write Memory to file before quiting')
+            self.bot.memoryManager.writeMemoryFileToDrive()
+
+    def theHome(self):
+        try:
+            self.bot.myStats_Service()
+            self.bot.homePageScroller(numberOfPosts=120, randomArgs=False)
+        except:
+            logg.logSmth("#" * 20 + "\n")
+            logg.logSmth("Exception occurred @#$\n", 'ERROR')
+            logg.logSmth("#" * 20 + "\n")
+
+    def theGame(self):
+        try:
+            self.bot.myStats_Service()
+            self.bot.theGame_Service(numberOfusersToCheck=30, randomArgs=False)
+        except:
+            logg.logSmth("#" * 20 + "\n")
+            logg.logSmth("Exception occurred @#$", 'ERROR')
+            logg.logSmth("#" * 20 + "\n")
+        finally:
+            logg.logSmth('write Memory to file before quiting')
+            self.bot.memoryManager.writeMemoryFileToDrive()
+
+    def theFollowingRecord(self):
+        try:
+            self.bot.memoryManager.readStoredMemoryFile()
+            mst.getMyFollowingList(self.bot)  # mode 1
+        except Exception as e:
+            logg.logSmth("\n" + "#" * 20 + "\n")
+            logg.logSmth("Exception occurred @#$", 'ERROR')
+            logg.logSmth("\n" + "#" * 20 + "\n")
+
+    def theFollowingCleanup(self):
+        try:
+            self.bot.memoryManager.readStoredMemoryFile()
 
             # mode 2 start
-            mfollowingFrame = myBot.fileHandler.CSV_getFrameFromCSVfile('myFollowing')
+            mfollowingFrame = self.bot.fileHandler.CSV_getFrameFromCSVfile('myFollowing')
             mfollowing_ = mfollowingFrame.values.tolist()
             mfollowing = [item for sublist in mfollowing_ for item in sublist]
 
-            mem = myBot.memoryManager.listOfUserMemory
+            mem = self.bot.memoryManager.listOfUserMemory
 
             one = [x for x in mem if x.dateUnFollowed_byMe]
             firstDraft_peopleAlreadyUnfollowed = [x for x in one if x.daysSinceYouGotFollowed_Unfollowed('unfollow') > 3]
@@ -57,7 +130,7 @@ class test(unittest.TestCase):
             filteredList_shouldUnfollow = [x for x in nameMemory_peopleAlreadyUnfollowed if x.handle in mfollowing]
 
             print(len(filteredList_shouldUnfollow))
-            self.gameSortOf(filteredList_shouldUnfollow, myBot)
+            self.gameSortOf(filteredList_shouldUnfollow, self.bot)
             # mode 2 end
         except Exception as e:
             logg.logSmth("\n" + "#" * 20 + "\n")
@@ -65,10 +138,7 @@ class test(unittest.TestCase):
             logg.logSmth("\n" + "#" * 20 + "\n")
         finally:
             logg.logSmth('write Memory to file before quiting')
-            myBot.memoryManager.writeMemoryFileToDrive()
-            logg.logSmth("\nEND OF TEST\n")
-
-        t = 0
+            self.bot.memoryManager.writeMemoryFileToDrive()
 
     def gameSortOf(self, unfollowList, bot):
         if unfollowList:
@@ -112,6 +182,10 @@ class test(unittest.TestCase):
             logg.logSmth(f"##### - {0} users to be un-Followed")
 
 
-if __name__ == '__main__':
+def main():
     suite = unittest.TestLoader().loadTestsFromTestCase(test)
     unittest.TextTestRunner(verbosity=1).run(suite)
+
+
+if __name__ == '__main__':
+    main()
