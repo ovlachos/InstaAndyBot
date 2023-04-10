@@ -26,40 +26,22 @@ class test(unittest.TestCase):
         self.driver.quit()
 
     def testRun(self):
+        from time import sleep
         myBot = bot.AndyBot(self.driver, auth.getDevice())
+
+        sleep(10)
+        # myBot.set_wake_time()
+        # myBot.sleep_computer()
 
         for i in range(2):
             myBot.botSleep(verbose=True)
             myBot.driver.unlock()
 
         try:
-            myBot.memoryManager.readStoredMemoryFile()
-
+            # myBot.memoryManager.readStoredMemoryFile()
+            myBot.myFollowers_Service(.50)
             # mode 1 start
-            mst.getMyFollowingList(myBot) #mode 1
-            # mode 1 end
 
-            # mode 2 start
-            # mfollowingFrame = myBot.fileHandler.CSV_getFrameFromCSVfile('myFollowing')
-            # mfollowing_ = mfollowingFrame.values.tolist()
-            # mfollowing = [item for sublist in mfollowing_ for item in sublist]
-            #
-            # mem = myBot.memoryManager.listOfUserMemory
-            #
-            # one = [x for x in mem if x.dateUnFollowed_byMe]
-            # firstDraft_peopleAlreadyUnfollowed = [x for x in one if x.daysSinceYouGotFollowed_Unfollowed('unfollow') > 3]
-            # secondDraft_peopleAlreadyUnfollowed = [x for x in firstDraft_peopleAlreadyUnfollowed if
-            #                                        x.daysSinceYouGotFollowed_Unfollowed('unfollow') < 110]
-            # for user in secondDraft_peopleAlreadyUnfollowed:
-            #     if user.handle in mfollowing:
-            #         print(user.handle, user.dateUnFollowed_byMe)
-            #
-            # nameMemory_peopleAlreadyUnfollowed = [y for y in secondDraft_peopleAlreadyUnfollowed]
-            # filteredList_shouldUnfollow = [x for x in nameMemory_peopleAlreadyUnfollowed if x.handle in mfollowing]
-            #
-            # print(len(filteredList_shouldUnfollow))
-            # self.gameSortOf(filteredList_shouldUnfollow, myBot)
-            # mode 2 end
         except Exception as e:
             logg.logSmth("\n" + "#" * 20 + "\n")
             logg.logSmth("Exception occurred @#$", 'ERROR')

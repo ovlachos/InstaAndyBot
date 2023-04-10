@@ -89,27 +89,22 @@ class Post(screen.Screen):
                     self.likeButtonStatus = likeButton.tag_name
 
     def likePost(self):
+        """
+        This method likes a post if possible.
+
+        Returns:
+            True if the post is successfully liked, None otherwise.
+        """
         if self.canLike:
             try:
                 if self.likeButton:
-
                     if 'ed' not in self.likeButton.tag_name:
                         self.likeButton.click()
                         self.reactionWait(1)
                         return True
 
                 if self.pic:
-                    # y_mid_Point = self.pic.location['y'] + (self.pic.rect['height'] / 2)
-                    # x_mid_Point = self.pic.location['x'] + (self.pic.rect['width'] / 2)
-                    # xPoint = randint(int(x_mid_Point * 0.85), int(x_mid_Point * 1.15))
-                    # yPoint = randint(int(y_mid_Point * 0.85), int(y_mid_Point * 1.15))
-                    #
-                    # self.doubleClickCoordinates(int(xPoint), int(yPoint))
-
-                    height = self.pic.rect['height']
-                    startY = self.pic.location['y']
-                    yPoint = startY + (height / 2)
-                    self.doubleClickCoordinates(700, int(yPoint))
+                    self.doubleClickOnPic()
 
                     self.reactionWait(1)
                     return True
@@ -120,6 +115,18 @@ class Post(screen.Screen):
                 return None
 
         return None
+
+    def doubleClickOnPic(self):
+        """
+        This method performs a double click on a picture.
+
+        Returns:
+            None
+        """
+        height = self.pic.rect['height']
+        startY = self.pic.location['y']
+        yPoint = startY + (height / 2)
+        self.doubleClickCoordinates(700, int(yPoint))
 
     def expandComments(self):
         if self.comment:
@@ -146,6 +153,11 @@ class Post(screen.Screen):
             self.header.click()
             return up.UserPage(self.driver)
 
+    def goBackFromVideo(self):
+        backButton = self.findElementBy_ID(loc.post_ID['backButton'])
+        if backButton:
+            backButton.click()
+
 
 class Post_ScrolableArea(screen.Screen):
     def __init__(self, driver):
@@ -170,35 +182,39 @@ class Post_ScrolableArea(screen.Screen):
         return total
 
     def scanScreenForPosts(self, level=[1, 1, 1, 1]):
-        # Level:
-        #  level[0] : Headers,
-        #  level[1] : pics,
-        #  level[2] : Like Buttons,
-        #  level[3] : comments,
-
+        """In summary, the code scans the screen for different types of elements in a post,
+        including headers, pictures, like buttons, and comments, and constructs a list of all elements found.
+        It then sorts these elements by their y-coordinate and reconstructs the posts from the sorted list.
+        The method takes an optional level parameter that determines which types of elements to scan for."""
+        # Clear all previous elements to start fresh
         self.allElements.clear()
         if self.posts:
             self.posts.clear()
 
+        # Scan for headers
         if level[0] == 1:
             self.headers = self.findElementsBy_ID(loc.post_ID['postingUser'])
             if self.headers:
                 for header in self.headers:
                     self.allElements.append([header, 'header'])
 
+        # Scan for pics
         if level[1] == 1:
             self.pics = self.findPostPics()
             if self.pics:
                 for pic in self.pics:
                     self.allElements.append([pic, 'pic'])
 
+        # Scan for like buttons
         if level[2] == 1:
             self.likeButtons = self.findElementsBy_ID(loc.post_ID['like'])
             if self.likeButtons:
                 for like in self.likeButtons:
-                    if self.screenBoundUpper < like.location['y'] < self.screenBoundLower:  # TODO: Find a more versatile limit
+                    # Check that the like button is within the screen bounds
+                    if self.screenBoundUpper < like.location['y'] < self.screenBoundLower:
                         self.allElements.append([like, 'like'])
 
+        # Scan for comments
         if level[3] == 1:
             self.comments = self.findElementsBy_ID(loc.post_ID['comment'])
             if self.comments:
@@ -206,15 +222,34 @@ class Post_ScrolableArea(screen.Screen):
                     self.allElements.append([comment, 'comment'])
 
         try:
+            # Sort all elements by y-coordinate to reconstruct posts
             self.allElements.sort(key=lambda x: x[0].location['y'])
         except Exception as e:
+            # If there's an error, set posts to None
             self.posts = None
 
+        # Reconstruct posts
         self.posts = self.reconstructPosts()
 
     def reconstructPosts(self):
+        """
+        This method takes the list of all elements on the screen and separates them into individual post objects.
+
+        Returns:
+        - postList (list): a list of post objects
+
+        The reconstructPosts method takes the list of all elements on the screen and separates
+        them into individual post objects. First, it initializes an empty list postList to store the post objects.
+        Then, it loops through each elementPack in the allElements list. If the elementPack does not contain a comment
+        (i.e., it's a header, pic, or like button), it adds the elementPack to the bucket list. If the elementPack does
+        contain a comment, it adds the elementPack to the bucket list, creates a new Post object using the bucket list,
+        appends the new Post object to the postList, and clears the bucket. Finally, if there are any remaining elements
+        in the bucket after the loop, it creates a new Post object using the bucket, appends the new Post object to the
+        postList, and clears the bucket. The method returns the postList.
+        """
         postList = []
         bucket = []
+
         for elementPack in self.allElements:
             if 'comment' not in elementPack[1]:
                 bucket.append(elementPack)
@@ -232,6 +267,17 @@ class Post_ScrolableArea(screen.Screen):
         return postList
 
     def reportOnPosts(self):
+        """
+        This method reports on the current posts on the screen, printing the posting users for each post.
+
+        Returns:
+        - None
+
+        The reportOnPosts method reports on the current posts on the screen by printing the posting users for each post.
+        First, it checks if there are any posts in the self.posts list. If there are, it loops through each post in the
+        list and prints the posting users for each post using the logg.logSmth method. If there are no posts in the self.posts list,
+        it logs a message saying "No posts in view yet" using the logg.logSmth method. The method does not return anything.
+        """
         if self.posts:
             for post in self.posts:
                 logg.logSmth(f"{post.postingUser} .vs. {post.possiblepostingUser}", 'INFO')

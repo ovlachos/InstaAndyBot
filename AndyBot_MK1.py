@@ -1,3 +1,4 @@
+import os
 import time
 import AnyBotLog as logg
 from datetime import datetime
@@ -52,6 +53,12 @@ class AndyBot():
         logg.logSmth(f"Follow Mana: {self.followMana}/{self.followManaMax}")
 
         self.getMainPage()
+
+    def sleep_computer(self):
+        os.system("osascript -e 'tell application \"Finder\" to sleep'")
+
+    def set_wake_time(self):
+        os.system('sudo pmset schedule sleep "09/22/22 20:45:00" ')
 
     def replenishFollowMana(self):
         timeStamp = datetime.now().strftime(timeStampFormat)
@@ -134,7 +141,7 @@ class AndyBot():
             numberOfTags = int(randint(1, 3) * self.factor)
             numberOfPostsPerTag = int(randint(1, 5) * self.factor)
 
-        return theList.foilowOrCollectUsernamesFromHashtagPages(self, numberOfTags, numberOfPostsPerTag, toLike, toFollow)
+        return theList.followOrCollectUsernamesFromHashtagPages(self, numberOfTags, numberOfPostsPerTag, toLike, toFollow)
 
     def homePageScroller(self, numberOfPosts=30, randomArgs=True):
         if randomArgs:
@@ -147,3 +154,6 @@ class AndyBot():
 
     def myFollowing_Service(self, percentage=1):
         return statService.getMyFollowingList(self)
+
+    def myFollowers_Service(self, percentage=1):
+        return statService.getMyFollowerList(self, percentage)

@@ -20,10 +20,18 @@ class NavigationRibbons(screen.Screen):
             return home.HomePage(self.driver)
 
     def goToSearchPage(self):
-        searchButton = self.findElementBy_XPATH(loc.ribbon_XPath['bottomBar_Search'])
-        if searchButton:
-            self.doubleClick(searchButton)
-            self.reactionWait(5)
+        searchButton_by_ID = self.findElementBy_ID(loc.ribbon_ID['bottomBar_searchPage'])
+        searchButton_by_Xpath = self.findElementBy_XPATH(loc.ribbon_XPath['bottomBar_Search'])
+
+        if searchButton_by_ID:
+            self.doubleClick(searchButton_by_ID)
+            self.reactionWait(3)
+
+            return searchPage.SearchPage(self.driver)
+
+        elif searchButton_by_Xpath:
+            self.doubleClick(searchButton_by_Xpath)
+            self.reactionWait(3)
 
             return searchPage.SearchPage(self.driver)
 

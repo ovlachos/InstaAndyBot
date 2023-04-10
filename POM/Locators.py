@@ -25,7 +25,8 @@ ribbon_XPath = {
 
 ribbon_ID = {
     'backButton': 'com.instagram.android:id/action_bar_button_back',
-    'bottomBar_OwnProfile': 'com.instagram.android:id/tab_avatar'
+    'bottomBar_OwnProfile': 'com.instagram.android:id/tab_avatar',
+    'bottomBar_searchPage': 'com.instagram.android:id/search_tab'
 }
 
 ### USER PAGE
@@ -44,6 +45,9 @@ userPage_ID = {
     'EmptyProfileNotice': 'com.instagram.android:id/row_profile_header_empty_profile_notice_title',
     'UnfollowSecond': 'com.instagram.android:id/follow_sheet_unfollow_row',
     'UnfollowFinal': 'com.instagram.android:id/primary_button',
+    'MuteButton': 'com.instagram.android:id/follow_sheet_mute_row',
+    'MutePosts': 'com.instagram.android:id/posts_mute_setting_row_switch',
+    'MuteStories': 'com.instagram.android:id/stories_mute_setting_row_switch',
 }
 
 userPage_XPATH = {
@@ -91,6 +95,7 @@ post_ID = {
     "advertClose": 'com.instagram.android:id/ig_browser_close_button',
     "imageCarousel": 'com.instagram.android:id/carousel_media_group',
     "userAvatar": 'com.instagram.android:id/row_feed_photo_profile_imageview',
+    "backButton": 'com.instagram.android:id/action_bar_button_back',
 }
 
 post_XPATH = {

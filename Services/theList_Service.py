@@ -1,15 +1,16 @@
 import AnyBotLog as logg
-from Services import HasTagUsage_Service as hstgu
 
 
 # ~~~ HASHTAGS ~~~#
-def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPerTag0, toLike, toFollow):
+def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPerTag0, toLike, toFollow):
     import random
 
+    # Start logging with a header
     logg.logSmth(f"#" * 40)
     logg.logSmth(f" " * 10 + "*" * 5 + " The List " + "*" * 5 + " " * 10)
     logg.logSmth(f"#" * 40)
 
+    # L1 criteria function, used for filtering out unwanted users
     def L1_criteria(userStats):
         # Filter out users with more followers than myself, 0 posts etc.- aka L1
         followerCountLimit = bot.ownFollowers
@@ -28,89 +29,91 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
         else:
             return True
 
-    def actOnPostingUsers(toLike, toFollow):
+    def actOnPostingUsers(toLike_, toFollow_):
+        """
+        Like and/or follow the posting users of the hashtag currently navigated by the bot.
 
-        numberOfFaults = 0
+        :param toLike_: A boolean indicating whether to like the post of each posting user or not.
+        :param toFollow_: A boolean indicating whether to follow the posting user or not.
+        :return: None if the page type verification fails, otherwise nothing.
+        """
+        # Initialize variables
+        number_of_faults = 0
+
+        # Iterate over the number of posts per tag
         for i in range(0, numberOfPostsPerTag):
 
+            # Wait for a random time within the range of reaction interval
             hashPage.reactionWait()
 
+            # Verify that the current page is a valid page type
             verification = hashPage.verifyPageType()
             if not verification:
                 return None
 
-            try:
-                hashPage.grid.openPostByOrder(i + 1)  # Open post number i+1
-                scrollArea = hashPage.grid.scrollablePostArea
-                if scrollArea:
-                    scrollArea.reactionWait()
-                    # scrollArea.scanScreenForPosts(level=[0, 0, 0, 1])
+            # Open the i-th post on the grid
+            hashPage.grid.openPostByOrder(i + 1)
 
-                    # if scrollArea.posts[0]:
-                    #
-                    #     post = scrollArea.posts[0]
-                    #     if post.comment:
-                    #         recorder = hstgu.recordTags(post.getFirstCommentText())
-                    #         if recorder:
-                    #             print(recorder)
-                    #
-                    # # I need to rescan scrolable area after recording 1st comment cause the DOM is stale by then
-                    scrollArea.scanScreenForPosts(level=[1, 1, 0, 0])
+            # Get the scrollable post area
+            scroll_area = hashPage.grid.scrollablePostArea
 
-                    if scrollArea.posts[0]:  # Do we have even one post on open/initial scan of scrollable area?
-                        post = scrollArea.posts[0]
-
-                        if toLike:
-                            liked = post.likePost()
-                            logg.logSmth(f"#### Like status of post by {post.postingUser} is {liked}")
-
-                        if not post.header or not toFollow:  # Can I navigate to the user's profile? If not lets go back to the grid and open the next post.
-                            bot.navRibons.goBack()
-                            continue
-
-                        userProf = post.navigateToPostingUserProfile()  # Have I arrived?
-                        if not userProf or not userProf.verifyPageType():
-                            logg.logSmth(f"#### This is not a user profile")
-                            continue
-
-                        userProf.reactionWait()
-                        # logg.logSmth(f"User Profile: {userProf.userName}")
-                        # TODO is it a good idea to drop mark1 and just start recording/comparing stats in memory?
-                        followedFlag = False
-                        if L1_criteria(userProf.stats):  # Can/Should I follow this user?
-                            if bot.followMana > 0:
-                                if 'OK' in userProf.follow():
-                                    followedFlag = True
-                                    bot.decrementFolowMana(1)
-                                    addUserToMemory(bot, userProf, user=userProf.userName, mark1=True, followed=followedFlag)
-
-                                    bot.navRibons.goBack()
-                                    bot.navRibons.reactionWait()
-                                    bot.navRibons.goBack()
-
-                                    continue  # So that I can skip adding to user memory twice with a false followedFlag
-
-                            addUserToMemory(bot, userProf, user=userProf.userName, mark1=True, followed=followedFlag)
-                        else:
-                            addUserToMemory(bot, userProf, user=userProf.userName, mark1=False, followed=followedFlag)
-                else:
-                    return
-
+            # Check if there is at least one post on the current screen
+            if not scroll_area or not scroll_area.posts[0]:
+                # If not, return to the grid and move on to the next post
                 bot.navRibons.goBack()
-                bot.navRibons.reactionWait()
-                bot.navRibons.goBack()
-            except Exception as e:
-                logg.logSmth(e)
-                logg.logSmth(f"#### This is within the interaction phase for hashtag {hashPage.tag} and is strike no {numberOfFaults}")
+                continue
 
-                numberOfFaults += 1  # TODO Let us see if this helps with list crashes and lost time. Check if the flow of the service is ok or if i need to press the back button
-                if numberOfFaults > 3:
-                    return
-                else:
-                    continue
+            # Get the first post on the current screen
+            post = scroll_area.posts[0]
+
+            # Like the post if toLike is True
+            if toLike_:
+                liked = post.likePost()
+                # logg.logSmth(f"#### Like status of post by {post.postingUser} is {liked}")
+
+            # Navigate to the posting user's profile
+            user_prof = post.navigateToPostingUserProfile()
+
+            # Check if the navigation was successful
+            if not user_prof or not user_prof.verifyPageType():
+                logg.logSmth(f"#### This is not a user profile")
+                bot.navRibons.goBack()
+                continue
+
+            # Wait for a random time within the range of reaction interval
+            user_prof.reactionWait()
+
+            # Check if the bot should follow the user based on L1 criteria
+            followed_flag = False
+            if L1_criteria(user_prof.stats) and toFollow_ and bot.followMana > 0:
+                # Follow the user
+                if 'OK' in user_prof.follow():
+                    followed_flag = True
+                    bot.decrementFolowMana(1)
+                    # Mute user's stories and posts
+                    user_prof.MuteAll()
+
+            # Add the posting user to memory with appropriate flags
+            addUserToMemory(bot, user_prof, user=user_prof.userName, mark1=followed_flag, followed=followed_flag)
+
+            # Return to the grid
+            bot.navRibons.goBack()
+
+            # Wait for a random time within the range of reaction interval
+            bot.navRibons.reactionWait()
+
+            # Return to the hashtag page
+            bot.navRibons.goBack()
+
+            # Check if there are too many faults
+            if number_of_faults > 3:
+                return
+            else:
+                number_of_faults += 1
 
     # Load memory file
-    bot.memoryManager.readStoredMemoryFile()
+    if toFollow:
+        bot.memoryManager.readStoredMemoryFile()
 
     # Load Target Hashtags list
     hashList = bot.targetHashtags_List
@@ -125,7 +128,7 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
         hasTagPageVerified = None
         hashPage = None
         failCounter = 0
-        # Make sure you've navigated to the recents part of a hashTag page
+        # Make sure you've navigated to the recent part of a hashTag page
         while not hasTagPageVerified and failCounter < 3:
 
             searchPage = bot.navRibons.goToSearchPage()
@@ -151,35 +154,60 @@ def foilowOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
     return 'OK'
 
 
+def getFirstPostOnScreen(scrollArea):
+    """
+    Retrieves the first post in the visible area of the scrollable post area.
+
+    :param scrollArea: A ScrollablePostArea instance.
+    :return: The first Post instance on the visible area of the scrollable post area, or None if no posts are found.
+    """
+
+    scrollArea.scanScreenForPosts(level=[1, 1, 0, 0])
+
+    if scrollArea.posts:
+        return scrollArea.posts[0]
+
+    return None
+
+
 def addUserToMemory(bot, userPage, user, mark1=False, followed=False):
+    # Add user to bot's memory manager
     bot.memoryManager.addUserToMemory(user)
-    F = userPage.stats['followers']
-    f = userPage.stats['following']
-    P = userPage.stats['posts']
 
     # Get the newly created memory object of the new user
-    newFollower = bot.memoryManager.retrieveUserFromMemory(user)
-    if newFollower and not newFollower.thisUserHasBeenThroughTheSystem():
-        newFollower.addToL0('hashtag')
-        newFollower.addToL2()
+    new_follower = bot.memoryManager.retrieveUserFromMemory(user)
 
-        newFollower.updateInfoFromLivePage_Landing(userPage)
+    # Check if user is new to the system and update memory accordingly
+    if new_follower and not new_follower.thisUserHasBeenThroughTheSystem():
+        # Add user to level 0 and level 2 lists
+        new_follower.addToL0('hashtag')
+        new_follower.addToL2()
 
+        # Update user's information from live Instagram page
+        new_follower.updateInfoFromLivePage_Landing(userPage)
+
+        # Add user to level 1 list if mark1 flag is True
         if mark1:
-            newFollower.addToL1()
+            new_follower.addToL1()
 
+        # Mark user as followed and add to love daily list if followed flag is True
         if followed:
-            newFollower.markTimeFollowed()
-            newFollower.addToLoveDaily()
+            new_follower.markTimeFollowed()
+            new_follower.addToLoveDaily()
 
-        bot.memoryManager.updateUserRecord(newFollower)
+        # Update user record in memory manager
+        bot.memoryManager.updateUserRecord(new_follower)
 
-        logg.logSmth(f"########## User {user} added to memory with mark1={mark1} and followed={followed} || F/f/P = {F}/{f}/{P}")
-        logg.logSmth(f"########## Follow mana left: {bot.followMana} || {bot.followManaMax - bot.followMana} users followed today")
+        # Uncomment the following lines to log information
+        # logg.logSmth(f"########## User {user} added to memory with mark1={mark1} and followed={followed} || F/f/P = {follower_count}/{following_count}/{post_count}")
+        # logg.logSmth(f"########## Follow mana left: {bot.followMana} || {bot.followManaMax - bot.followMana} users followed today")
     else:
-        if not newFollower:
-            logg.logSmth(f"########## User {user} NOT added to memory with mark1={mark1} and followed={followed} || F/f/P = {F}/{f}/{P}")
+        if not new_follower:
+            pass
+            # Uncomment the following line to log information
+            # logg.logSmth(f"########## User {user} NOT added to memory with mark1={mark1} and followed={followed} || F/f/P = {follower_count}/{following_count}/{post_count}")
         else:
-            logg.logSmth(f"########## User {user} already exists in memory with mark1={mark1} and followed={followed} || F/f/P = {F}/{f}/{P}")
-
+            pass
+            # Uncomment the following line to log information
+            # logg.logSmth(f"########## User {user} already exists in memory with mark1={mark1} and followed={followed} || F/f/P = {follower_count}/{following_count}/{post_count}")
     return "OK"

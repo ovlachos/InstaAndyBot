@@ -38,9 +38,9 @@ class UserMemoryManager:
         file = self.memoryFileHandler.paths['User_Memory'] + userM.uid + '.json'
         self.memoryFileHandler.writeToUserMemory([userM], JSONencoder, file)
 
-    def readStoredMemoryFile(self): #memory source switch
-        self.readMemoryFileFromDrivePickle()
-        # self.readMemoryFileFromDriveJSON()
+    def readStoredMemoryFile(self):  # memory source switch
+        # self.readMemoryFileFromDrivePickle()
+        self.readMemoryFileFromDriveJSON()
 
     def readMemoryFileFromDrivePickle(self):
         self.readRejected_Users()
@@ -136,22 +136,45 @@ class UserMemoryManager:
     def filterByListOfHandles(self, listOfHandles):
         return [x for x in self.listOfUserMemory if x.handle in listOfHandles]
 
+    # Get list of users to unlove based on number of days before unloving
     def getListOfUsersToUnLove(self, daysBeforeIunLove):
-        one = self.getListOfUsersAlreadyFollowedOnly()
-        firstDraft = [x for x in one if x.daysSinceYouGotFollowed_Unfollowed('follow') > daysBeforeIunLove]
+        # Get list of users who have been followed but not unfollowed
+        alreadyFollowedOnly = self.getListOfUsersAlreadyFollowedOnly()
+        # Filter users who were followed before the specified number of days
+        firstDraft = [x for x in alreadyFollowedOnly if x.daysSinceYouGotFollowed_Unfollowed('follow') > daysBeforeIunLove]
+        # Filter users who have already been unloved
         return [x for x in firstDraft if not x.dateUnLoved_byMe]
 
     def getListOfReserveUsersToFollow(self):
         return [x for x in self.listOfUserMemory if x.iShouldFollowThisUser()]
 
+    # Get list of users to unfollow based on number of days before unfollowing
     def getListOfUsersToUnFollow(self, daysBeforeIunFollow):
-        one = self.getListOfUsersAlreadyFollowedOnly()
-        firstDraft = [x for x in one if x.daysSinceYouGotFollowed_Unfollowed('follow') > daysBeforeIunFollow]
+        # Get list of users who have been followed but not unfollowed
+        alreadyFollowedOnly = self.getListOfUsersAlreadyFollowedOnly()
+
+        # Filter users who were followed before the specified number of days
+        firstDraft = [x for x in alreadyFollowedOnly if x.daysSinceYouGotFollowed_Unfollowed('follow') > daysBeforeIunFollow]
+
+        # Filter users who have already been unfollowed
         return [x for x in firstDraft if not x.dateUnFollowed_byMe]
 
+    # Get list of users to purge based on number of days since following or unfollowing
+    def getListOfUsersToPurgeByDate(self, daysBeforeIunFollow):
+        # Get list of users who have been followed or unfollowed
+        alreadyFollowed = self.getListOfUsersAlreadyFollowed()
+        # Filter users who were followed or unfollowed before the specified number of days
+        firstDraft = [x for x in alreadyFollowed if x.daysSinceYouGotFollowed_Unfollowed('follow') > daysBeforeIunFollow]
+        # Filter users who were followed or unfollowed more than 120 days ago
+        return [x for x in firstDraft if x.daysSinceYouGotFollowed_Unfollowed('follow') < 120]
+
+    # Get list of users who have been followed but not unfollowed
     def getListOfUsersAlreadyFollowedOnly(self):
         alreadyFollowed = [x for x in self.listOfUserMemory if x.dateFollowed_byMe]
         return [x for x in alreadyFollowed if not x.dateUnFollowed_byMe]
+
+    def getListOfUsersAlreadyFollowed(self):
+        return [x for x in self.listOfUserMemory if x.dateFollowed_byMe]
 
     def getListOfRejectedUserHandles(self):
         rejected_in_memory = [x.handle for x in self.listOfUserMemory if x.thisUserHasBeenRejected()]

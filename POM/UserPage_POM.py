@@ -13,22 +13,30 @@ from POM import Screen_POM as screen
 class UserPage(screen.Screen):
     def __init__(self, driver):
         super().__init__(driver)
+
+        # Get user information from the page
         self.userName = self.getAttributeBy_ID(loc.userPage_ID['userName'])
         self.altName = self.getAttributeBy_ID(loc.userPage_ID['altName'])
         self.bio = self.getAttributeBy_ID(loc.userPage_ID['bio'])
+
+        # Get user statistics (number of posts, followers, and following)
         self.getStats_dict()
 
+        # Determine the level of access the user has for following and user information
         self.determineLevelOfFollowAccess()
         self.infoAccess = 50  # switch with the line below if you need more info
         # self.determineLevelOfInfoAccess()
 
+        # Initialize grid variable to be used later
         self.grid = None
 
+    # Verify if the current page is a user page and if the user statistics have been obtained
     def verifyPageType(self):
         if self.stats:
             return True
         return False
 
+    # Verify if the user information (username) is present
     def verifyUser(self, handle=None):
         if not self.verifyPageType():
             logg.logSmth('##### Are you in a user page for sure?', 'WARNING')
@@ -37,12 +45,14 @@ class UserPage(screen.Screen):
         logg.logSmth(F'##### User name title {self.userName}', 'INFO')
         return True
 
+    # Get an attribute of the user page by its ID
     def getAttributeBy_ID(self, locatorID):
         attr = None
         element = self.findElementBy_ID(locatorID)
         if element:
             attr = element.text
 
+        # Log a message if the attribute could not be found
         try:
             if not attr:
                 logg.logSmth(f"Could not find {locatorID} on userpage for {self.userName}", 'INFO')
@@ -51,6 +61,7 @@ class UserPage(screen.Screen):
 
         return attr
 
+    # Get user statistics (number of posts, followers, and following)
     def getStats_dict(self):
         self.stats = {
             'posts': 0,
@@ -58,6 +69,7 @@ class UserPage(screen.Screen):
             'following': 0
         }
 
+        # Helper function to refine the counts obtained from the user page
         def refineCounts(countStr):
             if 'M' in countStr:
                 countStr = countStr.split('M')[0]
@@ -75,6 +87,7 @@ class UserPage(screen.Screen):
 
             return txtInt
 
+        # Get the number of posts, followers, and following
         posts = self.findElementBy_ID(loc.userPage_ID['postsCount'])
         if posts:
             self.stats['posts'] = refineCounts(posts.text)
@@ -192,7 +205,7 @@ class UserPage(screen.Screen):
             page.getAndClickElementBy_XPATH(loc.userPage_XPATH.get('following_sorting_option_earliest'))
             page.reactionWait(.5)
 
-        logg.logSmth(f"I am getting my follwing for a count of {int(self.stats['following'] * percentage)} and a percentage of {percentage}")
+        logg.logSmth(f"I am getting my following for a count of {int(self.stats['following'] * percentage)} and a percentage of {percentage}")
         self.following = page.getListOfUsers(int(self.stats['following'] * percentage))
 
     def get_following_hashTag_list(self):
@@ -215,13 +228,13 @@ class UserPage(screen.Screen):
             self.determineLevelOfFollowAccess()
 
             if self.followAccess < 45:
-                logg.logSmth('########## OK followed {}'.format(self.userName), 'INFO')
+                # logg.logSmth('########## OK followed {}'.format(self.userName), 'INFO')
                 return 'OK'
             else:
                 return 'fail'
         else:
-            logg.logSmth('########## nahh - no follow access for this user because:')
-            self.printProfileTypeDescription()
+            # logg.logSmth('########## nahh - no follow access for this user because:')
+            # self.printProfileTypeDescription()
             return 'ΝΟΤ'  # TODO although already followed or requested this result still subtracts from daily follow mana
 
     def unfollow(self):
@@ -261,8 +274,8 @@ class UserPage(screen.Screen):
             else:
                 return 'fail'
         else:
-            logg.logSmth('########## nahh - no unfollow access for this user because:')
-            self.printProfileTypeDescription()
+            # logg.logSmth('########## nahh - no unfollow access for this user because:')
+            # self.printProfileTypeDescription()
             return 'OK'
 
     def bringUpPostGrid(self):
@@ -295,6 +308,36 @@ class UserPage(screen.Screen):
             if self.getAndClickElementBy_ID(loc.userPage_ID['followingHashTagWindow']):
                 return followListPage(self.driver)
 
+    def openMuteDialogue(self):
+        self.determineLevelOfFollowAccess()
+        if 45 > self.followAccess > 5:
+            if self.followAccess < 25:
+                # if following
+                self.findElementBy_XPATH(loc.userPage_XPATH['Button_Following']).click()
+                sleep(2)
+                self.findElementBy_ID(loc.userPage_ID['MuteButton']).click()
+
+    def mutePosts(self):
+        self.findElementBy_ID(loc.userPage_ID['MutePosts']).click()
+
+    def muteStories(self):
+        self.findElementBy_ID(loc.userPage_ID['MuteStories']).click()
+
+    def muteReels(self):
+        pass
+
+    def MuteAll(self, posts=True, stories=True):
+        if posts or stories:
+            self.openMuteDialogue()
+
+            if posts:
+                self.mutePosts()
+            if stories:
+                self.muteStories()
+
+            # logg.logSmth('########## OK Muted {}'.format(self.userName), 'INFO')
+        # self.muteReels()
+
 
 class followListPage(screen.Screen):
     def __init__(self, driver):
@@ -318,12 +361,17 @@ class followListPage(screen.Screen):
         firstView = [x.text for x in firstView]
         listOfUsers.extend(firstView)
 
+        logCounter = 0
         while len(listOfUsers) <= 0.99 * expectedCount:
             self.vSwipeUp('small')
             allOtherViews = self.findElementsBy_ID(loc.userPage_ID['followingSearchResult'])
             allOtherViews = [x.text for x in allOtherViews]
             listOfUsers.extend(allOtherViews)
             listOfUsers = list(dict.fromkeys(listOfUsers))  # removes duplicates
+
+            logCounter += 1
+            if logCounter % 5 == 0:
+                logg.logSmth(f"I got {len(listOfUsers)} users so far")
 
         return listOfUsers
 

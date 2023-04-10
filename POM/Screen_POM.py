@@ -143,14 +143,21 @@ def find_exception_handler(func):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-
-            if "DOM" not in e.args[0] and "@content-desc" not in args[1] and "primary_button" not in args[1]:
-                logg.logSmth(f"The cause is: {e}", 'WARNING')
-                logg.logSmth(args[1], 'WARNING')
+            if len(e.args) > 0 and len(args) > 1:
+                if exceptions_that_should_log([e.args[0], args[1]]):
+                    logg.logSmth(f"The cause is: {e}", 'WARNING')
+                    logg.logSmth(args[1], 'WARNING')
 
             return None
 
     return inner_function
+
+
+def exceptions_that_should_log(initial_args):
+    if "DOM" not in initial_args[0] and "@content-desc" not in initial_args[1] and "primary_button" not in initial_args[
+        1] and "com.instagram.android:id/action_bar_button_back" not in initial_args[1]:
+        # "com.instagram.android:id/action_bar_button_back"
+        return True
 
 
 class Screen():

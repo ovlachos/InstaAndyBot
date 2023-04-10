@@ -33,15 +33,15 @@ class test(unittest.TestCase):
         # self.theHome()
 
     def tearDown(self):
-        self.driver.close_app()
+        # self.driver.close_app()
         self.driver.terminate_app("com.instagram.android")
         self.driver.quit()
-        logg.logSmth("\nEND OF TEST\n\n")
-
-    def testRun(self):
         if len(sys.argv) > 1:
             nameIs = str(sys.argv[1])
-            print('in testRun | name is: - ', nameIs)
+            logg.logSmth(f"\n\n{nameIs}\n\n")
+        logg.logSmth("\n\nEND OF TEST\n\n")
+
+    def testRun(self):
         funcDict = {
             "theListLike": self.theListLike,
             "theList": self.theList,
@@ -50,97 +50,88 @@ class test(unittest.TestCase):
             "theFollowingCleanup": self.theFollowingCleanup,
             "theHome": self.theHome
         }
-        func = funcDict.get(nameIs)
+
+        memoryWritting = {
+            "theListLike": False,  # working
+            "theList": True,  # not working
+            "theGame": True,
+            "theFollowingRecord": False,
+            "theFollowingCleanup": True,
+            "theHome": False
+        }
+
+        nameIs = "theGame"
+        if len(sys.argv) > 1:
+            nameIs = str(sys.argv[1])
+
         print("The test to run is ", nameIs)
-        func()
+        func = funcDict.get(nameIs)
+        memoryW = memoryWritting.get(nameIs)
+
+        try:
+            func()
+        except:
+            logg.logSmth("#" * 20)
+            logg.logSmth(f"Exception occurred @#$  {nameIs}", 'ERROR')
+            logg.logSmth("#" * 20)
+        finally:
+            # logg.logSmth("#" * 20)
+            # logg.logSmth(f"Exception occurred @#$  {nameIs}", 'ERROR')
+            # logg.logSmth("#" * 20)
+            logg.logSmth("#" * 20)
+            logg.logSmth(f"########## Follow mana left: {self.bot.followMana} || {self.bot.followManaMax - self.bot.followMana} users followed today")
+            logg.logSmth("#" * 20)
+            if memoryW:
+                logg.logSmth('write Memory to file before quiting')
+                self.bot.memoryManager.writeMemoryFileToDrive()
 
     def theListLike(self):
-        try:
-            self.bot.theList_Service(numberOfTags=14, numberOfPostsPerTag=7, randomArgs=False, toLike=True, toFollow=False)
-        except:
-            logg.logSmth("#" * 20 + "\n")
-            logg.logSmth("Exception occurred @#$", 'ERROR')
-            logg.logSmth("#" * 20 + "\n")
-        finally:
-            logg.logSmth('write Memory to file before quiting')
-            self.bot.memoryManager.writeMemoryFileToDrive()
+        self.bot.theList_Service(numberOfTags=15, numberOfPostsPerTag=90, randomArgs=False, toLike=True, toFollow=False)
 
     def theList(self):
-        try:
-            self.bot.theList_Service(numberOfTags=14, numberOfPostsPerTag=7, randomArgs=False)
-        except:
-            logg.logSmth("#" * 20 + "\n")
-            logg.logSmth("Exception occurred @#$", 'ERROR')
-            logg.logSmth("#" * 20 + "\n")
-        finally:
-            logg.logSmth('write Memory to file before quiting')
-            self.bot.memoryManager.writeMemoryFileToDrive()
+        self.bot.theList_Service(numberOfTags=5, numberOfPostsPerTag=6, randomArgs=False)
 
     def theHome(self):
-        try:
-            self.bot.myStats_Service()
-            self.bot.homePageScroller(numberOfPosts=120, randomArgs=False)
-        except:
-            logg.logSmth("#" * 20 + "\n")
-            logg.logSmth("Exception occurred @#$\n", 'ERROR')
-            logg.logSmth("#" * 20 + "\n")
+        self.bot.myStats_Service()
+        self.bot.homePageScroller(numberOfPosts=120, randomArgs=False)
 
     def theGame(self):
-        try:
-            self.bot.myStats_Service()
-            self.bot.theGame_Service(numberOfusersToCheck=30, randomArgs=False)
-        except:
-            logg.logSmth("#" * 20 + "\n")
-            logg.logSmth("Exception occurred @#$", 'ERROR')
-            logg.logSmth("#" * 20 + "\n")
-        finally:
-            logg.logSmth('write Memory to file before quiting')
-            self.bot.memoryManager.writeMemoryFileToDrive()
+        # self.bot.myStats_Service()
+        self.bot.theGame_Service(numberOfusersToCheck=30, randomArgs=False)
 
     def theFollowingRecord(self):
-        try:
-            self.bot.memoryManager.readStoredMemoryFile()
-            mst.getMyFollowingList(self.bot)  # mode 1
-        except Exception as e:
-            logg.logSmth("\n" + "#" * 20 + "\n")
-            logg.logSmth("Exception occurred @#$", 'ERROR')
-            logg.logSmth("\n" + "#" * 20 + "\n")
+        self.bot.memoryManager.readStoredMemoryFile()
+        mst.getMyFollowingList(self.bot)  # mode 1
+
+        self.bot.sleep_computer()
 
     def theFollowingCleanup(self):
-        try:
-            self.bot.memoryManager.readStoredMemoryFile()
+        self.bot.memoryManager.readStoredMemoryFile()
 
-            # mode 2 start
-            mfollowingFrame = self.bot.fileHandler.CSV_getFrameFromCSVfile('myFollowing')
-            mfollowing_ = mfollowingFrame.values.tolist()
-            mfollowing = [item for sublist in mfollowing_ for item in sublist]
+        mfollowingFrame = self.bot.fileHandler.CSV_getFrameFromCSVfile('myFollowing')
+        mfollowing_ = mfollowingFrame.values.tolist()
+        mfollowing = [item for sublist in mfollowing_ for item in sublist]
 
-            mem = self.bot.memoryManager.listOfUserMemory
+        mem = self.bot.memoryManager.listOfUserMemory
 
-            one = [x for x in mem if x.dateUnFollowed_byMe]
-            firstDraft_peopleAlreadyUnfollowed = [x for x in one if x.daysSinceYouGotFollowed_Unfollowed('unfollow') > 3]
-            secondDraft_peopleAlreadyUnfollowed = [x for x in firstDraft_peopleAlreadyUnfollowed if
-                                                   x.daysSinceYouGotFollowed_Unfollowed('unfollow') < 110]
-            for user in secondDraft_peopleAlreadyUnfollowed:
-                if user.handle in mfollowing:
-                    print(
-                        f'Still follwing user {user.handle}, marked as unfollowed on: {user.dateUnFollowed_byMe} and followed on: {user.dateFollowed_byMe}', )
+        one = [x for x in mem if x.dateUnFollowed_byMe]
+        firstDraft_peopleAlreadyUnfollowed = [x for x in one if x.daysSinceYouGotFollowed_Unfollowed('unfollow') > 3]
+        secondDraft_peopleAlreadyUnfollowed = [x for x in firstDraft_peopleAlreadyUnfollowed if
+                                               x.daysSinceYouGotFollowed_Unfollowed('unfollow') < 190]
+        for user in secondDraft_peopleAlreadyUnfollowed:
+            if user.handle in mfollowing:
+                print(
+                    f'Still following user {user.handle}, marked as unfollowed on: {user.dateUnFollowed_byMe} and followed on: {user.dateFollowed_byMe}', )
 
-            nameMemory_peopleAlreadyUnfollowed = [y for y in secondDraft_peopleAlreadyUnfollowed]
-            filteredList_shouldUnfollow = [x for x in nameMemory_peopleAlreadyUnfollowed if x.handle in mfollowing]
+        nameMemory_peopleAlreadyUnfollowed = [y for y in secondDraft_peopleAlreadyUnfollowed]
+        filteredList_shouldUnfollow = [x for x in nameMemory_peopleAlreadyUnfollowed if x.handle in mfollowing]
 
-            print(len(filteredList_shouldUnfollow))
-            self.gameSortOf(filteredList_shouldUnfollow, self.bot)
-            # mode 2 end
-        except Exception as e:
-            logg.logSmth("\n" + "#" * 20 + "\n")
-            logg.logSmth("Exception occurred @#$", 'ERROR')
-            logg.logSmth("\n" + "#" * 20 + "\n")
-        finally:
-            logg.logSmth('write Memory to file before quiting')
-            self.bot.memoryManager.writeMemoryFileToDrive()
+        print(len(filteredList_shouldUnfollow))
+        self.gameSortOf(filteredList_shouldUnfollow, self.bot, mfollowing)
 
-    def gameSortOf(self, unfollowList, bot):
+        self.bot.sleep_computer()
+
+    def gameSortOf(self, unfollowList, bot, myFollowing):
         if unfollowList:
             logg.logSmth(f"##### - {len(unfollowList)} users to be un-Followed")
 
@@ -168,7 +159,7 @@ class test(unittest.TestCase):
                     continue
 
                 logg.logSmth(f"########## Will unfollow user {user.handle}")
-                userNotFound_counter = 0  # restart this counter as we only want to see if we fail to get X users in a row, before shuting things down
+                userNotFound_counter = 0  # restart this counter as we only want to see if we fail to get X users in a row, before shutting things down
 
                 if 'OK' in userPage.unfollow():
                     # user.markDateUnfollowed()
@@ -176,6 +167,8 @@ class test(unittest.TestCase):
 
                     unfollow_counter += 1
                     logg.logSmth(f"##### {unfollow_counter} / {len(unfollowList)} users unfollowed today")
+                    myFollowing = [x for x in myFollowing if x != user.handle]
+                    mst.BotStats.record_new_point(myFollowing, 'myFollowing')
 
                     bot.botSleep()
         else:

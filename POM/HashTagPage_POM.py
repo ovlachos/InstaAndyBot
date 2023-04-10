@@ -19,7 +19,7 @@ class HashTagPage(screen.Screen):
     def verifyPageType(self, tag='#'):
         self.getOwnTitle()
         if self.tag:
-            logg.logSmth(f'##### Hastag title {self.tag}, verified', 'INFO')
+            # logg.logSmth(f'##### Hastag title {self.tag}, verified', 'INFO')
 
             if '#' in self.tag:
                 return True

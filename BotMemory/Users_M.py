@@ -9,12 +9,14 @@ timeStampFormat = "%m/%d/%Y, %H:%M:%S"
 timeStampFormat_old = "%Y_%m_%d"
 
 
+# This is a custom encoder class for encoding User_M objects into JSON format
 class UserEncoderDecoder(json.JSONEncoder):
     def default(self, us):
+        # If the object being encoded is an instance of User_M
         if isinstance(us, User_M):
+            # Convert the User_M object into a dictionary with specific key-value pairs
             userDict = {
                 '__user__': 'true',
-
                 '0_Handle': us.handle,
                 'uid': us.uid,
                 'Bio': us.bio,
@@ -22,41 +24,44 @@ class UserEncoderDecoder(json.JSONEncoder):
                 'Stats': us.statsDict,
                 'StatsTime': us.statsDictTimestamp,
                 'Past Names': us.listOfPastNames,
-                # 'LastVisited': us.dateTimeVisitedLast, #This will be calculated by dict variable and retrieved only by function
-
                 'listOf_followers': us.listOf_followers,
                 'listOf_following': us.listOf_following,
                 'listOf_HashTagsfollowing': us.listOf_HashTagsfollowing,
                 'listOf_HashTagsUsing': us.listOf_HashTagsUsing,
-
                 'dateFollowed_byMe': us.dateFollowed_byMe,
                 'dateUnFollowed_byMe': us.dateUnFollowed_byMe,
                 'userIgotYouFrom_youWereFollowing': us._userIgotYouFrom_youWereFollowing,
-
                 'markL0': us._markL0,
                 'markL1': us._markL1,
                 'markL2': us._markL2,
                 'rejected': us._rejected,
-
                 'dateTimeLovedlast': us._dateTimeLovedlast,
                 'dateUnLoved_byMe': us.dateUnLoved_byMe,
                 'dailyLove': us._dailyLove,
                 'extraLove': us._extraLove
             }
+            # Return the dictionary as the JSON object
             return userDict
+        # If the object being encoded is not an instance of User_M, use the default JSON encoder
         else:
             return super().default(us)
 
+    # This is a custom decoder function for decoding JSON objects into User_M objects
     def decode_user(dct):
+        # If the JSON object has a '__user__' key, it's a User_M object
         if "__user__" in dct:
+            # Create a new User_M object and populate its attributes with the values in the dictionary
             user = User_M(dct['0_Handle'])
             user.populate_overwrite(dct)
             return user
+        # If the JSON object doesn't have a '__user__' key, it's not a User_M object
         if 'followers' in dct:
             return dct
 
 
+# This is the User_M class, which represents a user on a social media platform
 class User_M:
+    # Constructor method for creating a new User_M object
     def __init__(self, handle):
         self.handle = handle
         self.uid = str(uuid4())
@@ -72,7 +77,7 @@ class User_M:
         self.listOf_HashTagsUsing = []
 
         self.dateFollowed_byMe = None  # The existense of a follow date means that the user has been followed ata some point and could be unfollowed
-        self.dateUnFollowed_byMe = None  # The existense of a unfollow date means that the cycle is over. No more follow/unfollow actions for this user
+        self.dateUnFollowed_byMe = None  # The existense of an unfollow date means that the cycle is over. No more follow/unfollow actions for this user
         self._userIgotYouFrom_youWereFollowing = None
 
         self._markL0 = False  # MarkL0 means I should investigate this user for L1, and maybe then L2.
@@ -144,17 +149,31 @@ class User_M:
 
         self.handle = handleNew
 
+    """This method updates the statsDict and statsDictTimestamp attributes of the object with new stats. If there are already stats 
+    in the object, it checks if the new stats are different from the most recent stats. If they are different, it adds the new stats 
+    to the beginning of the statsDict list and adds the timestamp of the new stats to the beginning of the statsDictTimestamp list. 
+    If the new stats are the same as the most recent stats, it only updates the timestamp of the most recent stats. 
+    If there are no stats in the object, it adds the new stats to the beginning of the statsDict list and adds the timestamp of the 
+    new stats to the beginning of the statsDictTimestamp list."""
+
     def updateStats(self, statsDictIn):
         from datetime import datetime
 
+        # Check if there are already stats in the object
         if len(self.statsDict) > 0:
+            # Check if the new stats are different from the most recent stats
             if statsDictIn != self.statsDict[0]:
+                # If they are different, add the new stats to the beginning of the list
                 self.statsDict.insert(0, statsDictIn)
+                # Add the timestamp of the new stats to the beginning of the timestamp list
                 self.statsDictTimestamp.insert(0, datetime.now().strftime(timeStampFormat))
             else:
+                # If the new stats are the same as the most recent stats, update the timestamp of the most recent stats
                 self.statsDictTimestamp[0] = datetime.now().strftime(timeStampFormat)
         else:
+            # If there are no stats in the object, add the new stats to the beginning of the list
             self.statsDict.insert(0, statsDictIn)
+            # Add the timestamp of the new stats to the beginning of the timestamp list
             self.statsDictTimestamp.insert(0, datetime.now().strftime(timeStampFormat))
 
     def getTimeLastVisited(self):
@@ -245,53 +264,43 @@ class User_M:
         self._extraLove = False
         logg.logSmth(f"#### {self.handle} removed from theLoveExtra")
 
-    def printHowLongItHasBeenSinceYouGotAnyLove(self):
-
-        try:
-            lastCheck_Time = datetime.strptime(self._dateTimeLovedlast, timeStampFormat)
-            now_DateTime = datetime.now()
-
-            # Convert to Unix timestamp
-            d1_ts = time.mktime(lastCheck_Time.timetuple())
-            d2_ts = time.mktime(now_DateTime.timetuple())
-            deltaT = int(d2_ts - d1_ts) / 60 / 60
-
-            logg.logSmth(
-                f'#### {datetime.today()}:  {str(round(deltaT, 2))} hours since last checked on {self.handle} with {self.getLatestPostCount()} posts on record')
-            # Skip user if it has been less than X hours since we last checked
-            return deltaT
-        except Exception as e:
-            logg.logSmth(e)
-            return 48
-
     def daysSinceYouGotFollowed_Unfollowed(self, action, verbose=False):
 
+        # Check if action is "unfollowed" or "followed"
         if "un" in action:
             date = self.dateUnFollowed_byMe
         else:
             date = self.dateFollowed_byMe
 
         try:
+            # Try to parse the date string into a datetime object using the new timestamp format
             startingDate = datetime.strptime(date, timeStampFormat)
         except ValueError:
+            # If the new timestamp format doesn't work, try the old format
             startingDate = datetime.strptime(date, timeStampFormat_old)
         except Exception as e:
+            # If neither format works, log the error and use the current date and time
             logg.logSmth(e)
             startingDate = datetime.now()
 
         try:
+            # Get the current date and time
             now_DateTime = datetime.now()
 
-            # Convert to Unix timestamp
+            # Convert the starting date and time to Unix timestamp
             d1_ts = time.mktime(startingDate.timetuple())
+            # Convert the current date and time to Unix timestamp
             d2_ts = time.mktime(now_DateTime.timetuple())
+            # Calculate the difference in days between the two timestamps
             deltaT = int(d2_ts - d1_ts) / 60 / 60 / 24
 
             if verbose:
+                # If verbose mode is on, log the result
                 logg.logSmth(f'########## {datetime.today()}:  {str(round(deltaT, 1))} days since I followed {self.handle}')
 
             return deltaT
         except Exception as e:
+            # If there's an error, log it and return 1
             logg.logSmth(e)
             return 1
 

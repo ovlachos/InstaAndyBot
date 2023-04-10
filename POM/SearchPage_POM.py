@@ -56,15 +56,17 @@ class SearchPage(screen.Screen):
         self.reactionWait(0.5)
         results = self.getUserSearchResult()
 
-        fuzzyMatch, score = self.getFuzzyResults(username)
-        if fuzzyMatch:
-            if score > 90:
-                element = [x for x in results if x.text == fuzzyMatch]
-                if element:
-                    element[0].click()
-                    sleep(2)
-                    # logg.logSmth(f"### navigating to {fuzzyMatch} with an input of {username} and {query_firstPart}")
-                    return up.UserPage(self.driver)
+        # fuzzyMatch, score = self.getFuzzyResults(username)
+        # if fuzzyMatch:
+        #     if score > 90:
+
+        if results:
+            element = [x for x in results if x.text == username]  # fuzzyMatch]
+            if element:
+                element[0].click()
+                # sleep(2)
+                # logg.logSmth(f"### navigating to {fuzzyMatch} with an input of {username} and {query_firstPart}")
+                return up.UserPage(self.driver)
 
         # If that did not work, then type the rest of it
         # logg.logSmth(f'### user not found | results are {[x.text for x in results]} and fuzzyMatch is {fuzzyMatch}')
@@ -73,9 +75,10 @@ class SearchPage(screen.Screen):
         self.reactionWait(0.5)
         results = self.getUserSearchResult()
 
-        fuzzyMatch, score = self.getFuzzyResults(username)
-        if fuzzyMatch:
-            element = [x for x in results if x.text == fuzzyMatch]
+        # fuzzyMatch, score = self.getFuzzyResults(username)
+        # if fuzzyMatch:
+        if results:
+            element = [x for x in results if x.text == username]  # fuzzyMatch]
             if element:
                 element[0].click()
                 sleep(2)
@@ -84,7 +87,7 @@ class SearchPage(screen.Screen):
 
         # If no fuzzy match was found after both attempts then call it.
         if results:
-            logg.logSmth(f'### user not found | results are {[x.text for x in results]} and fuzzyMatch is {fuzzyMatch}')
+            logg.logSmth(f'### user not found | results are {[x.text for x in results]} and fuzzyMatch is')  # {fuzzyMatch}')
         return None
 
     def navigateToHashTagPage(self, tag):
