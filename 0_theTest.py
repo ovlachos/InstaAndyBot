@@ -60,7 +60,7 @@ class test(unittest.TestCase):
             "theHome": False
         }
 
-        nameIs = "theGame"
+        nameIs = "theList"
         if len(sys.argv) > 1:
             nameIs = str(sys.argv[1])
 
@@ -79,7 +79,8 @@ class test(unittest.TestCase):
             # logg.logSmth(f"Exception occurred @#$  {nameIs}", 'ERROR')
             # logg.logSmth("#" * 20)
             logg.logSmth("#" * 20)
-            logg.logSmth(f"########## Follow mana left: {self.bot.followMana} || {self.bot.followManaMax - self.bot.followMana} users followed today")
+            logg.logSmth(
+                f"########## Follow mana left: {self.bot.followMana} || {self.bot.followManaMax - self.bot.followMana} users followed today")
             logg.logSmth("#" * 20)
             if memoryW:
                 logg.logSmth('write Memory to file before quiting')
@@ -89,7 +90,7 @@ class test(unittest.TestCase):
         self.bot.theList_Service(numberOfTags=15, numberOfPostsPerTag=90, randomArgs=False, toLike=True, toFollow=False)
 
     def theList(self):
-        self.bot.theList_Service(numberOfTags=5, numberOfPostsPerTag=6, randomArgs=False)
+        self.bot.theList_Service(numberOfTags=10, numberOfPostsPerTag=4, randomArgs=False)
 
     def theHome(self):
         self.bot.myStats_Service()

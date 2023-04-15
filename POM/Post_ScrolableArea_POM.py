@@ -1,4 +1,3 @@
-from random import randint
 from time import sleep
 import AnyBotLog as logg
 
@@ -171,12 +170,16 @@ class Post_ScrolableArea(screen.Screen):
         # let us look for pics first and if we get zero, then we look for caroussels as well
         # This way we only pay the 10sec penalty only when there are 0 pics and at least one carousel
 
-        pics, carousels = [], []
         pics = self.findElementsBy_ID(loc.post_ID['pic'])
+        if not pics:
+            pics = []
+
         total = pics
 
         if len(pics) < 1:
             carousels = self.findElementsBy_ID(loc.post_ID['imageCarousel'])
+            if not carousels:
+                carousels = []
             total = pics + carousels
 
         return total

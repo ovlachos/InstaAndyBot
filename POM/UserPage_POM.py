@@ -16,8 +16,8 @@ class UserPage(screen.Screen):
 
         # Get user information from the page
         self.userName = self.getAttributeBy_ID(loc.userPage_ID['userName'])
-        self.altName = self.getAttributeBy_ID(loc.userPage_ID['altName'])
-        self.bio = self.getAttributeBy_ID(loc.userPage_ID['bio'])
+        self.altName = ''  # self.getAttributeBy_ID(loc.userPage_ID['altName'])
+        self.bio = ''  # self.getAttributeBy_ID(loc.userPage_ID['bio'])
 
         # Get user statistics (number of posts, followers, and following)
         self.getStats_dict()
@@ -108,6 +108,8 @@ class UserPage(screen.Screen):
         # 60 -  D: It's someone I do not follow
         # 70 -  E: It's someone I unfollowed and he still follows
         # 80 -  F: It's someone I unfollowed but he did NOT follow back
+
+        """I need to make this faster somehow. Less findBy_XPATH calls"""
 
         self.followAccess = 0
         if self.userName == auth.username:
@@ -228,7 +230,7 @@ class UserPage(screen.Screen):
             self.determineLevelOfFollowAccess()
 
             if self.followAccess < 45:
-                # logg.logSmth('########## OK followed {}'.format(self.userName), 'INFO')
+                logg.logSmth('########## OK followed {}'.format(self.userName), 'INFO')
                 return 'OK'
             else:
                 return 'fail'
@@ -238,16 +240,20 @@ class UserPage(screen.Screen):
             return 'ΝΟΤ'  # TODO although already followed or requested this result still subtracts from daily follow mana
 
     def unfollow(self):
+        # Determine level of follow access for the user
         self.determineLevelOfFollowAccess()
+
+        # If we have enough access to unfollow
         if 45 > self.followAccess > 5:
+            # If the follow access is less than 25, the user is being followed
             if self.followAccess < 25:
-                # if following
+                # Unfollow the user
                 self.findElementBy_XPATH(loc.userPage_XPATH['Button_Following']).click()
                 sleep(2)
                 self.findElementBy_ID(loc.userPage_ID['UnfollowSecond']).click()
                 sleep(2)
 
-                # if their profile is private and Insta warns I would need to request access if I Unfollow
+                # If their profile is private and Instagram warns we would need to request access if we unfollow
                 try:
                     is_there_a_final_button = self.findElementBy_ID(loc.userPage_ID['UnfollowFinal'])
                     if is_there_a_final_button:
@@ -255,18 +261,21 @@ class UserPage(screen.Screen):
                 except:
                     pass
             else:
-                # if requested
+                # If the user has been requested to follow
                 self.findElementBy_XPATH(loc.userPage_XPATH['Button_Requested']).click()
                 sleep(2)
                 self.findElementBy_ID(loc.userPage_ID['UnfollowSecond']).click()
                 sleep(2)
 
-                # Their profile IS private and Insta warns I would need to request access if I Unfollow
+                # If their profile is private and Instagram warns we would need to request access if we unfollow
                 there_is_a_final_button = self.findElementBy_ID(loc.userPage_ID['UnfollowFinal'])
                 if there_is_a_final_button:
                     there_is_a_final_button.click()
 
+            # Determine the level of follow access again
             self.determineLevelOfFollowAccess()
+
+            # If we successfully unfollowed the user
             if self.followAccess > 45:
                 logg.logSmth('########## OK UNfollowed {}'.format(self.userName), 'INFO')
                 self.printProfileTypeDescription()
@@ -274,6 +283,7 @@ class UserPage(screen.Screen):
             else:
                 return 'fail'
         else:
+            # We don't have enough access to unfollow the user
             # logg.logSmth('########## nahh - no unfollow access for this user because:')
             # self.printProfileTypeDescription()
             return 'OK'

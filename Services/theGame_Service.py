@@ -11,13 +11,12 @@ def playTheGame(bot, num):
     bot.memoryManager.readStoredMemoryFile()
     # bot.memoryManager.readMemoryFileFromDrivePickle()
 
-    # handle =bot.memoryManager.getUID_fromHandle('tooironictospeak')
-    # print(f"Handle is: {handle} tooironictospeak")
+    # ~~ Update My Stats
+    bot.myStats_Service()
 
     # ~~ Derive Lists
     # reservesList = bot.memoryManager.getListOfReserveUsersToFollow()[:num]
     unfollowList = bot.memoryManager.getListOfUsersToUnFollow(bot.daysBeforeIunFollow)  # [:num]
-    # purgeList = bot.memoryManager.getListOfUsersToPurgeByDate(bot.daysBeforeIunFollow)  # [:num]
     purgeList = InfidelsList.infidels  # manually curated
     unLoveList = bot.memoryManager.getListOfUsersToUnLove(bot.daysBeforeIunLove)
     manuallyAddedList = bot.memoryManager.manuallyAddNewUsersTo_theGame()
@@ -107,47 +106,7 @@ def playTheGame(bot, num):
 
         logg.logSmth(purgeList)
     else:
-        logg.logSmth(f"##### - {0} users to be un-Followed")
-
-    # if purgeList:  # False:
-    #     logg.logSmth(f"##### - {len(purgeList)} users to be un-Followed")
-    #
-    #     userNotFound_counter = 0
-    #     unfollow_counter = 0
-    #     for user in purgeList:
-    #         user.daysSinceYouGotFollowed_Unfollowed('follow', True)
-    #
-    #         # logg.logSmth(f"### Navigating to user {user.handle}")
-    #         searchPage = None
-    #         while not searchPage:
-    #             searchPage = bot.navRibons.goToSearchPage()
-    #             if not searchPage:
-    #                 bot.navRibons.goBack()
-    #
-    #         userPage = searchPage.navigateToUserPage(user.handle)
-    #
-    #         if not userPage:
-    #             bot.memoryManager.userPageCannotBeFound(user)
-    #
-    #             userNotFound_counter += 1
-    #             if userNotFound_counter > 3:
-    #                 return "No Internet - ...or search shadow ban"
-    #
-    #             continue
-    #
-    #         logg.logSmth(f"########## Will unfollow user {user.handle}")
-    #         userNotFound_counter = 0  # restart this counter as we only want to see if we fail to get X users in a row, before shuting things down
-    #
-    #         if 'OK' in userPage.unfollow():
-    #             user.markDateUnfollowed()
-    #             bot.memoryManager.updateUserRecord(user)
-    #
-    #             unfollow_counter += 1
-    #             logg.logSmth(f"##### {unfollow_counter} / {len(purgeList)} users unfollowed today")
-    #
-    #             bot.botSleep()
-    # else:
-    #     logg.logSmth(f"##### - {0} users to be un-Followed")
+        logg.logSmth(f"##### - {0} infidels to be Purged (by manual selection)")
 
     # ~~ Follow Reserves ###
     '''if reservesList and bot.followMana > 0:

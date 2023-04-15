@@ -44,7 +44,7 @@ def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
         for i in range(0, numberOfPostsPerTag):
 
             # Wait for a random time within the range of reaction interval
-            hashPage.reactionWait()
+            # hashPage.reactionWait()
 
             # Verify that the current page is a valid page type
             verification = hashPage.verifyPageType()
@@ -56,9 +56,10 @@ def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
 
             # Get the scrollable post area
             scroll_area = hashPage.grid.scrollablePostArea
+            scroll_area.scanScreenForPosts(level=[1, 1, 1, 0])
 
             # Check if there is at least one post on the current screen
-            if not scroll_area or not scroll_area.posts[0]:
+            if not scroll_area or len(scroll_area.posts) < 1:
                 # If not, return to the grid and move on to the next post
                 bot.navRibons.goBack()
                 continue
@@ -81,7 +82,7 @@ def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
                 continue
 
             # Wait for a random time within the range of reaction interval
-            user_prof.reactionWait()
+            # user_prof.reactionWait()
 
             # Check if the bot should follow the user based on L1 criteria
             followed_flag = False
@@ -100,7 +101,7 @@ def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
             bot.navRibons.goBack()
 
             # Wait for a random time within the range of reaction interval
-            bot.navRibons.reactionWait()
+            # bot.navRibons.reactionWait()
 
             # Return to the hashtag page
             bot.navRibons.goBack()
@@ -193,7 +194,7 @@ def addUserToMemory(bot, userPage, user, mark1=False, followed=False):
         # Mark user as followed and add to love daily list if followed flag is True
         if followed:
             new_follower.markTimeFollowed()
-            new_follower.addToLoveDaily()
+            # new_follower.addToLoveDaily()
 
         # Update user record in memory manager
         bot.memoryManager.updateUserRecord(new_follower)

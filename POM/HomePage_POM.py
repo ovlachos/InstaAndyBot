@@ -1,6 +1,4 @@
-rom
-random
-import randint, choice  # import random number generation functions
+from random import randint, choice  # import random number generation functions
 from time import sleep  # import sleep function for pausing program execution
 import AnyBotLog as logg  # import logging module
 
@@ -121,3 +119,4 @@ class HomePage(screen.Screen):
 
         # Return True if there are no posts on the screen
         return True
+

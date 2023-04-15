@@ -133,7 +133,7 @@ class AndyBot():
         if randomArgs:
             numberOfusersToCheck = int(randint(1, 5) * self.factor)
 
-        logg.logSmth(f" Number of users to check: {numberOfusersToCheck}")
+        logg.logSmth(f"TheGame: Number of users to check: {numberOfusersToCheck}")
         return theGame.playTheGame(self, numberOfusersToCheck)
 
     def theList_Service(self, numberOfTags=1, numberOfPostsPerTag=1, randomArgs=True, toLike=True, toFollow=True):
