@@ -1,19 +1,17 @@
 import os
 import time
-import AnyBotLog as logg
 from datetime import datetime
 from random import randint
 
+import AnyBotLog as logg
 from BotMemory import BotParams as btprms
 from BotMemory import FileHandlerBot as fh
 from BotMemory import UserMemoryManager
-
-from Services import theGame_Service as theGame
-from Services import theList_Service as theList
+from POM import NavigationRibbons_POM as ribon
 from Services import homePageScroller_Service as homeScroller
 from Services import myStats_Service as statService
-
-from POM import NavigationRibbons_POM as ribon
+from Services import theGame_Service as theGame
+from Services import theList_Service as theList
 
 timeStampFormat = "%m/%d/%Y-%H:%M"
 
@@ -64,7 +62,8 @@ class AndyBot():
         timeStamp = datetime.now().strftime(timeStampFormat)
         if self.timeDiffForManaReplenishment() > 24:
             self.followMana = self.followManaMax
-            self.botParams.updateMana(self.followManaMax, timeStamp)  # the only time a new timestamp is recorded on drive
+            self.botParams.updateMana(self.followManaMax,
+                                      timeStamp)  # the only time a new timestamp is recorded on drive
         else:
             self.botParams.updateMana(self.followMana)
 
@@ -141,7 +140,8 @@ class AndyBot():
             numberOfTags = int(randint(1, 3) * self.factor)
             numberOfPostsPerTag = int(randint(1, 5) * self.factor)
 
-        return theList.followOrCollectUsernamesFromHashtagPages(self, numberOfTags, numberOfPostsPerTag, toLike, toFollow)
+        return theList.followOrCollectUsernamesFromHashtagPages(self, numberOfTags, numberOfPostsPerTag, toLike,
+                                                                toFollow)
 
     def homePageScroller(self, numberOfPosts=30, randomArgs=True):
         if randomArgs:

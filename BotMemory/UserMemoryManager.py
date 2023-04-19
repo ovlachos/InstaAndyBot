@@ -1,9 +1,9 @@
-import AnyBotLog as logg
+import time
 
+import AnyBotLog as logg
 import auth
 from BotMemory import FileHandlerBot as fh
 from BotMemory import Users_M as UM
-import time
 
 
 class UserMemoryManager:
@@ -13,7 +13,8 @@ class UserMemoryManager:
         self.rejected_Users = []
 
     ### Memory level
-    def writeMemoryFileToDrive(self):  # TODO: Re-think when this method is called and if it should always be done explicitly outside this object
+    def writeMemoryFileToDrive(
+            self):  # TODO: Re-think when this method is called and if it should always be done explicitly outside this object
         startTime = time.time()
 
         if len(self.listOfUserMemory) > 3:
@@ -92,6 +93,7 @@ class UserMemoryManager:
     def writeRejected_Users(self):
         frame = self.memoryFileHandler.listToFrame(self.rejected_Users)
         self.memoryFileHandler.CSV_saveFrametoCSVfile('rejected_UsersCSV', frame)
+        logg.logSmth("Rejected users, written to file")
 
     def getMemoryFile(self):
         return self.listOfUserMemory
@@ -141,7 +143,8 @@ class UserMemoryManager:
         # Get list of users who have been followed but not unfollowed
         alreadyFollowedOnly = self.getListOfUsersAlreadyFollowedOnly()
         # Filter users who were followed before the specified number of days
-        firstDraft = [x for x in alreadyFollowedOnly if x.daysSinceYouGotFollowed_Unfollowed('follow') > daysBeforeIunLove]
+        firstDraft = [x for x in alreadyFollowedOnly if
+                      x.daysSinceYouGotFollowed_Unfollowed('follow') > daysBeforeIunLove]
         # Filter users who have already been unloved
         return [x for x in firstDraft if not x.dateUnLoved_byMe]
 
@@ -154,7 +157,8 @@ class UserMemoryManager:
         alreadyFollowedOnly = self.getListOfUsersAlreadyFollowedOnly()
 
         # Filter users who were followed before the specified number of days
-        firstDraft = [x for x in alreadyFollowedOnly if x.daysSinceYouGotFollowed_Unfollowed('follow') > daysBeforeIunFollow]
+        firstDraft = [x for x in alreadyFollowedOnly if
+                      x.daysSinceYouGotFollowed_Unfollowed('follow') > daysBeforeIunFollow]
 
         # Filter users who have already been unfollowed
         return [x for x in firstDraft if not x.dateUnFollowed_byMe]
@@ -164,7 +168,8 @@ class UserMemoryManager:
         # Get list of users who have been followed or unfollowed
         alreadyFollowed = self.getListOfUsersAlreadyFollowed()
         # Filter users who were followed or unfollowed before the specified number of days
-        firstDraft = [x for x in alreadyFollowed if x.daysSinceYouGotFollowed_Unfollowed('follow') > daysBeforeIunFollow]
+        firstDraft = [x for x in alreadyFollowed if
+                      x.daysSinceYouGotFollowed_Unfollowed('follow') > daysBeforeIunFollow]
         # Filter users who were followed or unfollowed more than 120 days ago
         return [x for x in firstDraft if x.daysSinceYouGotFollowed_Unfollowed('follow') < 120]
 
@@ -182,7 +187,8 @@ class UserMemoryManager:
         rejected = rejected_in_memory + rejected_on_file_unique
         return rejected
 
-    def slimDownRejectedMemoryRecords(self):  # this is not the right way. Users I've added to the love are flagged as rejected
+    def slimDownRejectedMemoryRecords(
+            self):  # this is not the right way. Users I've added to the love are flagged as rejected
 
         theListOfRejectedUsersInMemory = [x for x in self.listOfUserMemory if x.thisUserHasBeenRejected()]
 
@@ -200,7 +206,8 @@ class UserMemoryManager:
             self.removeUserFromRecord(user)
 
     def manuallyAddNewUsersTo_theGame(self):
-        fileOfGameParticipants = self.memoryFileHandler.CSV_getFrameFromCSVfile('addUserTotheGameCSV')['userToAdd'].tolist()  # list of handles
+        fileOfGameParticipants = self.memoryFileHandler.CSV_getFrameFromCSVfile('addUserTotheGameCSV')[
+            'userToAdd'].tolist()  # list of handles
         l0 = [x.handle for x in self.getListOfMarkedUsers(0)]
         newGameParticipants = [x for x in fileOfGameParticipants if x not in l0]
         newGameParticipants = [x for x in newGameParticipants if x not in self.rejected_Users]
@@ -227,7 +234,8 @@ class UserMemoryManager:
 
     def redistributeExtraLove(self):
         memoryLoves = [x.handle for x in self.getExtraLoveList()]  # list of handles
-        driveLoves = self.memoryFileHandler.CSV_getFrameFromCSVfile('extraLoveCSV')['theLoveExtra'].tolist()  # list of handles
+        driveLoves = self.memoryFileHandler.CSV_getFrameFromCSVfile('extraLoveCSV')[
+            'theLoveExtra'].tolist()  # list of handles
 
         # Remove dropped users
         droppedLoves = [x for x in memoryLoves if x not in driveLoves]  # list of handles
@@ -243,7 +251,8 @@ class UserMemoryManager:
             if user:
                 user.addToLoveExtra()
             else:
-                self.addUserToMemory(newLove)  # this routine adds to both the memory object and writes the whole thing on the drive
+                self.addUserToMemory(
+                    newLove)  # this routine adds to both the memory object and writes the whole thing on the drive
                 user = self.retrieveUserFromMemory(newLove)
                 user.addToLoveExtra()
 
@@ -326,3 +335,34 @@ class UserMemoryManager:
 
         if writeNow:
             self.pickleMemoryFileToDrive()
+
+
+"""
+Time for a database. What kind of file? .CSV? SQL .db? .json? pickle?
+Do I really need to manually read and edit the entries of the database? Not if it is working as intended. I can always do that programmatically.
+Go for SQL or smth more modern then.
+A graph database looks promissing for the user interconaction exploration. 
+What kind of edges or relationships do users have whith each other? graph = edge = relationship and can be labeled, derected, assigned properties.
+A user is:
+    ~ Followed by and/or following by (another user: OU) [two-way edge] :: path metadata 
+    ~ Likes Posts (weak) of OU [two-way edge] :: path metadata/properties = how many likes
+    ~ Comments on posts of OU [two-way edge] :: path metadata/properties = how many comments
+    ~ Is tagged on posts of OU [two-way edge] :: path metadata/properties = how many tags
+    ~ Is a post co-author, collaborator [two-way edge] :: path metadata/properties = how many collabs
+    
+    The simplest way is to think about relationships is to just write declarative sentences about our domain.
+     Write some true facts, and isolate the “nouns” (in bold) and “verbs” (in italics). Example:
+
+    A person posts an article
+    A person friends another person
+    A person has an interest
+
+    In this simplified view of the domain, all of your nouns are nodes, and all of your relationships are verbs. 
+    The relationship type is the singular form of the verb. And so this implies a graph that 
+    looks like (:Person)-[:POSTS]->(:Article) and so on.
+    Under the simple explanation, the task is to decompose your domain into a large batch of simple declarative sentences. 
+    This gives you a pile of nodes and relationships to work with. You then have most of your model, 
+    and mostly have to make naming decisions.
+    
+    LookUp TypeDB tutorials
+"""
