@@ -21,6 +21,8 @@ def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
             wording = 'Dropping'
         elif userStats['posts'] < 3:
             wording = 'Dropping'
+        elif userStats['following'] < 10:
+            wording = 'Dropping'
         else:
             wording = 'Keeping'
 

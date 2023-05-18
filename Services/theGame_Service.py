@@ -18,10 +18,11 @@ def playTheGame(bot, num):
     # reservesList = bot.memoryManager.getListOfReserveUsersToFollow()[:num]
     unfollowList = bot.memoryManager.getListOfUsersToUnFollow(bot.daysBeforeIunFollow)  # [:num]
     purgeList = InfidelsList.infidels  # manually curated
-    unLoveList = bot.memoryManager.getListOfUsersToUnLove(bot.daysBeforeIunLove)
+    # unLoveList = bot.memoryManager.getListOfUsersToUnLove(bot.daysBeforeIunLove)
     manuallyAddedList = bot.memoryManager.manuallyAddNewUsersTo_theGame()
 
     # ~~ Un Love ###
+    '''
     if unLoveList:
         logg.logSmth(f"##### - {len(unLoveList)} users to be un-Loved")
         for user in unLoveList:
@@ -30,6 +31,8 @@ def playTheGame(bot, num):
         bot.memoryManager.pickleMemoryFileToDrive()
     else:
         logg.logSmth(f"##### - {0} users to be un-Loved")
+
+    '''
 
     # ~~ Un Follow ###
     if unfollowList:

@@ -13,6 +13,11 @@ devices = [
         'upperScreenBound': 260,
     },
     {
+        'name': '4d665a090605',
+        'lowerScreenBound': 1960,
+        'upperScreenBound': 260,
+    },
+    {
         'name': 'XEDNW18908001798',
         'lowerScreenBound': 1970,
         'upperScreenBound': 210,
