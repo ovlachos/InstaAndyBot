@@ -342,7 +342,7 @@ Time for a database. What kind of file? .CSV? SQL .db? .json? pickle?
 Do I really need to manually read and edit the entries of the database? Not if it is working as intended. I can always do that programmatically.
 Go for SQL or smth more modern then.
 A graph database looks promissing for the user interconaction exploration. 
-What kind of edges or relationships do users have whith each other? graph = edge = relationship and can be labeled, derected, assigned properties.
+What kind of edges or relationships do users have whith each other? graph = edge = relationship and can be labeled, directed, assigned properties.
 A user is:
     ~ Followed by and/or following by (another user: OU) [two-way edge] :: path metadata 
     ~ Likes Posts (weak) of OU [two-way edge] :: path metadata/properties = how many likes
@@ -350,7 +350,7 @@ A user is:
     ~ Is tagged on posts of OU [two-way edge] :: path metadata/properties = how many tags
     ~ Is a post co-author, collaborator [two-way edge] :: path metadata/properties = how many collabs
     
-    The simplest way is to think about relationships is to just write declarative sentences about our domain.
+    The simplest way to think about relationships is to just write declarative sentences about our domain.
      Write some true facts, and isolate the “nouns” (in bold) and “verbs” (in italics). Example:
 
     A person posts an article
@@ -363,6 +363,11 @@ A user is:
     Under the simple explanation, the task is to decompose your domain into a large batch of simple declarative sentences. 
     This gives you a pile of nodes and relationships to work with. You then have most of your model, 
     and mostly have to make naming decisions.
+    
+    Network/ graph density: How many edges exist compared to how many could exist (i.e. how saturated the network is). 1 for everyone being connected to everyone else, 0 for no connections at all, 0 edges.
+    Node degree: How many edges a node has. Metric of centrality, the more edges (connections) a node has the more central, or "popular" is is.
+    Clustering coefficient: 
+    Modulatiry: the number of sub-simmunities within a group  
     
     LookUp TypeDB tutorials
 """
