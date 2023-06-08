@@ -151,7 +151,7 @@ def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
         numberOfPostsPerTag = numberOfPostsPerTag0
 
         # Collect user handles OR Follow Users
-        hashPage.goToRecentPosts()  # Go to most recent posts grid
+        hashPage.goToRecentPosts()  # Go to most recent posts grid !!!! TODO: THIS IS CURRENTLY NOT WORKING/IG LAYOUT CHANGED
         actOnPostingUsers(toLike, toFollow)
 
     return 'OK'

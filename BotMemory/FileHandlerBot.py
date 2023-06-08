@@ -190,7 +190,7 @@ class FileHandlerBot:
             with open(file, 'w') as jUM:
                 json.dump(userMemory, jUM, cls=JSONencoder, sort_keys=True, indent=4)
 
-    def pickleUserMemory(self, userMemory):
+    def pickleUserMemory(self, userMemory):  # TODO: use "with" context manager instead
         fileName = self.getFileFromFilename('User_Memory_pickle')['filepath']
         if fileName:
             outfile = open(fileName, 'wb')

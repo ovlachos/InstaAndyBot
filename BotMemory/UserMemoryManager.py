@@ -91,9 +91,12 @@ class UserMemoryManager:
         self.rejected_Users = frame['0'].tolist()
 
     def writeRejected_Users(self):
-        frame = self.memoryFileHandler.listToFrame(self.rejected_Users)
-        self.memoryFileHandler.CSV_saveFrametoCSVfile('rejected_UsersCSV', frame)
-        logg.logSmth("Rejected users, written to file")
+        try:
+            a=1
+        finally:
+            frame = self.memoryFileHandler.listToFrame(self.rejected_Users)
+            self.memoryFileHandler.CSV_saveFrametoCSVfile('rejected_UsersCSV', frame)
+            # logg.logSmth("Rejected users, written to file")
 
     def getMemoryFile(self):
         return self.listOfUserMemory
@@ -336,22 +339,65 @@ class UserMemoryManager:
         if writeNow:
             self.pickleMemoryFileToDrive()
 
-
+#TODO:
 """
+
 Time for a database. What kind of file? .CSV? SQL .db? .json? pickle?
 Do I really need to manually read and edit the entries of the database? Not if it is working as intended. I can always do that programmatically.
-Go for SQL or smth more modern then.
-A graph database looks promissing for the user interconaction exploration. 
-What kind of edges or relationships do users have whith each other? graph = edge = relationship and can be labeled, directed, assigned properties.
-A user is:
-    ~ Followed by and/or following by (another user: OU) [two-way edge] :: path metadata 
-    ~ Likes Posts (weak) of OU [two-way edge] :: path metadata/properties = how many likes
-    ~ Comments on posts of OU [two-way edge] :: path metadata/properties = how many comments
-    ~ Is tagged on posts of OU [two-way edge] :: path metadata/properties = how many tags
+Go for SQL, or smth more modern then?
+What do I need from my DB to store:
+    USERS:
+    ~ User name
+    ~ Time visited last
+    ~ Entry creation date (i.e. first time visited)
+    ~ Followed date
+    ~ UnFollowed date
+
+    Table follows {
+      following_user_id integer
+      followed_user_id integer
+      created_at timestamp 
+    }   
+
+    Table users {
+      id integer [primary key]
+      username varchar
+      rejected boolean //Only if profile cannot be found
+      created_at timestamp
+      folowed_date timestamp
+      unfolowed_date timestamp
+    }
+
+    Table posts {
+      id integer [primary key]
+      body text [note: 'Content of the post']
+      user_id integer
+      updated_at timestamp
+    }
+
+    Table interactions {
+      liked_user_id integer
+      commented_user_id integer
+    }
+
+A graph database looks promising for the user interconnection exploration.  https://graph-tool.skewed.de/
+What kind of edges or relationships do users have with each other? graph = edge = relationship and can be labeled, directed, assigned properties.
+A user :
+    ~ Is Followed by and/or following (other user: OU) [two-way edge] :: path metadata 
+    ~ Likes a Post (weak) of OU [one-way edge] :: path metadata/properties
+    ~ Comments on a post of OU [one-way edge] :: path metadata/properties
+    ~ Is tagged on a post of OU [one-way edge] :: path metadata/properties
     ~ Is a post co-author, collaborator [two-way edge] :: path metadata/properties = how many collabs
+    ~ Posts a post
     
+    ~ Has a handle/username
+    ~ Has a Time visited last
+    ~ Has an Entry creation date (i.e. first time visited)
+    ~ Has a Followed date
+    ~ Has an UnFollowed date
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     The simplest way to think about relationships is to just write declarative sentences about our domain.
-     Write some true facts, and isolate the “nouns” (in bold) and “verbs” (in italics). Example:
+    Write some true facts, and isolate the “nouns” (in bold) and “verbs” (in italics). Example:
 
     A person posts an article
     A person friends another person
@@ -367,7 +413,7 @@ A user is:
     Network/ graph density: How many edges exist compared to how many could exist (i.e. how saturated the network is). 1 for everyone being connected to everyone else, 0 for no connections at all, 0 edges.
     Node degree: How many edges a node has. Metric of centrality, the more edges (connections) a node has the more central, or "popular" is is.
     Clustering coefficient: 
-    Modulatiry: the number of sub-simmunities within a group  
+    Modularity: the number of sub-communities within a group  
     
     LookUp TypeDB tutorials
 """

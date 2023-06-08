@@ -34,7 +34,7 @@ class UserEncoderDecoder(json.JSONEncoder):
                 'markL0': us._markL0,
                 'markL1': us._markL1,
                 'markL2': us._markL2,
-                'rejected': us._rejected,
+                'rejected': us._rejected, # rejected - means the profile cannot be found
                 # 'dateTimeLovedlast': us._dateTimeLovedlast,
                 # 'dateUnLoved_byMe': us.dateUnLoved_byMe,
                 # 'dailyLove': us._dailyLove,
@@ -83,7 +83,7 @@ class User_M:
         self._markL0 = False  # MarkL0 means I should investigate this user for L1, and maybe then L2.
         self._markL1 = False  # MarkL1 means this user has fewer followers within a set range and more than X posts.
         self._markL2 = False  # MarkL2 means this user uses hashtags or wording that suggests he/she are interested at a given topic.
-        self._rejected = False  # rejected
+        self._rejected = False  # rejected - means the profile cannot be found
 
         # self._dateTimeLovedlast = None
         # self.dateUnLoved_byMe = None
