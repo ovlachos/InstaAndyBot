@@ -1,9 +1,9 @@
 import json
 import time
-import AnyBotLog as logg
-
 from datetime import datetime
 from uuid import uuid4
+
+import AnyBotLog as logg
 
 timeStampFormat = "%m/%d/%Y, %H:%M:%S"
 timeStampFormat_old = "%Y_%m_%d"
@@ -14,40 +14,23 @@ class UserEncoderDecoder(json.JSONEncoder):
     def default(self, us):
         # If the object being encoded is an instance of User_M
         if isinstance(us, User_M):
-            # Convert the User_M object into a dictionary with specific key-value pairs
-            userDict = {
+            return {
                 '__user__': 'true',
                 '0_Handle': us.handle,
                 'uid': us.uid,
-                # 'Bio': us.bio,
                 'AltName': us.altName,
-                # 'Stats': us.statsDict,
-                # 'StatsTime': us.statsDictTimestamp,
-                # 'Past Names': us.listOfPastNames,
-                # 'listOf_followers': us.listOf_followers,
-                # 'listOf_following': us.listOf_following,
-                # 'listOf_HashTagsfollowing': us.listOf_HashTagsfollowing,
-                # 'listOf_HashTagsUsing': us.listOf_HashTagsUsing,
                 'dateFollowed_byMe': us.dateFollowed_byMe,
                 'dateUnFollowed_byMe': us.dateUnFollowed_byMe,
-                # 'userIgotYouFrom_youWereFollowing': us._userIgotYouFrom_youWereFollowing,
                 'markL0': us._markL0,
                 'markL1': us._markL1,
                 'markL2': us._markL2,
-                'rejected': us._rejected, # rejected - means the profile cannot be found
-                # 'dateTimeLovedlast': us._dateTimeLovedlast,
-                # 'dateUnLoved_byMe': us.dateUnLoved_byMe,
-                # 'dailyLove': us._dailyLove,
-                # 'extraLove': us._extraLove
+                'rejected': us._rejected,  # rejected - means the profile cannot be found
             }
-            # Return the dictionary as the JSON object
-            return userDict
-        # If the object being encoded is not an instance of User_M, use the default JSON encoder
         else:
             return super().default(us)
 
     # This is a custom decoder function for decoding JSON objects into User_M objects
-    def decode_user(dct):
+    def decode_user(self, dct):
         # If the JSON object has a '__user__' key, it's a User_M object
         if "__user__" in dct:
             # Create a new User_M object and populate its attributes with the values in the dictionary
@@ -310,7 +293,8 @@ class User_M:
 
             if verbose:
                 # If verbose mode is on, log the result
-                logg.logSmth(f'########## {datetime.today()}:  {str(round(deltaT, 1))} days since I followed {self.handle}')
+                logg.logSmth(
+                    f'########## {datetime.today()}:  {str(round(deltaT, 1))} days since I followed {self.handle}')
 
             return deltaT
         except Exception as e:
@@ -343,17 +327,13 @@ class User_M:
             self.removeFromLoveDaily()
         elif 'extra' in name:
             self.removeFromLoveExtra()
-        else:
-            pass
 
     def iShouldFollowThisUser(self):
-        answer = False
-
-        if self._markL1 and self._markL2:
-            if not self._rejected and not self.dateFollowed_byMe:
-                answer = True
-
-        return answer
+        return bool(
+            self._markL1
+            and self._markL2
+            and (not self._rejected and not self.dateFollowed_byMe)
+        )
 
     def thereIsNoPointLovingYou(self, userPage):
         if userPage.infoAccess > 45 and userPage.followAccess > 65:

@@ -12,8 +12,7 @@ class PostGrid(screen.Screen):
         self.scrollablePostArea = None
 
     def openPostByOrder(self, order):
-        if order < 1:
-            order = 1
+        order = max(order, 1)
         row, col = self.translateOrderToGridCoordinates(order)
         self.openPostByGridCoordinates(row, col)
 
@@ -29,11 +28,8 @@ class PostGrid(screen.Screen):
 
     def openPostByGridCoordinates(self, row, column):
         # No more than 4 rows are usually displayed
-        if row > self.rowLimit:
-            row = self.rowLimit
-        if column > 3:
-            column = 3
-
+        row = min(row, self.rowLimit)
+        column = min(column, 3)
         postXPATH = loc.page_XPATH['postsGrid']
         postXPATH = postXPATH.replace("Row 1", f"Row {row}").replace("Column 1", f"Column {column}")
 

@@ -22,33 +22,37 @@ class HomePage(screen.Screen):
             durationUpperBound = randint(45, 55)
             duration = randint(durationLowerBound, durationUpperBound)
 
-        # Get a list of all visible Instagram stories except for the user's own story
-        all_visible_stories_but_mine = self.findElementsBy_ID(loc.homePage_ID['storiesCommon'])[1:]
+        if all_visible_stories_but_mine := self.findElementsBy_ID(
+            loc.homePage_ID['storiesCommon']
+        )[1:]:
+            self._extracted_from_startWatchingStories_14(
+                all_visible_stories_but_mine, duration
+            )
 
-        # If there are visible stories
-        if all_visible_stories_but_mine:
-            # Filter the list to only include stories that haven't been viewed yet
-            all_visible_stories_but_mine = [x for x in all_visible_stories_but_mine if "Unseen" in x.tag_name]
-            # Choose a random story from the filtered list
-            chosen_story = choice(all_visible_stories_but_mine)
+    # TODO Rename this here and in `startWatchingStories`
+    def _extracted_from_startWatchingStories_14(self, all_visible_stories_but_mine, duration):
+        # Filter the list to only include stories that haven't been viewed yet
+        all_visible_stories_but_mine = [x for x in all_visible_stories_but_mine if "Unseen" in x.tag_name]
+        # Choose a random story from the filtered list
+        chosen_story = choice(all_visible_stories_but_mine)
 
-            # Get the username of the user whose story was chosen
-            user = chosen_story.tag_name
-            user = user.split("'s story")[0]
+        # Get the username of the user whose story was chosen
+        user = chosen_story.tag_name
+        user = user.split("'s story")[0]
 
-            # Log that the user is watching the chosen story for the specified duration
-            logg.logSmth(f"##### Whatching {user}'s story for {duration} secs", 'INFO')
-            # Click on the chosen story to start watching it
-            chosen_story.click()
+        # Log that the user is watching the chosen story for the specified duration
+        logg.logSmth(f"##### Whatching {user}'s story for {duration} secs", 'INFO')
+        # Click on the chosen story to start watching it
+        chosen_story.click()
 
-            # Wait for the specified duration
-            while duration > 0:
-                duration -= 1
-                sleep(1)
+        # Wait for the specified duration
+        while duration > 0:
+            duration -= 1
+            sleep(1)
 
             # Log that the user is done watching stories and navigate back to the homepage
-            logg.logSmth(f"##### Done watching stories", 'INFO')
-            self.driver.back()
+        logg.logSmth("##### Done watching stories", 'INFO')
+        self.driver.back()
 
     # Define a method to scroll through posts on the homepage and like them
     def scrollAnd_Like(self, count=10):
@@ -70,7 +74,7 @@ class HomePage(screen.Screen):
 
             # Swipe up 1-3 times randomly after each function execution
             swipesCount = choice([1, 2, 3])
-            for i in range(swipesCount):
+            for _ in range(swipesCount):
                 self.vSwipeUp('small')
             self.reactionWait(0.25)
 
@@ -108,11 +112,6 @@ class HomePage(screen.Screen):
                     post.goBackFromVideo()
 
                     # logg.logSmth(f"Like response for {post.postingUser} is {likeResponse}", 'INFO')
-
-                # Otherwise, do not like the post and log the reason
-                else:
-                    # logg.logSmth(f"Nope! No like for {post.postingUser} cause {likeSwitch}", 'INFO')
-                    pass
 
             # Return None if there are posts on the screen
             return None

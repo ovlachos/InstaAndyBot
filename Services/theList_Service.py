@@ -6,9 +6,9 @@ def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
     import random
 
     # Start logging with a header
-    logg.logSmth(f"#" * 40)
-    logg.logSmth(f" " * 10 + "*" * 5 + " The List " + "*" * 5 + " " * 10)
-    logg.logSmth(f"#" * 40)
+    logg.logSmth("#" * 40)
+    logg.logSmth(" " * 10 + "*" * 5 + " The List " + "*" * 5 + " " * 10)
+    logg.logSmth("#" * 40)
 
     # L1 criteria function, used for filtering out unwanted users
     def L1_criteria(userStats):
@@ -26,10 +26,7 @@ def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
         else:
             wording = 'Keeping'
 
-        if "Dropping" in wording:
-            return False
-        else:
-            return True
+        return "Dropping" not in wording
 
     def actOnPostingUsers(toLike_, toFollow_):
         """
@@ -79,7 +76,7 @@ def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
 
             # Check if the navigation was successful
             if not user_prof or not user_prof.verifyPageType():
-                logg.logSmth(f"#### This is not a user profile")
+                logg.logSmth("#### This is not a user profile")
                 bot.navRibons.goBack()
                 continue
 
@@ -88,13 +85,11 @@ def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
 
             # Check if the bot should follow the user based on L1 criteria
             followed_flag = False
-            if L1_criteria(user_prof.stats) and toFollow_ and bot.followMana > 0:
-                # Follow the user
-                if 'OK' in user_prof.follow():
-                    followed_flag = True
-                    bot.decrementFolowMana(1)
-                    # Mute user's stories and posts
-                    user_prof.MuteAll()
+            if L1_criteria(user_prof.stats) and toFollow_ and bot.followMana > 0 and 'OK' in user_prof.follow():
+                followed_flag = True
+                bot.decrementFolowMana(1)
+                # Mute user's stories and posts
+                user_prof.MuteAll()
 
             # Add the posting user to memory with appropriate flags
             addUserToMemory(bot, user_prof, user=user_prof.userName, mark1=followed_flag, followed=followed_flag)
@@ -167,10 +162,7 @@ def getFirstPostOnScreen(scrollArea):
 
     scrollArea.scanScreenForPosts(level=[1, 1, 0, 0])
 
-    if scrollArea.posts:
-        return scrollArea.posts[0]
-
-    return None
+    return scrollArea.posts[0] if scrollArea.posts else None
 
 
 def addUserToMemory(bot, userPage, user, mark1=False, followed=False):

@@ -11,22 +11,22 @@ from Services import myStats_Service as mst
 class test(unittest.TestCase):
     def setUp(self):
 
-        desired_caps = {}
-        desired_caps['deviceName'] = auth.getDeviceName()
-        desired_caps['platformName'] = "Android"
-        desired_caps['appPackage'] = "com.instagram.android"
-        desired_caps['appActivity'] = "com.instagram.mainactivity.MainActivity"
-        desired_caps['noReset'] = 'true'
-
+        desired_caps = {
+            'deviceName': auth.getDeviceName(),
+            'platformName': "Android",
+            'appPackage': "com.instagram.android",
+            'appActivity': "com.instagram.mainactivity.MainActivity",
+            'noReset': 'true',
+        }
         self.driver = wb.Remote('http://localhost:4723/wd/hub', desired_caps)
         self.driver.implicitly_wait(5)
         self.driver.unlock()
 
-        logg.logSmth(f"#" * 50)
+        logg.logSmth("#" * 50)
         logg.logSmth(f"Device is {desired_caps['deviceName']}")
 
         self.bot = bot.AndyBot(self.driver, auth.getDevice())
-        for i in range(2):
+        for _ in range(2):
             self.bot.botSleep(factor=0.02, verbose=True)
             self.bot.driver.unlock()
 
@@ -60,17 +60,14 @@ class test(unittest.TestCase):
             "theHome": False
         }
 
-        nameIs = "theListLike"
-        if len(sys.argv) > 1:
-            nameIs = str(sys.argv[1])
-
+        nameIs = str(sys.argv[1]) if len(sys.argv) > 1 else "theListLike"
         print("The test to run is ", nameIs)
         func = funcDict.get(nameIs)
         memoryW = memoryWritting.get(nameIs)
 
         try:
             func()
-        except:
+        except Exception:
             logg.logSmth("#" * 20)
             logg.logSmth(f"Exception occurred @#$  {nameIs}", 'ERROR')
             logg.logSmth("#" * 20)
@@ -124,7 +121,7 @@ class test(unittest.TestCase):
                 print(
                     f'Still following user {user.handle}, marked as unfollowed on: {user.dateUnFollowed_byMe} and followed on: {user.dateFollowed_byMe}', )
 
-        nameMemory_peopleAlreadyUnfollowed = [y for y in secondDraft_peopleAlreadyUnfollowed]
+        nameMemory_peopleAlreadyUnfollowed = list(secondDraft_peopleAlreadyUnfollowed)
         filteredList_shouldUnfollow = [x for x in nameMemory_peopleAlreadyUnfollowed if x.handle in mfollowing]
 
         print(len(filteredList_shouldUnfollow))
@@ -173,7 +170,7 @@ class test(unittest.TestCase):
 
                     bot.botSleep()
         else:
-            logg.logSmth(f"##### - {0} users to be un-Followed")
+            logg.logSmth('##### - 0 users to be un-Followed')
 
 
 def main():

@@ -3,9 +3,9 @@ from BotMemory import InfidelsList
 
 
 def playTheGame(bot, num):
-    logg.logSmth(f"#" * 40)
-    logg.logSmth(f" " * 10 + "*" * 5 + " The Game " + "*" * 5 + " " * 10)
-    logg.logSmth(f"#" * 40)
+    logg.logSmth("#" * 40)
+    logg.logSmth(" " * 10 + "*" * 5 + " The Game " + "*" * 5 + " " * 10)
+    logg.logSmth("#" * 40)
 
     # ~~ Read User Memory
     bot.memoryManager.readStoredMemoryFile()
@@ -73,7 +73,7 @@ def playTheGame(bot, num):
 
                 bot.botSleep()
     else:
-        logg.logSmth(f"##### - {0} users to be un-Followed")
+        logg.logSmth('##### - 0 users to be un-Followed')
 
     # ~~ Purge ### MANUALLY
     if purgeList:
@@ -109,7 +109,7 @@ def playTheGame(bot, num):
 
         logg.logSmth(purgeList)
     else:
-        logg.logSmth(f"##### - {0} infidels to be Purged (by manual selection)")
+        logg.logSmth('##### - 0 infidels to be Purged (by manual selection)')
 
     # ~~ Follow Reserves ###
     '''if reservesList and bot.followMana > 0:
@@ -190,7 +190,7 @@ def playTheGame(bot, num):
             if user.dateFollowed_byMe:
                 bot.botSleep()
     else:
-        logg.logSmth(f"##### - {0} manually added users to be Followed")
+        logg.logSmth('##### - 0 manually added users to be Followed')
 
     return "OK"
 
@@ -199,16 +199,13 @@ def L1_criteria(userStats, myFollowers):
     # Filter out users with more followers than myself, 0 posts etc.- aka L1
     followerCountLimit = myFollowers
 
-    if userStats['followers'] > (1.05 * followerCountLimit):
-        wording = 'Dropping'
-    elif userStats['followers'] < 100:
-        wording = 'Dropping'
-    elif userStats['posts'] < 3:
+    if (
+            userStats['followers'] > (1.05 * followerCountLimit)
+            or userStats['followers'] < 100
+            or userStats['posts'] < 3
+    ):
         wording = 'Dropping'
     else:
         wording = 'Keeping'
 
-    if "Dropping" in wording:
-        return False
-    else:
-        return True
+    return "Dropping" not in wording

@@ -1,7 +1,7 @@
+import AnyBotLog as logg
+from POM import Locators as loc
 from POM import PostsGrid_POM as grid
 from POM import Screen_POM as screen
-from POM import Locators as loc
-import AnyBotLog as logg
 
 
 class HashTagPage(screen.Screen):
@@ -12,24 +12,27 @@ class HashTagPage(screen.Screen):
         self.getOwnTitle()
 
     def getOwnTitle(self):
-        tagObj = self.findElementBy_ID(loc.hashTagPage_ID['hashTag'])
-        if tagObj:
+        if tagObj := self.findElementBy_ID(loc.hashTagPage_ID['hashTag']):
             self.tag = tagObj.text
 
     def verifyPageType(self, tag='#'):
         self.getOwnTitle()
-        if self.tag:
-            # logg.logSmth(f'##### Hastag title {self.tag}, verified', 'INFO')
-
-            if '#' in self.tag:
-                return True
+        if self.tag and '#' in self.tag:
+            return True
 
         logg.logSmth('##### Hastag title not found! Are you in a hastag page for sure?', 'WARNING')
         return False
 
     def goToRecentPosts(self):
-        recents = self.findElementBy_XPATH(self.loc.hashTagPage_Xpath['recent'])
-        if recents:
+        if filterButton := self.findElementBy_XPATH(
+            self.loc.hashTagPage_Xpath['recent']
+        ):
+            filterButton.click()
+            self.reactionWait(3)
+
+        if recents := self.findElementBy_XPATH(
+            self.loc.hashTagPage_Xpath['recent']
+        ):
             recents.click()
             self.reactionWait()
 

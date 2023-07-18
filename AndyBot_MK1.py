@@ -75,8 +75,7 @@ class AndyBot():
         self.botParams.updateMana(self.followMana)
 
     def loadParams(self):
-        params = self.botParams.getBotParams()
-        if params:
+        if params := self.botParams.getBotParams():
             self.ownFollowers = params['OwnFollowers']
             self.paramsTimeStamp = params['TimeStamp']
             self.timeUpperBound = params['sleepMaxSecs']
@@ -102,8 +101,7 @@ class AndyBot():
         # Convert to Unix timestamp
         d1_ts = time.mktime(t1.timetuple())
         d2_ts = time.mktime(t2.timetuple())
-        deltaT = int(d2_ts - d1_ts) / 60 / 60  # hours
-        return deltaT
+        return int(d2_ts - d1_ts) / 60 / 60
 
     def getDateTimeNow(self):
         return datetime.now()
@@ -122,7 +120,7 @@ class AndyBot():
 
     def delayOps(self, minimum=2, maximum=20):
         sleepTime = randint((minimum * 60), (maximum * 60))
-        logg.logSmth(f'Sleeping for {int(sleepTime / 60)} minutes')
+        logg.logSmth(f'Sleeping for {sleepTime // 60} minutes')
         time.sleep(sleepTime)
 
     def getMainPage(self):

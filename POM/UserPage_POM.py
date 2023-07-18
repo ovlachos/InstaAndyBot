@@ -1,10 +1,8 @@
 import random
-
-import auth
-
 from time import sleep
-import AnyBotLog as logg
 
+import AnyBotLog as logg
+import auth
 from POM import Locators as loc
 from POM import PostsGrid_POM as grid
 from POM import Screen_POM as screen
@@ -32,9 +30,7 @@ class UserPage(screen.Screen):
 
     # Verify if the current page is a user page and if the user statistics have been obtained
     def verifyPageType(self):
-        if self.stats:
-            return True
-        return False
+        return bool(self.stats)
 
     # Verify if the user information (username) is present
     def verifyUser(self, handle=None):
@@ -47,11 +43,7 @@ class UserPage(screen.Screen):
 
     # Get an attribute of the user page by its ID
     def getAttributeBy_ID(self, locatorID):
-        attr = None
-        element = self.findElementBy_ID(locatorID)
-        if element:
-            attr = element.text
-
+        attr = element.text if (element := self.findElementBy_ID(locatorID)) else None
         # Log a message if the attribute could not be found
         try:
             if not attr:
@@ -189,7 +181,8 @@ class UserPage(screen.Screen):
     def get_followers_list(self, percentage=1):
         page = self.navToFolowers()
 
-        logg.logSmth(f"I am getting my followers for a count of {int(self.stats['followers'] * percentage)} and a percentage of {percentage}")
+        logg.logSmth(
+            f"I am getting my followers for a count of {int(self.stats['followers'] * percentage)} and a percentage of {percentage}")
         self.followers = page.getListOfUsers(int(self.stats['followers'] * percentage))
 
     def get_following_list(self, percentage=1):
@@ -197,18 +190,19 @@ class UserPage(screen.Screen):
         page.reactionWait()
 
         # Sort by 'earliest'
-        for i in range(2):
+        for _ in range(2):
             randParam = random.choice(['following_sorting_option_latest', 'following_sorting_option_default'])
-            page.getAndClickElementBy_ID(loc.userPage_ID.get('followingSortingButton'))
-            page.getAndClickElementBy_XPATH(loc.userPage_XPATH.get('following_sorting_option_latest'))
-            page.reactionWait(.5)
-
-            page.getAndClickElementBy_ID(loc.userPage_ID.get('followingSortingButton'))
-            page.getAndClickElementBy_XPATH(loc.userPage_XPATH.get('following_sorting_option_earliest'))
-            page.reactionWait(.5)
-
-        logg.logSmth(f"I am getting my following for a count of {int(self.stats['following'] * percentage)} and a percentage of {percentage}")
+            self._extracted_from_get_following_list_(page, 'following_sorting_option_latest')
+            self._extracted_from_get_following_list_(page, 'following_sorting_option_earliest')
+        logg.logSmth(
+            f"I am getting my following for a count of {int(self.stats['following'] * percentage)} and a percentage of {percentage}")
         self.following = page.getListOfUsers(int(self.stats['following'] * percentage))
+
+    # TODO Rename this here and in `get_following_list`
+    def _extracted_from_get_following_list_(self, page, arg1):
+        page.getAndClickElementBy_ID(loc.userPage_ID.get('followingSortingButton'))
+        page.getAndClickElementBy_XPATH(loc.userPage_XPATH.get(arg1))
+        page.reactionWait(.5)
 
     def get_following_hashTag_list(self):
         page = self.navToFolowingHashTags()
@@ -289,8 +283,7 @@ class UserPage(screen.Screen):
             return 'OK'
 
     def bringUpPostGrid(self):
-        postButton = self.findElementBy_ID(loc.userPage_ID['postsCount'])
-        if postButton:
+        if postButton := self.findElementBy_ID(loc.userPage_ID['postsCount']):
             postButton.click()
             sleep(2)
             self.grid = grid.PostGrid(self.driver)
@@ -302,14 +295,16 @@ class UserPage(screen.Screen):
         return UserPage(self.driver)
 
     def navToFolowers(self):
-        followersCount = self.findElementBy_ID(loc.userPage_ID['followersWindow'])
-        if followersCount:
+        if followersCount := self.findElementBy_ID(
+                loc.userPage_ID['followersWindow']
+        ):
             followersCount.click()
             return followListPage(self.driver)
 
     def navToFolowing(self):
-        followingCount = self.findElementBy_ID(loc.userPage_ID['followingWindow'])
-        if followingCount:
+        if followingCount := self.findElementBy_ID(
+                loc.userPage_ID['followingWindow']
+        ):
             followingCount.click()
             return followListPage(self.driver)
 
@@ -354,8 +349,7 @@ class followListPage(screen.Screen):
         super().__init__(driver)
 
     def typeIntoSearchField(self, query, speed='slow'):
-        textBox = self.findElementBy_ID(loc.userPage_ID['followingSearchField'])
-        if textBox:
+        if textBox := self.findElementBy_ID(loc.userPage_ID['followingSearchField']):
             if 'slow' in speed:
                 self.slowType(query, textBox)
                 self.driver.back()
@@ -391,13 +385,10 @@ class followListPage(screen.Screen):
         firstView = [x.text for x in firstView]
         listOfTags.extend(firstView)
 
-        arbitraryCounter = 0
-        while arbitraryCounter <= 5:
+        for _ in range(6):
             self.vSwipeUp('tiny')
             allOtherViews = self.findElementsBy_ID(loc.userPage_ID['followingHashTagSearchResult'])
             allOtherViews = [x.text for x in allOtherViews]
             listOfTags.extend(allOtherViews)
             listOfTags = list(dict.fromkeys(listOfTags))  # removes duplicates
-            arbitraryCounter += 1
-
         return listOfTags
