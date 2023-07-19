@@ -40,7 +40,7 @@ def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
         number_of_faults = 0
 
         # Iterate over the number of posts per tag
-        for i in range(0, numberOfPostsPerTag):
+        for i in range(numberOfPostsPerTag):
 
             # Wait for a random time within the range of reaction interval
             # hashPage.reactionWait()

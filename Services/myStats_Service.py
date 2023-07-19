@@ -5,30 +5,34 @@ from BotMemory import BotStats
 def getMyStats(bot):
     myStats = None
 
-    myProfile = bot.navRibons.goToOwnProfile()
-    if myProfile:
+    if myProfile := bot.navRibons.goToOwnProfile():
         myStats = myProfile.stats
 
     prev_Dict, pastTimeStamp = getPreviousStats(bot)
     if prev_Dict and myStats:
-        followed = myStats.get('following') - prev_Dict.get('following')
-        newFollowers = myStats.get('followers') - prev_Dict.get('followers')
+        _extracted_from_getMyStats_(myStats, prev_Dict, bot, pastTimeStamp)
 
-        datetimeNow = bot.getTimeStampString()
-        timeElapsed_ = bot.calcTimeDiff(bot.getDateTimeFromString(pastTimeStamp), bot.getDateTimeNow())
-        timeElapsed = round(timeElapsed_, 2)
 
-        newRow = [datetimeNow,
-                  myStats.get('posts'),
-                  myStats.get('followers'),
-                  myStats.get('following'),
-                  followed,
-                  newFollowers,
-                  timeElapsed
-                  ]
+# TODO Rename this here and in `getMyStats`
+def _extracted_from_getMyStats_(myStats, prev_Dict, bot, pastTimeStamp):
+    followed = myStats.get('following') - prev_Dict.get('following')
+    newFollowers = myStats.get('followers') - prev_Dict.get('followers')
 
-        BotStats.record_new_point(newRow, 'myStats')
-        bot.updateOwnFollowers(myStats.get('followers'))
+    datetimeNow = bot.getTimeStampString()
+    timeElapsed_ = bot.calcTimeDiff(bot.getDateTimeFromString(pastTimeStamp), bot.getDateTimeNow())
+    timeElapsed = round(timeElapsed_, 2)
+
+    newRow = [datetimeNow,
+              myStats.get('posts'),
+              myStats.get('followers'),
+              myStats.get('following'),
+              followed,
+              newFollowers,
+              timeElapsed
+              ]
+
+    BotStats.record_new_point(newRow, 'myStats')
+    bot.updateOwnFollowers(myStats.get('followers'))
 
 
 def getMyFollowingList(bot):
@@ -43,7 +47,7 @@ def getMyFollowingList(bot):
         BotStats.record_new_point(myFollowing, 'myFollowing')
 
 
-def getMyFollowerList(bot,percentage):
+def getMyFollowerList(bot, percentage):
     myFollower = None
 
     myProfile = bot.navRibons.goToOwnProfile()

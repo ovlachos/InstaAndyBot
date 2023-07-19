@@ -39,20 +39,21 @@ class MyLogger:
         # print(self.id)
 
     def cleanUp(self):
-        if self.logger.hasHandlers():
-            logSize = file_size(self.logger.handlers[0].baseFilename)
-            # print(logSize)
+        if not self.logger.hasHandlers():
+            return
+        logSize = file_size(self.logger.handlers[0].baseFilename)
+        # print(logSize)
 
-            if 'ΜB' in logSize:
-                numSize = float(logSize.split('Μ')[0])
+        if 'ΜB' in logSize:
+            numSize = float(logSize.split('Μ')[0])
 
-                if numSize > 7:
-                    print(f"################################### Log file is {logSize}. Will delete")
-                    if os.path.exists(self.logger.handlers[0].baseFilename):
-                        os.remove(self.logger.handlers[0].baseFilename)
+            if numSize > 7:
+                print(f"################################### Log file is {logSize}. Will delete")
+                if os.path.exists(self.logger.handlers[0].baseFilename):
+                    os.remove(self.logger.handlers[0].baseFilename)
 
-                    for hand in self.logger.handlers:
-                        self.logger.removeHandler(hand)
+                for hand in self.logger.handlers:
+                    self.logger.removeHandler(hand)
 
 
 def createLogger():

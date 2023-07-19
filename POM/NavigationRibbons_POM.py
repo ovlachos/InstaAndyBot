@@ -24,16 +24,16 @@ class NavigationRibbons(screen.Screen):
         searchButton_by_Xpath = self.findElementBy_XPATH(loc.ribbon_XPath['bottomBar_Search'])
 
         if searchButton_by_ID:
-            self.doubleClick(searchButton_by_ID)
-            self.reactionWait(3)
-
-            return searchPage.SearchPage(self.driver)
-
+            return self._extracted_from_goToSearchPage_6(searchButton_by_ID)
         elif searchButton_by_Xpath:
-            self.doubleClick(searchButton_by_Xpath)
-            self.reactionWait(3)
+            return self._extracted_from_goToSearchPage_6(searchButton_by_Xpath)
 
-            return searchPage.SearchPage(self.driver)
+    # TODO Rename this here and in `goToSearchPage`
+    def _extracted_from_goToSearchPage_6(self, arg0):
+        self.doubleClick(arg0)
+        self.reactionWait(3)
+
+        return searchPage.SearchPage(self.driver)
 
     def goToOwnProfile(self):
         if ownProfileButton := self.findElementBy_ID(
