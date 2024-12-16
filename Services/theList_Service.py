@@ -1,164 +1,160 @@
 import AnyBotLog as logg
+import random
+
+# Constants
+FOLLOWER_LIMIT_MULTIPLIER = 1.05
+MIN_FOLLOWER_COUNT = 100
+MIN_POST_COUNT = 3
+MIN_FOLLOWING_COUNT = 10
+MAX_FAULTS = 3
 
 
-# ~~~ HASHTAGS ~~~#
-def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPerTag0, toLike, toFollow):
-    import random
-
-    # Start logging with a header
+def logHeader():
+    """Logs the header for the process."""
     logg.logSmth(f"#" * 40)
     logg.logSmth(f" " * 10 + "*" * 5 + " The List " + "*" * 5 + " " * 10)
     logg.logSmth(f"#" * 40)
 
-    # L1 criteria function, used for filtering out unwanted users
-    def L1_criteria(userStats):
-        # Filter out users with more followers than myself, 0 posts etc.- aka L1
-        followerCountLimit = bot.ownFollowers
 
-        if userStats['followers'] > (1.05 * followerCountLimit):
-            wording = 'Dropping'
-        elif userStats['followers'] < 100:
-            wording = 'Dropping'
-        elif userStats['posts'] < 3:
-            wording = 'Dropping'
-        elif userStats['following'] < 10:
-            wording = 'Dropping'
-        else:
-            wording = 'Keeping'
+def filterUserByCriteria(userStats, followerThreshold):
+    """
+    Determines whether a user meets the criteria for interaction.
+    :param userStats: Dictionary containing user statistics.
+    :param followerThreshold: Maximum number of followers allowed.
+    :return: True if the user meets the criteria; otherwise, False.
+    """
+    return (
+            userStats['followers'] <= FOLLOWER_LIMIT_MULTIPLIER * followerThreshold
+            and userStats['followers'] >= MIN_FOLLOWER_COUNT
+            and userStats['posts'] >= MIN_POST_COUNT
+            and userStats['following'] >= MIN_FOLLOWING_COUNT
+    )
 
-        if "Dropping" in wording:
-            return False
-        else:
-            return True
 
-    def actOnPostingUsers(toLike_, toFollow_):
-        """
-        Like and/or follow the posting users of the hashtag currently navigated by the bot.
+def handleFaults(faults, limit=MAX_FAULTS):
+    """Returns True if the fault limit is exceeded."""
+    return faults > limit
 
-        :param toLike_: A boolean indicating whether to like the post of each posting user or not.
-        :param toFollow_: A boolean indicating whether to follow the posting user or not.
-        :return: None if the page type verification fails, otherwise nothing.
-        """
-        # Initialize variables
-        number_of_faults = 0
 
-        # Iterate over the number of posts per tag
-        for i in range(0, numberOfPostsPerTag):
+def actOnPosts(bot, hashPage, postsPerTag, likePosts, followUsers):
+    """
+    Interact with posts on a platform using specified actions such as liking and following users.
 
-            # Wait for a random time within the range of reaction interval
-            # hashPage.reactionWait()
+    Act on posts by iterating through the desired number of posts specified by `postsPerTag`. For
+    each post, depending on the input flags, the function can like the post and navigate to the
+    user's profile to follow them, if certain criteria are met. Faults are handled to ensure
+    the function continues operation in case of page-type mismatches, unavailable posts, or
+    other unexpected issues during execution.
 
-            # Verify that the current page is a valid page type
-            verification = hashPage.verifyPageType()
-            if not verification:
-                return None
+    :param bot: Instance of a bot that enables navigation, interaction, and tracking actions.
+    :type bot: CustomBot
+    :param hashPage: Active page object representing a hashtag or collection of posts.
+    :type hashPage: Page
+    :param postsPerTag: Number of posts to act on under the current hashtag or collection.
+    :type postsPerTag: int
+    :param likePosts: Flag to indicate whether posts should be liked.
+    :type likePosts: bool
+    :param followUsers: Flag to indicate whether the function should follow users whose posts are acted upon.
+    :type followUsers: bool
+    :return: None if a critical issue halts execution; otherwise, the function returns implicitly.
+    :rtype: None
+    """
+    faults = 0
+    for postOrder in range(postsPerTag):
+        if handleFaults(faults):
+            return None
 
-            # Open the i-th post on the grid
-            # hashPage.grid.openPostByOrder(i + 1)
-            hashPage.grid.openPostByOrderOfID(i)
+        # Verify page type and open the corresponding post
+        if not hashPage.verifyPageType():
+            faults += 1
+            continue
+        hashPage.grid.openPostByOrder(postOrder)
 
-            # Get the scrollable post area
-            scroll_area = hashPage.grid.scrollablePostArea
-
-            # Check if there is at least one post on the current screen
-            if not scroll_area:
-                # If not, return to the grid and move on to the next post
-                bot.navRibons.goBack()
-                continue
-
-            # Get the first post on the current screen
-            scroll_area.scanScreenForPosts(level=[1, 1, 1, 0])
-            if not scroll_area.posts:
-                # If not, return to the grid and move on to the next post
-                bot.navRibons.goBack()
-                continue
-
-            post = scroll_area.posts[0]
-
-            # Like the post if toLike is True
-            if toLike_:
-                liked = post.likePost()
-                # logg.logSmth(f"#### Like status of post by {post.postingUser} is {liked}")
-
-            # Navigate to the posting user's profile
-            user_prof = post.navigateToPostingUserProfile()
-
-            # Check if the navigation was successful
-            if not user_prof or not user_prof.verifyPageType():
-                logg.logSmth(f"#### This is not a user profile")
-                bot.navRibons.goBack()
-                continue
-
-            # Wait for a random time within the range of reaction interval
-            # user_prof.reactionWait()
-
-            # Check if the bot should follow the user based on L1 criteria
-            followed_flag = False
-            if L1_criteria(user_prof.stats) and toFollow_ and bot.followMana > 0:
-                # Follow the user
-                if 'OK' in user_prof.follow():
-                    followed_flag = True
-                    bot.decrementFolowMana(1)
-                    # Mute user's stories and posts
-                    user_prof.MuteAll()
-
-            # Add the posting user to memory with appropriate flags
-            addUserToMemory(bot, user_prof, user=user_prof.userName, mark1=followed_flag, followed=followed_flag)
-
-            # Return to the grid
+        scrollArea = hashPage.grid.scrollablePostArea
+        if not scrollArea:  # Check if posts are available
             bot.navRibons.goBack()
+            faults += 1
+            continue
 
-            # Wait for a random time within the range of reaction interval
-            # bot.navRibons.reactionWait()
-
-            # Return to the hashtag page
+        post = getFirstPostOnScreen(scrollArea)
+        if not post:
             bot.navRibons.goBack()
+            faults += 1
+            continue
 
-            # Check if there are too many faults
-            if number_of_faults > 3:
-                return
-            else:
-                number_of_faults += 1
+        # Like post if required
+        if likePosts:
+            post.likePost()
 
-    # Load memory file
+        # Navigate to the user's profile and follow if criteria are met
+        userProfile = post.navigateToPostingUserProfile()
+        if not userProfile or not userProfile.verifyPageType():
+            logg.logSmth(f"#### Invalid user profile")
+            bot.navRibons.goBack()
+            continue
+
+        if followUsers and bot.followMana > 0 and filterUserByCriteria(userProfile.stats, bot.ownFollowers):
+            if 'OK' in userProfile.follow():
+                bot.decrementFolowMana(1)
+                userProfile.MuteAll()  # Mute user content
+                addUserToMemory(bot, userProfile, user=userProfile.userName, mark1=True, followed=True)
+        bot.navRibons.goBack()
+
+
+def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, postsPerTag, toLike, toFollow):
+    """
+    Executes actions on recent posts from specified hashtags. The function selects a given
+    number of tags from the list of target hashtags and navigates them to execute interactions
+    on a specified number of posts per each tag, based on the provided options of liking or
+    following.
+
+    :param bot: Instance of the bot responsible for handling navigation, interaction, and
+        memory management.
+    :type bot: Bot
+    :param numberOfTags: The number of hashtags to process in a given execution. Determines
+        how many hashtags are randomly selected from the target list.
+    :type numberOfTags: int
+    :param postsPerTag: The number of posts to process for each hashtag. Determines how many
+        recent posts will be acted upon under each hashtag.
+    :type postsPerTag: int
+    :param toLike: Flag indicating if the bot should like posts while processing. If True,
+        it will interact with posts by liking them.
+    :type toLike: bool
+    :param toFollow: Flag indicating if the bot should follow users while processing. If True,
+        it will interact with the users by following them.
+    :type toFollow: bool
+    :return: A string indicating the status of the operation. Returns 'OK' if hashtags and
+        posts were processed successfully; otherwise, returns 'Fail' in cases of repeated
+        navigation or processing failures.
+    :rtype: str
+    """
+    logHeader()
+
     if toFollow:
         bot.memoryManager.readStoredMemoryFile()
 
-    # Load Target Hashtags list
-    hashList = bot.targetHashtags_List
+    hashtags = bot.targetHashtags_List
+    if hashtags:
+        random.shuffle(hashtags)
+        hashtags = hashtags[:numberOfTags]
+        logg.logSmth(f"Today's hashtags are: {hashtags}, with {postsPerTag} posts per tag")
 
-    if hashList:
-        random.shuffle(hashList)
-        hashList = hashList[:numberOfTags]  # Reduce the amount of tags to be examined
-        logg.logSmth(f"Today's hashtags are: {hashList}, with {numberOfPostsPerTag0} posts per tag")
-
-    for hashtag in hashList:
-
-        hasTagPageVerified = None
+    for hashtag in hashtags:
         hashPage = None
-        failCounter = 0
-        # Make sure you've navigated to the recent part of a hashTag page
-        while not hasTagPageVerified and failCounter < 3:
-
+        faults = 0
+        while not (hashPage and hashPage.verifyPageType(hashtag)) and faults < MAX_FAULTS:
             searchPage = bot.navRibons.goToSearchPage()
             if not searchPage:
-                failCounter += 1
+                faults += 1
                 return 'Fail'
-
             hashPage = searchPage.navigateToHashTagPage(hashtag)
             if not hashPage:
                 bot.navRibons.goHome()
-                continue
+                faults += 1
 
-            hasTagPageVerified = hashPage.verifyPageType(hashtag)
-
-        # Once at the hashtag page interact with the most recent posts
-        # logg.logSmth(f"### At HashTag page for tag: {hashtag}")
-        numberOfPostsPerTag = numberOfPostsPerTag0
-
-        # Collect user handles OR Follow Users
-        hashPage.goToRecentPosts()  # Go to most recent posts grid !!!! TODO: THIS IS CURRENTLY NOT WORKING/IG LAYOUT CHANGED
-        actOnPostingUsers(toLike, toFollow)
+        if hashPage:
+            hashPage.goToRecentPosts()
+            actOnPosts(bot, hashPage, postsPerTag, toLike, toFollow)
 
     return 'OK'
 
@@ -166,57 +162,13 @@ def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
 def getFirstPostOnScreen(scrollArea):
     """
     Retrieves the first post in the visible area of the scrollable post area.
-
-    :param scrollArea: A ScrollablePostArea instance.
-    :return: The first Post instance on the visible area of the scrollable post area, or None if no posts are found.
     """
-
     scrollArea.scanScreenForPosts(level=[1, 1, 0, 0])
-
-    if scrollArea.posts:
-        return scrollArea.posts[0]
-
-    return None
+    return scrollArea.posts[0] if scrollArea.posts else None
 
 
 def addUserToMemory(bot, userPage, user, mark1=False, followed=False):
-    # Add user to bot's memory manager
-    bot.memoryManager.addUserToMemory(user)
-
-    # Get the newly created memory object of the new user
-    new_follower = bot.memoryManager.retrieveUserFromMemory(user)
-
-    # Check if user is new to the system and update memory accordingly
-    if new_follower and not new_follower.thisUserHasBeenThroughTheSystem():
-        # Add user to level 0 and level 2 lists
-        new_follower.addToL0('hashtag')
-        new_follower.addToL2()
-
-        # Update user's information from live Instagram page
-        new_follower.updateInfoFromLivePage_Landing(userPage)
-
-        # Add user to level 1 list if mark1 flag is True
-        if mark1:
-            new_follower.addToL1()
-
-        # Mark user as followed and add to love daily list if followed flag is True
-        if followed:
-            new_follower.markTimeFollowed()
-            # new_follower.addToLoveDaily()
-
-        # Update user record in memory manager
-        bot.memoryManager.updateUserRecord(new_follower)
-
-        # Uncomment the following lines to log information
-        # logg.logSmth(f"########## User {user} added to memory with mark1={mark1} and followed={followed} || F/f/P = {follower_count}/{following_count}/{post_count}")
-        # logg.logSmth(f"########## Follow mana left: {bot.followMana} || {bot.followManaMax - bot.followMana} users followed today")
-    else:
-        if not new_follower:
-            pass
-            # Uncomment the following line to log information
-            # logg.logSmth(f"########## User {user} NOT added to memory with mark1={mark1} and followed={followed} || F/f/P = {follower_count}/{following_count}/{post_count}")
-        else:
-            pass
-            # Uncomment the following line to log information
-            # logg.logSmth(f"########## User {user} already exists in memory with mark1={mark1} and followed={followed} || F/f/P = {follower_count}/{following_count}/{post_count}")
-    return "OK"
+    """
+    Adds the user to the bot's memory.
+    """
+    bot.memoryManager.addUser(user, mark1=mark1, followed=followed)

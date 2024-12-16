@@ -20,6 +20,17 @@ timeStampFormat = "%m/%d/%Y-%H:%M"
 
 class AndyBot():
     def __init__(self, driver, deviceDict):
+        """
+        Initializes an instance of the class and sets up various parameters and resources that
+        will be used throughout its lifecycle. This includes initializing bot parameters, loading
+        configuration settings, managing memory, handling files, defining time constraints, and
+        preparing target lists.
+
+        :param driver: The driver object that interfaces with the system or platform being automated.
+        :type driver: Any
+        :param deviceDict: A dictionary containing device-specific configurations or parameters.
+        :type deviceDict: dict
+        """
         self.driver = driver
         self.factor = 1
 
@@ -59,6 +70,16 @@ class AndyBot():
         os.system('sudo pmset schedule sleep "09/22/22 20:45:00" ')
 
     def replenishFollowMana(self):
+        """
+        Replenishes the 'followMana' attribute of the bot and updates the bot's parameters
+        with the replenished value. This method ensures that the bot's mana is reset to maximum
+        only if a sufficient time difference has elapsed since the last mana replenishment.
+
+        :raises ValueError: if required precondition for mana update is not met (handled internally).
+        :param self: Represents the current class instance.
+
+        :return: None
+        """
         timeStamp = datetime.now().strftime(timeStampFormat)
         if self.timeDiffForManaReplenishment() > 24:
             self.followMana = self.followManaMax
@@ -136,6 +157,30 @@ class AndyBot():
         return theGame.playTheGame(self, numberOfusersToCheck)
 
     def theList_Service(self, numberOfTags=1, numberOfPostsPerTag=1, randomArgs=True, toLike=True, toFollow=True):
+        """
+        This function generates a service to interact with a list of users based on hashtag
+        pages. It determines the number of tags and posts per tag either randomly or based
+        on provided parameters and then performs follow or collect operations on the
+        usernames retrieved from these hashtag pages.
+
+        :param numberOfTags: The number of hashtags to process. Defaults to 1.
+        :type numberOfTags: int
+        :param numberOfPostsPerTag: The number of posts to process under each hashtag.
+            Defaults to 1.
+        :type numberOfPostsPerTag: int
+        :param randomArgs: Indicates whether the number of tags and posts should be
+            randomly determined based on internal factors. Defaults to True.
+        :type randomArgs: bool
+        :param toLike: A flag indicating whether the posts under hashtags should be
+            liked. Defaults to True.
+        :type toLike: bool
+        :param toFollow: A flag indicating whether the users of posts under hashtags
+            should be followed. Defaults to True.
+        :type toFollow: bool
+        :return: Result of either following or collecting usernames from the
+            processed hashtag pages.
+        :rtype: Any
+        """
         if randomArgs:
             numberOfTags = int(randint(1, 3) * self.factor)
             numberOfPostsPerTag = int(randint(1, 5) * self.factor)
