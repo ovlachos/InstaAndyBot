@@ -10,9 +10,9 @@ import AnyBotLog as logg
 class NavigationRibbons(screen.Screen):
 
     def goHome(self):
-        if bottomHomeButton := self.findElementBy_XPATH(
-            loc.ribbon_XPath['bottomBar_homeButton']
-        ):
+        bottomHomeButton = self.findElementBy_XPATH(loc.ribbon_XPath['bottomBar_homeButton'])
+
+        if bottomHomeButton:
             self.doubleClick(bottomHomeButton)
             self.vSwipeDown()
             self.reactionWait()
@@ -24,21 +24,20 @@ class NavigationRibbons(screen.Screen):
         searchButton_by_Xpath = self.findElementBy_XPATH(loc.ribbon_XPath['bottomBar_Search'])
 
         if searchButton_by_ID:
-            return self._extracted_from_goToSearchPage_6(searchButton_by_ID)
+            self.doubleClick(searchButton_by_ID)
+            self.reactionWait(3)
+
+            return searchPage.SearchPage(self.driver)
+
         elif searchButton_by_Xpath:
-            return self._extracted_from_goToSearchPage_6(searchButton_by_Xpath)
+            self.doubleClick(searchButton_by_Xpath)
+            self.reactionWait(3)
 
-    # TODO Rename this here and in `goToSearchPage`
-    def _extracted_from_goToSearchPage_6(self, arg0):
-        self.doubleClick(arg0)
-        self.reactionWait(3)
-
-        return searchPage.SearchPage(self.driver)
+            return searchPage.SearchPage(self.driver)
 
     def goToOwnProfile(self):
-        if ownProfileButton := self.findElementBy_ID(
-            loc.ribbon_ID['bottomBar_OwnProfile']
-        ):
+        ownProfileButton = self.findElementBy_ID(loc.ribbon_ID['bottomBar_OwnProfile'])
+        if ownProfileButton:
             self.doubleClick(ownProfileButton)
             self.reactionWait(1)
             self.vSwipeDown()
@@ -46,16 +45,17 @@ class NavigationRibbons(screen.Screen):
             return up.UserPage(self.driver)
 
     def goToOwnActivity(self):
-        if ownActivityButton := self.findElementBy_XPATH(
-            loc.ribbon_XPath['activity']
-        ):
+        ownActivityButton = self.findElementBy_XPATH(loc.ribbon_XPath['activity'])
+        if ownActivityButton:
             ownActivityButton.click()
             self.reactionWait(1)
 
     def goBack(self):
-        if backButton := self.findElementBy_ID(loc.ribbon_ID['backButton']):
+        backButton = self.findElementBy_ID(loc.ribbon_ID['backButton'])
+        if backButton:
             backButton.click()
+            # logg.logSmth(f"# Back button clicked?")
+            self.reactionWait()
         else:
             self.driver.back()
-        # logg.logSmth(f"# Back button clicked?")
-        self.reactionWait()
+            self.reactionWait()

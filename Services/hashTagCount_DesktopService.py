@@ -6,7 +6,9 @@ def getTagsCount(bot):
     for tag in bot.targetHashtags_List:
         dPage = bot.webPage
         hPage = dPage.visitHashTagPage(tag)
-        if count := hPage.getPostCount():
-            print(f"Tag: {tag} || Count: {count}")
-        else:
+        count = hPage.getPostCount()
+
+        if not count:
             return
+
+        print(f"Tag: {tag} || Count: {count}")

@@ -6,9 +6,9 @@ def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
     import random
 
     # Start logging with a header
-    logg.logSmth("#" * 40)
-    logg.logSmth(" " * 10 + "*" * 5 + " The List " + "*" * 5 + " " * 10)
-    logg.logSmth("#" * 40)
+    logg.logSmth(f"#" * 40)
+    logg.logSmth(f" " * 10 + "*" * 5 + " The List " + "*" * 5 + " " * 10)
+    logg.logSmth(f"#" * 40)
 
     # L1 criteria function, used for filtering out unwanted users
     def L1_criteria(userStats):
@@ -26,7 +26,10 @@ def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
         else:
             wording = 'Keeping'
 
-        return "Dropping" not in wording
+        if "Dropping" in wording:
+            return False
+        else:
+            return True
 
     def actOnPostingUsers(toLike_, toFollow_):
         """
@@ -40,7 +43,7 @@ def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
         number_of_faults = 0
 
         # Iterate over the number of posts per tag
-        for i in range(numberOfPostsPerTag):
+        for i in range(0, numberOfPostsPerTag):
 
             # Wait for a random time within the range of reaction interval
             # hashPage.reactionWait()
@@ -51,19 +54,25 @@ def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
                 return None
 
             # Open the i-th post on the grid
-            hashPage.grid.openPostByOrder(i + 1)
+            # hashPage.grid.openPostByOrder(i + 1)
+            hashPage.grid.openPostByOrderOfID(i)
 
             # Get the scrollable post area
             scroll_area = hashPage.grid.scrollablePostArea
-            scroll_area.scanScreenForPosts(level=[1, 1, 1, 0])
 
             # Check if there is at least one post on the current screen
-            if not scroll_area or len(scroll_area.posts) < 1:
+            if not scroll_area:
                 # If not, return to the grid and move on to the next post
                 bot.navRibons.goBack()
                 continue
 
             # Get the first post on the current screen
+            scroll_area.scanScreenForPosts(level=[1, 1, 1, 0])
+            if not scroll_area.posts:
+                # If not, return to the grid and move on to the next post
+                bot.navRibons.goBack()
+                continue
+
             post = scroll_area.posts[0]
 
             # Like the post if toLike is True
@@ -76,7 +85,7 @@ def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
 
             # Check if the navigation was successful
             if not user_prof or not user_prof.verifyPageType():
-                logg.logSmth("#### This is not a user profile")
+                logg.logSmth(f"#### This is not a user profile")
                 bot.navRibons.goBack()
                 continue
 
@@ -85,11 +94,13 @@ def followOrCollectUsernamesFromHashtagPages(bot, numberOfTags, numberOfPostsPer
 
             # Check if the bot should follow the user based on L1 criteria
             followed_flag = False
-            if L1_criteria(user_prof.stats) and toFollow_ and bot.followMana > 0 and 'OK' in user_prof.follow():
-                followed_flag = True
-                bot.decrementFolowMana(1)
-                # Mute user's stories and posts
-                user_prof.MuteAll()
+            if L1_criteria(user_prof.stats) and toFollow_ and bot.followMana > 0:
+                # Follow the user
+                if 'OK' in user_prof.follow():
+                    followed_flag = True
+                    bot.decrementFolowMana(1)
+                    # Mute user's stories and posts
+                    user_prof.MuteAll()
 
             # Add the posting user to memory with appropriate flags
             addUserToMemory(bot, user_prof, user=user_prof.userName, mark1=followed_flag, followed=followed_flag)
@@ -162,7 +173,10 @@ def getFirstPostOnScreen(scrollArea):
 
     scrollArea.scanScreenForPosts(level=[1, 1, 0, 0])
 
-    return scrollArea.posts[0] if scrollArea.posts else None
+    if scrollArea.posts:
+        return scrollArea.posts[0]
+
+    return None
 
 
 def addUserToMemory(bot, userPage, user, mark1=False, followed=False):

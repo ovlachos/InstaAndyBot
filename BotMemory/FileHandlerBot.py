@@ -1,10 +1,9 @@
 import json
 import os
 import pickle
-
 import pandas as pd
-
 import AnyBotLog as logg
+
 from BotMemory import BotMemoryFilesFactory as BF
 
 
@@ -72,7 +71,8 @@ class FileHandlerBot:
 
     def CSV_getFrameFromCSVfile(self, filename):
         frame = pd.DataFrame([])
-        if file := self.getFileFromFilename(filename):
+        file = self.getFileFromFilename(filename)
+        if file:
             try:
                 frame = pd.read_csv(file['filepath'], sep=',')
             except Exception as e:
@@ -88,13 +88,15 @@ class FileHandlerBot:
         frame.to_csv(file['filepath'], index=False, encoding='utf-8')
 
     def CSV_removeRowFromCSV(self, filename, row_index):
-        if file := self.getFileFromFilename(filename):
+        file = self.getFileFromFilename(filename)
+        if file:
             oldframe = self.CSV_getFrameFromCSVfile(filename)
             oldframe = oldframe.drop(oldframe.index[row_index])
             oldframe.to_csv(file['filepath'], index=False, encoding='utf-8')
 
     def CSV_addNewRowToCSV(self, filename, row):  # 'row' is a list type
-        if file := self.getFileFromFilename(filename):
+        file = self.getFileFromFilename(filename)
+        if file:
             oldFrame = pd.read_csv(file['filepath'])
 
             if len(file['columns']) == len(row):
@@ -106,14 +108,17 @@ class FileHandlerBot:
                 frame_new.to_csv(file['filepath'], index=False, encoding='utf-8')
 
     def addUserto_the_Love(self, user, kindOfLove):
-        if file := self.getFileFromFilename(kindOfLove):
+
+        file = self.getFileFromFilename(kindOfLove)  # e.g. 'dailyLoveCSV'
+        if file:
             oldFrame = pd.read_csv(file['filepath'])
 
-            if user not in oldFrame[file['columns'][0]].tolist():
+            if not user in oldFrame[file['columns'][0]].tolist():
                 self.CSV_addNewRowToCSV(kindOfLove, [user])
 
     def removeUserfrom_the_Love(self, user, kindOfLove):
-        if file := self.getFileFromFilename(kindOfLove):
+        file = self.getFileFromFilename(kindOfLove)
+        if file:
             oldFrame = pd.read_csv(file['filepath'])
             try:
                 rowIndexOfUser = oldFrame[oldFrame[file['columns'][0]] == user].index.values[0]
@@ -124,7 +129,9 @@ class FileHandlerBot:
     def readSimpleJSONfiles(self, fileName):
 
         memoryfile = None
-        if file := self.getFileFromFilename(fileName):
+        file = self.getFileFromFilename(fileName)
+
+        if file:
             try:
                 with open(file['filepath']) as jUM:
                     memoryfile = json.load(jUM)
@@ -135,13 +142,17 @@ class FileHandlerBot:
 
     def writeSimpleJSONfiles(self, fileName, fileObj):
 
-        if file := self.getFileFromFilename(fileName)['filepath']:
+        file = self.getFileFromFilename(fileName)['filepath']
+
+        if file:
             with open(file, 'w') as jUM:
                 json.dump(fileObj, jUM, sort_keys=True, indent=4)
 
     def readMemoryFile(self, JSONdecoder):  # JSONdecoder is a function that translates JSON to User_M objects
 
-        if file := self.getFileFromFilename('User_Memory'):
+        file = self.getFileFromFilename('User_Memory')
+
+        if file:
             try:
                 with open(file['filepath']) as jUM:
                     memoryfile = json.load(jUM, object_hook=JSONdecoder)
@@ -158,12 +169,16 @@ class FileHandlerBot:
         directory = self.paths['User_Memory']
         all_files = glob.glob(directory + "/*.json")
 
+        memoryfile = []
         memoryfile1 = []
         for file in all_files:
             with open(file) as jUM:
                 memoryfile1.append(json.load(jUM, object_hook=JSONdecoder))
 
-        return [item[0] for item in memoryfile1]
+        for item in memoryfile1:
+            memoryfile.append(item[0])
+
+        return memoryfile
 
     def writeToUserMemory(self, userMemory, JSONencoder, file=None):
         # userMemory is a list of python dictionaries each containing a single user's info
@@ -176,12 +191,16 @@ class FileHandlerBot:
                 json.dump(userMemory, jUM, cls=JSONencoder, sort_keys=True, indent=4)
 
     def pickleUserMemory(self, userMemory):  # TODO: use "with" context manager instead
-        if fileName := self.getFileFromFilename('User_Memory_pickle')['filepath']:
-            with open(fileName, 'wb') as outfile:
-                pickle.dump(userMemory, outfile, fix_imports=True, buffer_callback=None)
+        fileName = self.getFileFromFilename('User_Memory_pickle')['filepath']
+        if fileName:
+            outfile = open(fileName, 'wb')
+            pickle.dump(userMemory, outfile, fix_imports=True, buffer_callback=None)
+            outfile.close()
 
     def unPickleMemory(self):
-        if filename := self.getFileFromFilename('User_Memory_pickle')['filepath']:
-            with open(filename, 'rb') as infile:
-                memoryPickle = pickle.load(infile)
+        filename = self.getFileFromFilename('User_Memory_pickle')['filepath']
+        if filename:
+            infile = open(filename, 'rb')
+            memoryPickle = pickle.load(infile)
+            infile.close()
             return memoryPickle

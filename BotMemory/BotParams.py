@@ -10,7 +10,8 @@ class BotParams:
         self.readBotParams()
 
     def readBotParams(self):
-        if inputFile := self.paramsFileHandler.readSimpleJSONfiles(self.fileName):
+        inputFile = self.paramsFileHandler.readSimpleJSONfiles(self.fileName)
+        if inputFile:
             self.paramsDict = inputFile
 
     def writeBotParams(self):

@@ -28,7 +28,11 @@ devices = [
 def getDeviceName():
     test = subprocess.Popen(["adb", "devices"], stdout=subprocess.PIPE)
     output = str(test.communicate()[0])
-    return output.split('attached\\n')[1].split('\\tdevice')[0]
+    deviceName = output.split('attached\\n')[1].split('\\tdevice')[0]
+
+    # output_size, output_density = getScreenSizeAndDensity()
+    # print(f"Device {deviceName} with {output_size} and {output_density}")
+    return deviceName
 
 
 def getScreenSizeAndDensity():
@@ -44,6 +48,9 @@ def getDevice():
     connectedDevicename = getDeviceName()
     for device in devices:
         name = device.get('name')
+
+        # if name == '08021b480705':  # 'XEDNW18908001798':  # connectedDevicename:
+        #     return device
 
         if connectedDevicename == name:
             return device

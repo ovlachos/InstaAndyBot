@@ -12,9 +12,13 @@ class PostGrid(screen.Screen):
         self.scrollablePostArea = None
 
     def openPostByOrder(self, order):
-        order = max(order, 1)
+        if order < 1:
+            order = 1
         row, col = self.translateOrderToGridCoordinates(order)
         self.openPostByGridCoordinates(row, col)
+
+    def openPostByOrderOfID(self, order):
+        self.openPostByGridID(order)
 
     def translateOrderToGridCoordinates(self, order):
         row = int(order / 3)
@@ -26,18 +30,29 @@ class PostGrid(screen.Screen):
 
         return row, column
 
+    def openPostByGridID(self, order):
+        posts = self.findElementsBy_ID(loc.hashTagPage_ID['postsCommon'])
+        if posts:
+            if len(posts) > order:
+                posts[order].click()
+                self.reactionWait(1.5)
+                self.scrollablePostArea = postScrol.Post_ScrolableArea(self.driver)
+
     def openPostByGridCoordinates(self, row, column):
         # No more than 4 rows are usually displayed
-        row = min(row, self.rowLimit)
-        column = min(column, 3)
+        if row > self.rowLimit:
+            row = self.rowLimit
+        if column > 3:
+            column = 3
+
         postXPATH = loc.page_XPATH['postsGrid']
-        postXPATH = postXPATH.replace("Row 1", f"Row {row}").replace("Column 1", f"Column {column}")
+        postXPATH = postXPATH.replace("ow 1", f"ow {row}").replace("olumn 1", f"olumn {column}")
 
         post = self.findElementBy_XPATH(postXPATH)
 
         if not post:
             postXPATH = loc.page_XPATH['postsGrid']
-            postXPATH = postXPATH.replace("Row 1", f"row {row}").replace("Column 1", f"column {column}")
+            postXPATH = postXPATH.replace("ow 1", f"ow {row}").replace("olumn 1", f"olumn {column}")
 
             post = self.findElementBy_XPATH(postXPATH)
 

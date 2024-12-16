@@ -1,12 +1,13 @@
 import random
+
+import auth
+from selenium.webdriver.common.by import By
+from appium.webdriver.common.touch_action import TouchAction
+import AnyBotLog as logg
+
 from functools import wraps
 from time import sleep
 
-from appium.webdriver.common.touch_action import TouchAction
-from selenium.webdriver.common.by import By
-
-import AnyBotLog as logg
-import auth
 from POM import Locators as loc
 
 myDict = {
@@ -186,14 +187,16 @@ class Screen():
         return self.driver.find_elements(by=By.XPATH, value=XPATH)
 
     def getAndClickElementBy_ID(self, elementLocator):
-        if button := self.findElementBy_ID(elementLocator):
+        button = self.findElementBy_ID(elementLocator)
+        if button:
             button.click()
             self.reactionWait(.5)
             return True
         return False
 
     def getAndClickElementBy_XPATH(self, elementLocator):
-        if button := self.findElementBy_XPATH(elementLocator):
+        button = self.findElementBy_XPATH(elementLocator)
+        if button:
             button.click()
             self.reactionWait(.5)
             return True
@@ -212,7 +215,8 @@ class Screen():
         field.click()
 
         for ch in passage:
-            if keyCode := self.getKeycode(ch):
+            keyCode = self.getKeycode(ch)
+            if keyCode:
                 if '_' in ch:
                     self.driver.press_keycode(keyCode, metastate=193)  # shift + '-'
                     continue
@@ -222,7 +226,10 @@ class Screen():
                 field.send_keys(ch)
 
     def getKeycode(self, key):
-        return myDict.get(key, None)
+
+        keycode = myDict.get(key, None)
+
+        return keycode
 
     def getScrollLengthCoordinates(self, length='medium'):
         startX, endX, startY, endY, hold = 0, 0, 0, 0, 0
@@ -271,7 +278,7 @@ class Screen():
     def getPhotoBounds(self):
         try:
             photo = self.findElementBy_ID(loc.post_ID['pic'])
-        except Exception:
+        except:
             photo = self.findElementBy_ID(loc.post_ID['imageCarousel'])
         finally:
             if not photo:
@@ -296,11 +303,10 @@ class Screen():
 
     def doubleClickCoordinates(self, x, y):
         padding = 0.02
-        if self.screenBoundUpper * (1 + padding) < y < (
-                1 - padding) * self.screenBoundLower:  # add 2% padding on the screen edges
+        if self.screenBoundUpper * (1 + padding) < y < (1 - padding) * self.screenBoundLower:  # add 2% padding on the screen edges
             time_between_clicks = random.randint(50, 110)
 
-            for _ in range(2):
+            for i in range(2):
                 actions = TouchAction(self.driver)
                 actions.tap(x=x, y=y)
                 actions.wait(time_between_clicks)

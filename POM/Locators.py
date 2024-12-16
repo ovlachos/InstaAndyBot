@@ -4,7 +4,8 @@ page_ID = {
 }
 
 page_XPATH = {
-    'postsGrid': "//android.widget.Button[contains(@content-desc, 'Row 1, Column 1')]",
+    'postsGrid': "//android.widget.Button[contains(@content-desc, 'row 1, column 3')]",
+    'a': "//android.widget.Button[@content-desc='Photo by People In Their Environment at row 1, column 3']"
 }
 
 ### HOME PAGE
@@ -26,7 +27,7 @@ ribbon_XPath = {
 ribbon_ID = {
     'backButton': 'com.instagram.android:id/action_bar_button_back',
     'bottomBar_OwnProfile': 'com.instagram.android:id/tab_avatar',
-    'bottomBar_searchPage': 'com.instagram.android:id/search_tab'
+    'bottomBar_searchPage': 'com.instagram.android:id/search_tab',
 }
 
 ### USER PAGE
@@ -68,8 +69,8 @@ searchPage_ID = {
 
 ### HASHTAG PAGE
 hashTagPage_Xpath = {
-    'recent': "//android.widget.TextView[@content-desc='Recent']",
-    'filterButton': "//android.widget.TextView[@content-desc='Recent']",
+    # 'recent': "//android.widget.TextView[@content-desc='Recent']",
+    'recent': "//android.widget.RadioButton[contains(@text,'Recent')]",
     'top': "//android.widget.TextView[@content-desc='Top']",
     'count_desktop_browser': "//*[@class='g47SY ']"
 }
@@ -77,6 +78,7 @@ hashTagPage_Xpath = {
 hashTagPage_ID = {
     'postsCommon': 'com.instagram.android:id/image_button',
     'hashTag': 'com.instagram.android:id/action_bar_title',
+    'filter': 'com.instagram.android:id/filter_text_to_open_bottom_sheet',
 }
 
 ### POST

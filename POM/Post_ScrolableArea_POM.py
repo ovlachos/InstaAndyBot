@@ -1,6 +1,6 @@
 from time import sleep
-
 import AnyBotLog as logg
+
 from POM import Locators as loc
 from POM import Screen_POM as screen
 from POM import UserPage_POM as up
@@ -67,7 +67,8 @@ class Post(screen.Screen):
     def updateComment(self, element):
         if element:
             self.comment = element
-            if firstComment := self.findElementBy_XPATH(loc.post_XPATH['firstComment']):
+            firstComment = self.findElementBy_XPATH(loc.post_XPATH['firstComment'])
+            if firstComment:
                 self.possiblepostingUser = firstComment.tag_name
 
     def updatePostingUser(self):
@@ -95,10 +96,11 @@ class Post(screen.Screen):
         """
         if self.canLike:
             try:
-                if self.likeButton and 'ed' not in self.likeButton.tag_name:
-                    self.likeButton.click()
-                    self.reactionWait(1)
-                    return True
+                if self.likeButton:
+                    if 'ed' not in self.likeButton.tag_name:
+                        self.likeButton.click()
+                        self.reactionWait(1)
+                        return True
 
                 if self.pic:
                     self.doubleClickOnPic()
@@ -132,12 +134,13 @@ class Post(screen.Screen):
                 self.reactionWait(2)
                 self.driver.back()
                 return True
-            except Exception:
+            except:
                 return False
 
     def getFirstCommentText(self):
         if self.expandComments():
-            if expandedfirstComment := self.findElementBy_ID(loc.post_ID['commentExpanded']):
+            expandedfirstComment = self.findElementBy_ID(loc.post_ID['commentExpanded'])
+            if expandedfirstComment:
                 self.firstComment_txt = expandedfirstComment.text
 
             self.driver.back()
@@ -150,7 +153,8 @@ class Post(screen.Screen):
             return up.UserPage(self.driver)
 
     def goBackFromVideo(self):
-        if backButton := self.findElementBy_ID(loc.post_ID['backButton']):
+        backButton = self.findElementBy_ID(loc.post_ID['backButton'])
+        if backButton:
             backButton.click()
 
 
@@ -166,23 +170,25 @@ class Post_ScrolableArea(screen.Screen):
         # let us look for pics first and if we get zero, then we look for caroussels as well
         # This way we only pay the 10sec penalty only when there are 0 pics and at least one carousel
 
-        pics = self.findElementsBy_ID(loc.post_ID['pic']) or []
+        pics = self.findElementsBy_ID(loc.post_ID['pic'])
+        if not pics:
+            pics = []
 
         total = pics
 
         if len(pics) < 1:
-            carousels = self.findElementsBy_ID(loc.post_ID['imageCarousel']) or []
+            carousels = self.findElementsBy_ID(loc.post_ID['imageCarousel'])
+            if not carousels:
+                carousels = []
             total = pics + carousels
 
         return total
 
-    def scanScreenForPosts(self, level=None):
+    def scanScreenForPosts(self, level=[1, 1, 1, 1]):
         """In summary, the code scans the screen for different types of elements in a post,
         including headers, pictures, like buttons, and comments, and constructs a list of all elements found.
         It then sorts these elements by their y-coordinate and reconstructs the posts from the sorted list.
         The method takes an optional level parameter that determines which types of elements to scan for."""
-        if level is None:
-            level = [1, 1, 1, 1]
         # Clear all previous elements to start fresh
         self.allElements.clear()
         if self.posts:
@@ -248,13 +254,15 @@ class Post_ScrolableArea(screen.Screen):
         bucket = []
 
         for elementPack in self.allElements:
-            bucket.append(elementPack)
-            if 'comment' in elementPack[1]:
+            if 'comment' not in elementPack[1]:
+                bucket.append(elementPack)
+            else:
+                bucket.append(elementPack)
                 newPost = Post(self.driver, bucket)
                 postList.append(newPost)
                 bucket.clear()
 
-        if bucket:
+        if len(bucket) > 0:
             newPost = Post(self.driver, bucket)
             postList.append(newPost)
             bucket.clear()

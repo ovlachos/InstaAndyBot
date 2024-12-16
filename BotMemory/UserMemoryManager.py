@@ -102,10 +102,12 @@ class UserMemoryManager:
         return self.listOfUserMemory
 
     def getDailyLoveList(self):
-        return [x for x in self.listOfUserMemory if x.thisUserDeservesDailyLove()]
+        daily = [x for x in self.listOfUserMemory if x.thisUserDeservesDailyLove()]
+        return daily
 
     def getExtraLoveList(self):
-        return [x for x in self.listOfUserMemory if x.thisUserDeservesExtraLove()]
+        extra = [x for x in self.listOfUserMemory if x.thisUserDeservesExtraLove()]
+        return extra
 
     def getListOfSponsorHandles(self):
         sponsorHandles = [x.getSponsor() for x in self.listOfUserMemory]
@@ -114,7 +116,8 @@ class UserMemoryManager:
 
     def getListOfSponsors(self):
         sponsorHandles = self.getListOfSponsorHandles()
-        return [x for x in self.listOfUserMemory if x.handle in sponsorHandles]
+        sponsors = [x for x in self.listOfUserMemory if x.handle in sponsorHandles]
+        return sponsors
 
     def getListOfMarkedUsers(self, number=0):  # 0->L0, 1->L1, 2->L2
         markedUsers = []
@@ -122,17 +125,18 @@ class UserMemoryManager:
         if number == 0:
             markedUsers = [x for x in self.listOfUserMemory if x._markL0]
 
-        elif number == 1:
+        if number == 1:
             markedUsers = [x for x in self.listOfUserMemory if x._markL1]
 
-        elif number == 2:
+        if number == 2:
             markedUsers = [x for x in self.listOfUserMemory if x._markL2]
 
         return markedUsers
 
     def getListOfAllUserHandles(self):
         users = [x.handle for x in self.listOfUserMemory]
-        return list(dict.fromkeys(users))
+        users = list(dict.fromkeys(users))
+        return users
 
     def filterByListOfHandles(self, listOfHandles):
         return [x for x in self.listOfUserMemory if x.handle in listOfHandles]
@@ -183,7 +187,8 @@ class UserMemoryManager:
     def getListOfRejectedUserHandles(self):
         rejected_in_memory = [x.handle for x in self.listOfUserMemory if x.thisUserHasBeenRejected()]
         rejected_on_file_unique = [x for x in self.rejected_Users if x not in rejected_in_memory]
-        return rejected_in_memory + rejected_on_file_unique
+        rejected = rejected_in_memory + rejected_on_file_unique
+        return rejected
 
     def slimDownRejectedMemoryRecords(
             self):  # this is not the right way. Users I've added to the love are flagged as rejected
@@ -212,21 +217,23 @@ class UserMemoryManager:
 
         listToReturn = []
         for handle in newGameParticipants:
-            if user := self.retrieveUserFromMemory(handle):
+            user = self.retrieveUserFromMemory(handle)
+            if user:
                 if not user.thisUserHasBeenThroughTheSystem():
-                    self._extracted_from_manuallyAddNewUsersTo_theGame_12(user, listToReturn)
+                    user.addToL0(auth.username)
+                    user.addToL2()
+                    self.updateUserRecord(user)
+                    listToReturn.append(user)
             else:
                 self.addUserToMemory(handle)
-                if user := self.retrieveUserFromMemory(handle):
-                    self._extracted_from_manuallyAddNewUsersTo_theGame_12(user, listToReturn)
-        return listToReturn
+                user = self.retrieveUserFromMemory(handle)
+                if user:
+                    user.addToL0(auth.username)
+                    user.addToL2()
+                    self.updateUserRecord(user)
+                    listToReturn.append(user)
 
-    # TODO Rename this here and in `manuallyAddNewUsersTo_theGame`
-    def _extracted_from_manuallyAddNewUsersTo_theGame_12(self, user, listToReturn):
-        user.addToL0(auth.username)
-        user.addToL2()
-        self.updateUserRecord(user)
-        listToReturn.append(user)
+        return listToReturn
 
     def redistributeExtraLove(self):
         memoryLoves = [x.handle for x in self.getExtraLoveList()]  # list of handles
@@ -236,18 +243,22 @@ class UserMemoryManager:
         # Remove dropped users
         droppedLoves = [x for x in memoryLoves if x not in driveLoves]  # list of handles
         for droppedLove in droppedLoves:
-            if user := self.retrieveUserFromMemory(droppedLove):
+            user = self.retrieveUserFromMemory(droppedLove)
+            if user:
                 user.removeFromLoveExtra()
 
         # Add new loves
         newDriveLoves = [x for x in driveLoves if x not in memoryLoves]  # list of handles
         for newLove in newDriveLoves:
             user = self.retrieveUserFromMemory(newLove)
-            if not user:
+            if user:
+                user.addToLoveExtra()
+            else:
                 self.addUserToMemory(
                     newLove)  # this routine adds to both the memory object and writes the whole thing on the drive
                 user = self.retrieveUserFromMemory(newLove)
-            user.addToLoveExtra()
+                user.addToLoveExtra()
+
         # Record current situation
         memoryLoves = [x.handle for x in self.getExtraLoveList()]  # list of handles
         currentLovesDict = {'theLoveExtra': memoryLoves}
@@ -256,14 +267,27 @@ class UserMemoryManager:
 
     ### User level
     def userExistsInMemory(self, handle):
-        return any(u.handle == handle for u in self.listOfUserMemory)
+        flag = False
+        for u in self.listOfUserMemory:
+            if u.handle == handle:
+                flag = True
+                break
+
+        return flag
 
     def userHasBeenRejected(self, handle):
-        return any(u == handle for u in self.rejected_Users)
+        flag = False
+        for u in self.rejected_Users:
+            if u == handle:
+                flag = True
+                break
+
+        return flag
 
     def retrieveUserFromMemory(self, handle):
         if self.userExistsInMemory(handle):
-            return [x for x in self.listOfUserMemory if x.handle == handle][0]
+            userObj = [x for x in self.listOfUserMemory if x.handle == handle][0]
+            return userObj
         else:
             return None
 
@@ -307,8 +331,10 @@ class UserMemoryManager:
 
             # add new
             self.listOfUserMemory.append(userObj)
-        elif not self.userHasBeenRejected(userObj.handle):
-            self.listOfUserMemory.append(userObj)
+        else:
+            # add new
+            if not self.userHasBeenRejected(userObj.handle):
+                self.listOfUserMemory.append(userObj)
 
         if writeNow:
             self.pickleMemoryFileToDrive()
