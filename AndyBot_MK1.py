@@ -19,18 +19,36 @@ timeStampFormat = "%m/%d/%Y-%H:%M"
 # TODO How to guarantee that every step of the way, navigating on the app is successful and I am not stuck on a previous/next page
 
 class AndyBot():
-    def __init__(self, driver, deviceDict):
-        """
-        Initializes an instance of the class and sets up various parameters and resources that
-        will be used throughout its lifecycle. This includes initializing bot parameters, loading
-        configuration settings, managing memory, handling files, defining time constraints, and
-        preparing target lists.
+    """
+    Represents an automated bot used for various tasks in a social media interaction context.
 
-        :param driver: The driver object that interfaces with the system or platform being automated.
-        :type driver: Any
-        :param deviceDict: A dictionary containing device-specific configurations or parameters.
-        :type deviceDict: dict
-        """
+    AndyBot performs tasks such as managing follow actions, interacting with hashtags,
+    scheduling bot activities, and gathering statistics with the objective of automating
+    a variety of operations. It integrates with different components like a memory
+    manager, file handler, and navigation ribbons to provide streamlined bot functionalities.
+
+    Attributes:
+        driver: The driver responsible for controlling the bot's browser interactions.
+        deviceDict: A dictionary containing device-specific configurations.
+        factor: A scaling factor used in various calculations, defaults to 1.
+        fileHandler: An instance of FileHandlerBot to manage file-related operations.
+        memoryManager: An instance of UserMemoryManager for handling user-specific memory.
+        botParams: An instance of BotParams to manage various bot configurations and parameters.
+        ownFollowers: Number of followers the bot's account has, defaults to 3500.
+        paramsTimeStamp: Timestamp indicating the last update for bot parameters.
+        timeUpperBound: Maximum delay in seconds for calculations, defaults to 48.
+        timeLowerBound: Minimum delay in seconds for calculations, defaults to 34.
+        timeLimitSinceLastLoved: Time limit in days since the last "loved" action, defaults to 30.
+        followMana: Current mana available for follow actions, defaults to 50.
+        followManaMax: Maximum mana available for follow actions, defaults to 100.
+        daysBeforeIunFollow: Number of days before the bot unfollows a user, defaults to 19.
+        daysBeforeIunLove: Number of days before the bot unloves, defaults to 5.
+        targetHashtags_frame: Frame containing hashtags to target, loaded from file.
+        targetHashtags_List: List of hashtags derived from the targetHashtags_frame.
+        words_frame: Frame containing words to look for in bios, loaded from file.
+        words: List of words derived from the words_frame.
+    """
+    def __init__(self, driver, deviceDict):
         self.driver = driver
         self.factor = 1
 
@@ -70,16 +88,6 @@ class AndyBot():
         os.system('sudo pmset schedule sleep "09/22/22 20:45:00" ')
 
     def replenishFollowMana(self):
-        """
-        Replenishes the 'followMana' attribute of the bot and updates the bot's parameters
-        with the replenished value. This method ensures that the bot's mana is reset to maximum
-        only if a sufficient time difference has elapsed since the last mana replenishment.
-
-        :raises ValueError: if required precondition for mana update is not met (handled internally).
-        :param self: Represents the current class instance.
-
-        :return: None
-        """
         timeStamp = datetime.now().strftime(timeStampFormat)
         if self.timeDiffForManaReplenishment() > 24:
             self.followMana = self.followManaMax
@@ -157,30 +165,6 @@ class AndyBot():
         return theGame.playTheGame(self, numberOfusersToCheck)
 
     def theList_Service(self, numberOfTags=1, numberOfPostsPerTag=1, randomArgs=True, toLike=True, toFollow=True):
-        """
-        This function generates a service to interact with a list of users based on hashtag
-        pages. It determines the number of tags and posts per tag either randomly or based
-        on provided parameters and then performs follow or collect operations on the
-        usernames retrieved from these hashtag pages.
-
-        :param numberOfTags: The number of hashtags to process. Defaults to 1.
-        :type numberOfTags: int
-        :param numberOfPostsPerTag: The number of posts to process under each hashtag.
-            Defaults to 1.
-        :type numberOfPostsPerTag: int
-        :param randomArgs: Indicates whether the number of tags and posts should be
-            randomly determined based on internal factors. Defaults to True.
-        :type randomArgs: bool
-        :param toLike: A flag indicating whether the posts under hashtags should be
-            liked. Defaults to True.
-        :type toLike: bool
-        :param toFollow: A flag indicating whether the users of posts under hashtags
-            should be followed. Defaults to True.
-        :type toFollow: bool
-        :return: Result of either following or collecting usernames from the
-            processed hashtag pages.
-        :rtype: Any
-        """
         if randomArgs:
             numberOfTags = int(randint(1, 3) * self.factor)
             numberOfPostsPerTag = int(randint(1, 5) * self.factor)

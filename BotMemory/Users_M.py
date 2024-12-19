@@ -61,6 +61,33 @@ class UserEncoderDecoder(json.JSONEncoder):
 
 # This is the User_M class, which represents a user on a social media platform
 class User_M:
+    """
+    Represents a User with various attributes and operations on user data.
+
+    The User_M class encapsulates user information and operations related to that user. It includes user
+    identification, optional bio information, and attributes for managing user interactions like following,
+    unfollowing, and custom markers. The class allows updating user attributes from different data sources
+    and handles comparison between historical and live data. It is designed for managing and analyzing user
+    data over time with capabilities to track historical actions and states.
+
+    Attributes:
+        handle (str): The handle/username of the user.
+        uid (str): A unique identifier for the user.
+        altName (str): An alternate name or additional name associated with the user.
+        dateFollowed_byMe (Optional[str]): Date when the user was followed.
+        dateUnFollowed_byMe (Optional[str]): Date when the user was unfollowed.
+        _markL0 (bool): Indicates if this user needs investigation for L1.
+        _markL1 (bool): Indicates if the user qualifies for L1 analysis.
+        _markL2 (bool): Indicates if the user qualifies for analysis based on hashtags or specific topics.
+        _rejected (bool): Indicates if the profile cannot be found.
+
+    Methods:
+        __init__(handle: str): Initializes a new User_M object with default or given handle.
+        populate_overwrite(dictio: dict): Updates the user attributes based on a given dictionary. Overwrites existing values.
+        updateInfoFromLivePage_Landing(userPagePOM): Updates user attributes based on live page content.
+        updateTimelastLoved(): Updates the timestamp for the last time the user was "loved".
+        updateHandle(handleNew: str): Updates the user's handle, optionally maintaining a history of past handles.
+    """
     # Constructor method for creating a new User_M object
     def __init__(self, handle):
         self.handle = handle

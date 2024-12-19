@@ -7,6 +7,71 @@ from BotMemory import Users_M as UM
 
 
 class UserMemoryManager:
+    """
+    Manages user memory data within the application.
+
+    The UserMemoryManager class is responsible for handling storage, retrieval,
+    and management of user memory data. It integrates file operations, serialization,
+    and filtering functionalities related to the user memory. The class ensures efficient
+    management of memory records, including rejected users and lists for specific
+    user actions such as unloving, unfollowing, or following users based on specific criteria.
+
+    Attributes:
+        memoryFileHandler: An instance of a file handler object for reading and
+                           writing user memory data to various formats.
+        listOfUserMemory: A list that stores user memory objects.
+        rejected_Users: A list that tracks rejected user data.
+
+    Methods:
+        writeMemoryFileToDrive:
+            Writes user memory data to the drive in JSON format after slimming down records.
+        pickleMemoryFileToDrive:
+            Serializes and stores user memory data as a pickle file.
+        writeToIndividualUserMemory:
+            Writes memory data for a single user to a dedicated JSON file.
+        readStoredMemoryFile:
+            Determines the source of the memory file and reads it.
+        readMemoryFileFromDrivePickle:
+            Reads and deserializes user memory from a pickle file.
+        readMemoryFileFromDriveJSON:
+            Reads and deserializes user memory from a JSON file.
+        readMemoryFilesFromDrive:
+            Reads multiple memory files and aggregates data using a JSON decoder.
+        readRejected_Users:
+            Reads and processes a list of rejected users from a CSV file.
+        writeRejected_Users:
+            Writes the current list of rejected users to a CSV file.
+        getMemoryFile:
+            Returns the current list of user memory objects.
+        getDailyLoveList:
+            Retrieves a list of users eligible for daily love actions.
+        getExtraLoveList:
+            Retrieves a list of users eligible for extra love actions.
+        getListOfSponsorHandles:
+            Retrieves a list of unique sponsor handles from user memory.
+        getListOfSponsors:
+            Retrieves a list of sponsors based on sponsor handles.
+        getListOfMarkedUsers:
+            Retrieves a list of marked users based on marking level (L0, L1, L2).
+        getListOfAllUserHandles:
+            Returns a list of all unique user handles in memory.
+        filterByListOfHandles:
+            Filters and retrieves users based on provided handles.
+        getListOfUsersToUnLove:
+            Retrieves a list of users to unlove based on the number of days before unloved action.
+        getListOfReserveUsersToFollow:
+            Retrieves a list of reserve users suitable for follow actions.
+        getListOfUsersToUnFollow:
+            Retrieves a list of users to unfollow based on specified criteria.
+        getListOfUsersToPurgeByDate:
+            Retrieves a list of users suitable for purging based on follow/unfollow dates.
+        getListOfUsersAlreadyFollowedOnly:
+            Retrieves a list of users already followed but not unfollowed.
+        getListOfUsersAlreadyFollowed:
+            Retrieves a list of all users who have been followed.
+        getListOfRejectedUserHandles:
+            Provides a list of handles belonging to rejected users.
+    """
     def __init__(self):
         self.memoryFileHandler = fh.FileHandlerBot()
         self.listOfUserMemory = []
@@ -15,6 +80,33 @@ class UserMemoryManager:
     ### Memory level
     def writeMemoryFileToDrive(
             self):  # TODO: Re-think when this method is called and if it should always be done explicitly outside this object
+        """
+        Writes the user memory file to the drive if certain conditions are met.
+
+        This method checks the length of the `listOfUserMemory` and performs an
+        operation to slim down rejected memory records before writing the remaining
+        memory data to the drive. It tracks and records the execution time for the
+        entire operation.
+
+        Attributes
+        ----------
+        self.listOfUserMemory : list
+            Stores user memory data in a list.
+        self.memoryFileHandler : MemoryFileHandler
+            Responsible for handling file operations related to user memory.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        None
+        """
         startTime = time.time()
 
         if len(self.listOfUserMemory) > 3:
@@ -209,6 +301,23 @@ class UserMemoryManager:
             self.removeUserFromRecord(user)
 
     def manuallyAddNewUsersTo_theGame(self):
+        """
+        Adds new users to the game manually.
+
+        This method processes a list of user handles obtained from a CSV file and
+        manages their inclusion into the game's system. It identifies which users
+        are eligible to be added to the game based on existing marked users and
+        rejected users. If a user meets the criteria, they are added to specified
+        levels in the game structure, and their user record is updated. If the
+        user does not yet exist in memory, they are first added to memory before
+        being processed. The list of successfully added users is returned.
+
+        Parameters:
+            self: Method bound to the class instance.
+
+        Returns:
+            list: A list of user objects that were successfully added to the game.
+        """
         fileOfGameParticipants = self.memoryFileHandler.CSV_getFrameFromCSVfile('addUserTotheGameCSV')[
             'userToAdd'].tolist()  # list of handles
         l0 = [x.handle for x in self.getListOfMarkedUsers(0)]
@@ -236,6 +345,38 @@ class UserMemoryManager:
         return listToReturn
 
     def redistributeExtraLove(self):
+        """
+        Redistributes the "extra love" status between memory and external storage.
+
+        This method ensures synchronization between in-memory user data and the corresponding
+        data stored in an external file. Users who no longer appear in the external storage
+        are removed from "extra love" in memory. Users newly added to the external storage
+        are similarly updated in memory, and new users are added to memory as needed.
+        Finally, the current in-memory state is saved back to the external storage.
+
+        Attributes:
+            memoryLoves: A list of user handles who are currently marked with "extra love"
+                        status in memory data.
+            driveLoves: A list of user handles retrieved from the external storage file
+                       (`extraLoveCSV`) representing the saved "extra love" users.
+            droppedLoves: A list of user handles no longer present in the external storage but
+                         still in memory, representing users to be removed from "extra love".
+            newDriveLoves: A list of user handles present in the external storage but not in
+                          memory, representing new users to be added to "extra love".
+            currentLovesDict: A dictionary structure used to represent the current "extra love"
+                             status by user handle before saving back to external storage.
+            love_frame: A DataFrame representation of currentLovesDict to facilitate storage
+                       synchronization with the external file.
+
+        Raises:
+            Not described.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         memoryLoves = [x.handle for x in self.getExtraLoveList()]  # list of handles
         driveLoves = self.memoryFileHandler.CSV_getFrameFromCSVfile('extraLoveCSV')[
             'theLoveExtra'].tolist()  # list of handles
@@ -324,6 +465,22 @@ class UserMemoryManager:
             del self.listOfUserMemory[self.listOfUserMemory.index(oldUserObj)]
 
     def updateUserRecord(self, userObj, writeNow=True):
+        """
+        Updates the user record in memory and optionally writes it to the drive.
+
+        This method checks if a user exists in memory and updates the record by removing
+        the old entry and adding the updated one. For new users, it adds the user to
+        memory unless the user has been previously rejected. Optionally, the updated
+        memory is written to the drive.
+
+        Parameters:
+            userObj (User): The user object to be updated or added in memory.
+            writeNow (bool, optional): Flag indicating whether to immediately write
+            the changes to the drive. Defaults to True.
+
+        Returns:
+            None
+        """
         if self.userExistsInMemory(userObj.handle):
 
             # remove old

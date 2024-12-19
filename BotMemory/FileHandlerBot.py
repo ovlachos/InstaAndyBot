@@ -18,6 +18,24 @@ def initializeFolder(targetPath):
 
 
 class MemoryFile():
+    """
+    Represents a file in memory with specific attributes.
+
+    This class is designed to store and manage basic file information including the
+    file name, file path, extension, and column structure. Additionally, it provides
+    functionality to initialize the file with the help of an external creator
+    object that supplies details about the file.
+
+    Attributes:
+    fileName (str): The name of the file.
+    filepath (str): The path where the file is located.
+    extension (str): The type or format of the file extension.
+    columns (list): A list of column names or specifications associated with the file.
+
+    Methods:
+    initialize(creator): Uses the provided creator object to retrieve and set
+    details about the file.
+    """
     def __init__(self, fileName, filepath, extension, columns):
         self.fileName = fileName
         self.filepath = filepath
@@ -29,6 +47,53 @@ class MemoryFile():
 
 
 class FileHandlerBot:
+    """
+    The FileHandlerBot class provides functionality for managing files and directories configured in JSON files.
+    It includes methods to read and write JSON configurations, manage CSV files, handle operations like adding
+    or removing rows, and support user memory serialization via JSON or pickle formats. The class ensures the
+    existence of directories and files during initialization and provides utility methods for data manipulation.
+
+    Attributes:
+        thisFile (str): Directory path of the current file.
+        py_files (str): Path to the directory one level above the file's directory.
+        projectFolder (str): Path to the root project folder.
+
+    Methods:
+        __init__():
+            Initializes the FileHandlerBot instance by validating and setting up directories and files.
+        getConfig_JSON_paths(kindOfJSON: str) -> dict:
+            Reads and returns configuration details from JSON files.
+        getFileFromFilename(filename: str) -> Optional[dict]:
+            Retrieves configuration details for a specific file by its name.
+        CSV_getFrameFromCSVfile(filename: str) -> pd.DataFrame:
+            Reads and returns the content of a CSV file as a pandas DataFrame.
+        listToFrame(inputList: list) -> pd.DataFrame:
+            Converts a list into a pandas DataFrame.
+        CSV_saveFrametoCSVfile(filename: str, frame: pd.DataFrame):
+            Saves a pandas DataFrame to a CSV file.
+        CSV_removeRowFromCSV(filename: str, row_index: int):
+            Removes a specific row from a CSV file by index.
+        CSV_addNewRowToCSV(filename: str, row: list):
+            Adds a new row to the specified CSV file.
+        addUserto_the_Love(user: str, kindOfLove: str):
+            Adds a user to a specified "love" CSV file, ensuring no duplicates.
+        removeUserfrom_the_Love(user: str, kindOfLove: str):
+            Removes a user from a specified "love" CSV file.
+        readSimpleJSONfiles(fileName: str) -> Optional[dict]:
+            Reads and returns the contents of a simple JSON file.
+        writeSimpleJSONfiles(fileName: str, fileObj: dict):
+            Writes an object to a specified JSON file.
+        readMemoryFile(JSONdecoder: Callable) -> list:
+            Reads a user memory file and decodes it using the provided JSON decoder function.
+        readMemoryFiles(JSONdecoder: Callable) -> list:
+            Reads all user memory JSON files in a directory and decodes them.
+        writeToUserMemory(userMemory: list, JSONencoder: Callable, file: Optional[str] = None):
+            Writes a list of user memory information to a JSON file using a JSON encoder.
+        pickleUserMemory(userMemory: any):
+            Serializes and saves user memory to a pickle file.
+        unPickleMemory() -> any:
+            Reads and deserializes user memory from a pickle file.
+    """
     # Main Directories
     thisFile = os.path.dirname(__file__)
     py_files = os.path.join(thisFile, '../')
